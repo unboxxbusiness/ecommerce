@@ -28,8 +28,12 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     try {
-      await login(email, password);
-      router.push('/account');
+      const userCredential = await login(email, password);
+      if (userCredential.user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+         router.push('/admin/dashboard');
+      } else {
+         router.push('/account');
+      }
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error(err);
