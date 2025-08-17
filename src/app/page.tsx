@@ -31,7 +31,7 @@ export default function HomePage() {
   const [sortBy, setSortBy] = React.useState('rating');
 
   React.useEffect(() => {
-    let newFilteredProducts = products;
+    let newFilteredProducts = [...products];
 
     if (searchQuery) {
       newFilteredProducts = newFilteredProducts.filter((product) =>
@@ -134,15 +134,17 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product) => (
                 <Card key={product.id} className="overflow-hidden">
-                  <Link href="#">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      width={400}
-                      height={400}
-                      className="aspect-square w-full object-cover"
-                      data-ai-hint="product photo"
-                    />
+                  <Link href={`/products/${product.id}`} className="group block">
+                    <div className="overflow-hidden">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={400}
+                        height={400}
+                        className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint="product photo"
+                      />
+                    </div>
                     <CardContent className="p-4">
                       <h3 className="text-lg font-semibold">{product.name}</h3>
                       <div className="flex items-center justify-between">
@@ -156,9 +158,11 @@ export default function HomePage() {
                           </span>
                         </div>
                       </div>
-                      <Button className="mt-4 w-full" variant="outline">
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        Add to Cart
+                      <Button className="mt-4 w-full" variant="outline" asChild>
+                        <span className="flex items-center">
+                           <ShoppingCart className="mr-2 h-4 w-4" />
+                           Add to Cart
+                        </span>
                       </Button>
                     </CardContent>
                   </Link>
