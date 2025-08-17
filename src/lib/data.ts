@@ -8,6 +8,9 @@ export const products: Product[] = [
     price: 25.0,
     stock: 42,
     image: 'https://placehold.co/400x400.png',
+    category: 'Kitchen',
+    rating: 4.8,
+    popularity: 85,
     variants: [{ type: 'Color', options: ['Seafoam Green', 'Terracotta', 'Midnight Blue'] }],
   },
   {
@@ -17,6 +20,9 @@ export const products: Product[] = [
     price: 18.5,
     stock: 150,
     image: 'https://placehold.co/400x400.png',
+    category: 'Apparel',
+    rating: 4.5,
+    popularity: 95,
     variants: [{ type: 'Design', options: ['Leaf Print', 'Geometric', 'Solid Natural'] }],
   },
   {
@@ -26,6 +32,9 @@ export const products: Product[] = [
     price: 32.0,
     stock: 78,
     image: 'https://placehold.co/400x400.png',
+    category: 'Home Goods',
+    rating: 4.9,
+    popularity: 92,
     variants: [{ type: 'Scent', options: ['Lavender & Sage', 'Sandalwood & Vanilla', 'Citrus & Basil'] }],
   },
   {
@@ -35,6 +44,9 @@ export const products: Product[] = [
     price: 22.0,
     stock: 30,
     image: 'https://placehold.co/400x400.png',
+    category: 'Stationery',
+    rating: 4.7,
+    popularity: 70,
     variants: [],
   },
   {
@@ -44,6 +56,9 @@ export const products: Product[] = [
     price: 15.0,
     stock: 200,
     image: 'https://placehold.co/400x400.png',
+    category: 'Kitchen',
+    rating: 4.6,
+    popularity: 88,
     variants: [{ type: 'Pattern', options: ['Honeycomb', 'Floral', 'Botanical'] }],
   },
 ];

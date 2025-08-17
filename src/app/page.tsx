@@ -1,12 +1,61 @@
 
+'use client';
+
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { products } from '@/lib/data';
-import { Gem, ShoppingCart } from 'lucide-react';
+import type { Product } from '@/lib/types';
+import { Gem, ShoppingCart, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const categories = [
+  'All',
+  ...Array.from(new Set(products.map((p) => p.category))),
+];
 
 export default function HomePage() {
+  const [filteredProducts, setFilteredProducts] =
+    React.useState<Product[]>(products);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [sortBy, setSortBy] = React.useState('rating');
+
+  React.useEffect(() => {
+    let newFilteredProducts = products;
+
+    if (searchQuery) {
+      newFilteredProducts = newFilteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedCategory !== 'All') {
+      newFilteredProducts = newFilteredProducts.filter(
+        (product) => product.category === selectedCategory
+      );
+    }
+
+    if (sortBy === 'price-asc') {
+      newFilteredProducts.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      newFilteredProducts.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'rating') {
+      newFilteredProducts.sort((a, b) => b.rating - a.rating);
+    }
+
+    setFilteredProducts(newFilteredProducts);
+  }, [searchQuery, selectedCategory, sortBy]);
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
@@ -38,18 +87,52 @@ export default function HomePage() {
               Discover Our Unique Collection
             </h1>
             <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Handcrafted goods, sustainable products, and timeless designs for your modern lifestyle.
+              Handcrafted goods, sustainable products, and timeless designs for
+              your modern lifestyle.
             </p>
-            <Button size="lg" className="mt-6">
-              Shop Now
-            </Button>
           </div>
         </section>
         <section className="py-12 md:py-24">
           <div className="container px-4 md:px-6">
-            <h2 className="mb-8 text-center text-3xl font-bold">Featured Products</h2>
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
+              <div className="relative flex-1">
+                <Input
+                  placeholder="Search products..."
+                  className="w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-4">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rating">Rating</SelectItem>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <Card key={product.id} className="overflow-hidden">
                   <Link href="#">
                     <Image
@@ -62,9 +145,17 @@ export default function HomePage() {
                     />
                     <CardContent className="p-4">
                       <h3 className="text-lg font-semibold">{product.name}</h3>
-                      <p className="text-muted-foreground">
-                        ${product.price.toFixed(2)}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-muted-foreground">
+                          ${product.price.toFixed(2)}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-primary text-primary" />
+                          <span className="text-sm text-muted-foreground">
+                            {product.rating.toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
                       <Button className="mt-4 w-full" variant="outline">
                         <ShoppingCart className="mr-2 h-4 w-4" />
                         Add to Cart
@@ -74,6 +165,12 @@ export default function HomePage() {
                 </Card>
               ))}
             </div>
+             {filteredProducts.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <h3 className="text-2xl font-bold">No Products Found</h3>
+                <p className="text-muted-foreground">Try adjusting your search or filters.</p>
+              </div>
+            )}
           </div>
         </section>
       </main>
