@@ -36,7 +36,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
       <div className="grid gap-8 md:grid-cols-2">
         <div>
           <Image
-            src={product.image}
+            src={product.image || 'https://placehold.co/600x600.png'}
             alt={product.name}
             width={600}
             height={600}
@@ -51,10 +51,10 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <StarRating rating={product.rating} />
+              <StarRating rating={product.rating || 0} />
             </div>
             <span className="text-sm text-muted-foreground">
-              ({product.reviews.length} reviews)
+              ({product.reviews?.length || 0} reviews)
             </span>
           </div>
 
@@ -69,7 +69,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             )}
           </div>
 
-          {product.variants.length > 0 && (
+          {product.variants && product.variants.length > 0 && (
             <div className="grid gap-2">
                 <label className="text-sm font-medium">{product.variants[0].type}</label>
                  <Select defaultValue={product.variants[0].options[0]}>
@@ -105,7 +105,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             <CardTitle>Customer Reviews</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {product.reviews.length > 0 ? (
+            {product.reviews && product.reviews.length > 0 ? (
               product.reviews.map((review) => (
                 <div key={review.id} className="flex gap-4">
                   <Avatar>
@@ -115,7 +115,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <p className="font-semibold">{review.author}</p>
-                      <span className="text-xs text-muted-foreground">{review.date}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</span>
                     </div>
                     <div className="mt-1 flex items-center gap-1">
                       <StarRating rating={review.rating} />

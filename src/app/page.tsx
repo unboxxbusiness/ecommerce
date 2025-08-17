@@ -4,7 +4,6 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
 import { Gem, ShoppingCart, Star } from 'lucide-react';
 import Image from 'next/image';
@@ -21,31 +20,48 @@ import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-
-const categories = [
-  'All',
-  ...Array.from(new Set(products.map((p) => p.category))),
-];
+import { getProducts } from '@/lib/firestore';
 
 export default function HomePage() {
-  const [filteredProducts, setFilteredProducts] =
-    React.useState<Product[]>(products);
+  const [allProducts, setAllProducts] = React.useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [sortBy, setSortBy] = React.useState('rating');
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   
   React.useEffect(() => {
-    if (!loading && user) {
+    if (!authLoading && user) {
         router.push('/account');
     }
-  }, [loading, user, router]);
+  }, [authLoading, user, router]);
 
   React.useEffect(() => {
-    let newFilteredProducts = [...products];
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const products = await getProducts();
+            setAllProducts(products);
+            setFilteredProducts(products);
+        } catch (err) {
+            console.error(err);
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to load products.' });
+        }
+        setLoading(false);
+    }
+    fetchProducts();
+  }, [toast]);
+
+  const categories = React.useMemo(() => {
+    return ['All', ...Array.from(new Set(allProducts.map((p) => p.category)))];
+  }, [allProducts]);
+
+  React.useEffect(() => {
+    let newFilteredProducts = [...allProducts];
 
     if (searchQuery) {
       newFilteredProducts = newFilteredProducts.filter((product) =>
@@ -64,11 +80,11 @@ export default function HomePage() {
     } else if (sortBy === 'price-desc') {
       newFilteredProducts.sort((a, b) => b.price - a.price);
     } else if (sortBy === 'rating') {
-      newFilteredProducts.sort((a, b) => b.rating - a.rating);
+      newFilteredProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
     setFilteredProducts(newFilteredProducts);
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [searchQuery, selectedCategory, sortBy, allProducts]);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -78,7 +94,7 @@ export default function HomePage() {
     });
   };
   
-  if (loading || user) {
+  if (authLoading || user) {
     return <div>Loading...</div>
   }
 
@@ -163,49 +179,55 @@ export default function HomePage() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
-                <Card key={product.id} className="group flex flex-col justify-between overflow-hidden">
-                   <Link href={`/products/${product.id}`} className="block">
-                    <div className="overflow-hidden">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        width={400}
-                        height={400}
-                        className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint="product photo"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="text-lg font-semibold">{product.name}</h3>
-                      <div className="flex items-center justify-between">
-                        <p className="text-muted-foreground">
-                          ${product.price.toFixed(2)}
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-primary text-primary" />
-                          <span className="text-sm text-muted-foreground">
-                            {product.rating.toFixed(1)}
-                          </span>
+            {loading ? (
+                <div className="text-center"><p>Loading products...</p></div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredProducts.map((product) => (
+                        <Card key={product.id} className="group flex flex-col justify-between overflow-hidden">
+                        <Link href={`/products/${product.id}`} className="block">
+                            <div className="overflow-hidden">
+                            <Image
+                                src={product.image || 'https://placehold.co/400x400.png'}
+                                alt={product.name}
+                                width={400}
+                                height={400}
+                                className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                data-ai-hint="product photo"
+                            />
+                            </div>
+                            <CardContent className="p-4">
+                            <h3 className="text-lg font-semibold">{product.name}</h3>
+                            <div className="flex items-center justify-between">
+                                <p className="text-muted-foreground">
+                                ${product.price.toFixed(2)}
+                                </p>
+                                <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-primary text-primary" />
+                                <span className="text-sm text-muted-foreground">
+                                    {(product.rating || 0).toFixed(1)}
+                                </span>
+                                </div>
+                            </div>
+                            </CardContent>
+                        </Link>
+                        <div className="p-4 pt-0">
+                            <Button className="w-full" variant="outline" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
+                                <ShoppingCart className="mr-2 h-4 w-4" />
+                                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                            </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Link>
-                   <div className="p-4 pt-0">
-                     <Button className="w-full" variant="outline" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                         {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                      </Button>
-                   </div>
-                </Card>
-              ))}
-            </div>
-             {filteredProducts.length === 0 && (
-              <div className="col-span-full py-12 text-center">
-                <h3 className="text-2xl font-bold">No Products Found</h3>
-                <p className="text-muted-foreground">Try adjusting your search or filters.</p>
-              </div>
+                        </Card>
+                    ))}
+                    </div>
+                    {filteredProducts.length === 0 && (
+                    <div className="col-span-full py-12 text-center">
+                        <h3 className="text-2xl font-bold">No Products Found</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filters.</p>
+                    </div>
+                    )}
+                </>
             )}
           </div>
         </section>

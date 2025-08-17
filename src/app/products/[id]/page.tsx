@@ -1,14 +1,14 @@
 
-import { products } from '@/lib/data';
+import { getProduct } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 import { ProductDetailClient } from './product-detail-client';
 
-export default function ProductDetailPage({
+export default async function ProductDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const product = products.find((p) => p.id === params.id);
+  const product = await getProduct(params.id);
 
   if (!product) {
     notFound();
