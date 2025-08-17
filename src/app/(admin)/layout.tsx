@@ -10,7 +10,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Nav } from '@/components/nav';
+import { Nav } from '@/nav';
 import { Button } from '@/components/ui/button';
 import { Gem } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
