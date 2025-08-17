@@ -3,9 +3,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import LoginPage from '../login/page';
+import LoginPage from '@/app/login/page';
 import { useEffect } from 'react';
-import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Gem } from 'lucide-react';
 import Link from 'next/link';

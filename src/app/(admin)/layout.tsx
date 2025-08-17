@@ -14,7 +14,7 @@ import { Nav } from '@/nav';
 import { Button } from '@/components/ui/button';
 import { Gem } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import LoginPage from '../../login/page';
+import LoginPage from '@/app/login/page';
 import {useEffect} from 'react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
