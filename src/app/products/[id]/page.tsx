@@ -1,6 +1,3 @@
-
-'use client';
-
 import { products } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -8,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Star, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Select,
@@ -17,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { StarRating } from '@/components/star-rating';
 
 export default function ProductDetailPage({
   params,
@@ -28,21 +26,6 @@ export default function ProductDetailPage({
   if (!product) {
     notFound();
   }
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Star
-          key={i}
-          className={`h-5 w-5 ${
-            i <= rating ? 'fill-primary text-primary' : 'fill-muted stroke-muted-foreground'
-          }`}
-        />
-      );
-    }
-    return stars;
-  };
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-12 md:px-6">
@@ -64,7 +47,7 @@ export default function ProductDetailPage({
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              {renderStars(product.rating)}
+              <StarRating rating={product.rating} />
             </div>
             <span className="text-sm text-muted-foreground">
               ({product.reviews.length} reviews)
@@ -131,7 +114,7 @@ export default function ProductDetailPage({
                       <span className="text-xs text-muted-foreground">{review.date}</span>
                     </div>
                     <div className="mt-1 flex items-center gap-1">
-                      {renderStars(review.rating)}
+                      <StarRating rating={review.rating} />
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{review.comment}</p>
                   </div>
