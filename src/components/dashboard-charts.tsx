@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis, Tooltip } from 'recharts';
@@ -14,23 +15,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from '@/components/ui/chart';
-
-const salesData = [
-  { month: 'January', sales: 1234 },
-  { month: 'February', sales: 1567 },
-  { month: 'March', sales: 1890 },
-  { month: 'April', sales: 2150 },
-  { month: 'May', sales: 2540 },
-  { month: 'June', sales: 2890 },
-];
-
-const topProductsData = [
-  { name: 'Mug', sales: 540 },
-  { name: 'Tote', sales: 480 },
-  { name: 'Candle', sales: 320 },
-  { name: 'Calendar', sales: 210 },
-  { name: 'Wraps', sales: 150 },
-];
+import type { Order, Product } from '@/lib/types';
 
 const chartConfig: ChartConfig = {
   sales: {
@@ -39,13 +24,43 @@ const chartConfig: ChartConfig = {
   },
 };
 
-export function DashboardCharts() {
+type DashboardChartsProps = {
+    orders: Order[];
+    products: Product[];
+};
+
+export function DashboardCharts({ orders, products }: DashboardChartsProps) {
+  const salesByMonth: { [key: string]: number } = {};
+  orders.forEach(order => {
+      if(order.status === 'Delivered') {
+        const month = new Date(order.date).toLocaleString('default', { month: 'long' });
+        salesByMonth[month] = (salesByMonth[month] || 0) + order.total;
+      }
+  });
+
+  const salesData = Object.entries(salesByMonth).map(([month, sales]) => ({ month, sales })).reverse();
+  
+  const productSales: { [key: string]: number } = {};
+    orders.forEach(order => {
+        if(order.status === 'Delivered') {
+            order.items.forEach(item => {
+                productSales[item.name] = (productSales[item.name] || 0) + item.quantity;
+            });
+        }
+    });
+
+  const topProductsData = Object.entries(productSales)
+    .sort(([,a],[,b]) => b - a)
+    .slice(0, 5)
+    .map(([name, sales]) => ({ name, sales }));
+
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Sales Overview</CardTitle>
-          <CardDescription>Monthly sales performance</CardDescription>
+          <CardDescription>Monthly sales performance for delivered orders</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
@@ -83,7 +98,7 @@ export function DashboardCharts() {
       <Card>
         <CardHeader>
           <CardTitle>Top Selling Products</CardTitle>
-          <CardDescription>Your best performers this month</CardDescription>
+          <CardDescription>Your best performers by quantity sold</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
