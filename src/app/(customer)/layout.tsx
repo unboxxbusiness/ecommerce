@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -19,6 +20,7 @@ export default function CustomerLayout({
   const { user, loading, logout } = useAuth();
   const { cartCount } = useCart();
   const router = useRouter();
+  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -61,9 +63,9 @@ export default function CustomerLayout({
                 <span className="sr-only">Cart</span>
               </Button>
           </Link>
-          <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>
+          {isAdmin && <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>
             Admin Dashboard
-          </Button>
+          </Button>}
           <Button onClick={logout}>Logout</Button>
         </div>
       </header>
