@@ -1,17 +1,40 @@
+
+
+'use client';
+
+import { useRouter } from 'next/navigation';
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Nav } from '@/components/nav';
 import { Button } from '@/components/ui/button';
 import { Gem } from 'lucide-react';
-import { Header } from '@/components/header';
+import { useAuth } from '@/hooks/use-auth';
+import LoginPage from '../../login/page';
+import {useEffect} from 'react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+  
   return (
     <SidebarProvider>
       <Sidebar>
