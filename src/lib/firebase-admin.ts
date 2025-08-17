@@ -1,25 +1,25 @@
-import * as admin from 'firebase-admin';
+// src/lib/firebase-admin.ts
 
-// This is a server-only file.
+import admin from 'firebase-admin';
+import { getApps } from 'firebase-admin/app';
 
-if (!admin.apps.length) {
-  const privateKey = process.env.FB_PRIVATE_KEY?.replace(/\\n/g, '\n');
+// This is the crucial fix:
+// It takes the private key string from the environment variable
+// and replaces all literal '\\n' substrings with actual newline characters.
+const privateKey = process.env.FB_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  if (!process.env.FB_PROJECT_ID || !process.env.FB_CLIENT_EMAIL || !privateKey) {
-    throw new Error(
-      'Missing Firebase Admin SDK credentials. Please check your .env.local file.'
-    );
-  }
-
+if (!getApps().length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FB_PROJECT_ID,
       clientEmail: process.env.FB_CLIENT_EMAIL,
+      // Pass the formatted private key here
       privateKey,
     }),
   });
 }
 
 const adminDb = admin.firestore();
+const adminAuth = admin.auth();
 
-export { adminDb };
+export { adminDb, adminAuth };
