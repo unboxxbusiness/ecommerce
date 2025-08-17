@@ -1,0 +1,66 @@
+import type { Product, Order, Customer } from './types';
+
+export const products: Product[] = [
+  {
+    id: 'prod_001',
+    name: 'Artisan Ceramic Mug',
+    description: 'A beautifully handcrafted ceramic mug, perfect for your morning coffee or tea. Each mug is unique, with slight variations in color and texture that add to its charm.',
+    price: 25.0,
+    stock: 42,
+    image: 'https://placehold.co/400x400.png',
+    variants: [{ type: 'Color', options: ['Seafoam Green', 'Terracotta', 'Midnight Blue'] }],
+  },
+  {
+    id: 'prod_002',
+    name: 'Organic Cotton Tote Bag',
+    description: 'Eco-friendly and stylish, this tote bag is made from 100% organic cotton. It\'s durable and spacious enough for your groceries, books, or beach essentials.',
+    price: 18.5,
+    stock: 150,
+    image: 'https://placehold.co/400x400.png',
+    variants: [{ type: 'Design', options: ['Leaf Print', 'Geometric', 'Solid Natural'] }],
+  },
+  {
+    id: 'prod_003',
+    name: 'Hand-poured Soy Candle',
+    description: 'Scented soy candle in a reusable glass jar. Made with natural soy wax and essential oils, providing a clean, long-lasting burn. Choose from our signature scents.',
+    price: 32.0,
+    stock: 78,
+    image: 'https://placehold.co/400x400.png',
+    variants: [{ type: 'Scent', options: ['Lavender & Sage', 'Sandalwood & Vanilla', 'Citrus & Basil'] }],
+  },
+  {
+    id: 'prod_004',
+    name: 'Minimalist Wall Calendar',
+    description: 'Stay organized with this sleek and minimalist 2024 wall calendar. Features a clean design with plenty of space for notes and appointments.',
+    price: 22.0,
+    stock: 30,
+    image: 'https://placehold.co/400x400.png',
+    variants: [],
+  },
+  {
+    id: 'prod_005',
+    name: 'Reusable Beeswax Wraps',
+    description: 'A sustainable alternative to plastic wrap. This set of 3 beeswax wraps is perfect for covering bowls, wrapping sandwiches, or storing snacks.',
+    price: 15.0,
+    stock: 200,
+    image: 'https://placehold.co/400x400.png',
+    variants: [{ type: 'Pattern', options: ['Honeycomb', 'Floral', 'Botanical'] }],
+  },
+];
+
+export const orders: Order[] = [
+  { id: 'ORD-240728A', customerName: 'Alice Johnson', customerEmail: 'alice.j@example.com', date: '2024-07-28', status: 'Delivered', total: 57.00, items: 2 },
+  { id: 'ORD-240728B', customerName: 'Bob Williams', customerEmail: 'bob.w@example.com', date: '2024-07-28', status: 'Shipped', total: 32.00, items: 1 },
+  { id: 'ORD-240727A', customerName: 'Charlie Brown', customerEmail: 'charlie.b@example.com', date: '2024-07-27', status: 'Pending', total: 18.50, items: 1 },
+  { id: 'ORD-240726A', customerName: 'Diana Prince', customerEmail: 'diana.p@example.com', date: '2024-07-26', status: 'Delivered', total: 43.50, items: 2 },
+  { id: 'ORD-240726B', customerName: 'Ethan Hunt', customerEmail: 'ethan.h@example.com', date: '2024-07-26', status: 'Cancelled', total: 25.00, items: 1 },
+  { id: 'ORD-240725A', customerName: 'Fiona Glenanne', customerEmail: 'fiona.g@example.com', date: '2024-07-25', status: 'Shipped', total: 15.00, items: 1 },
+];
+
+export const customers: Customer[] = [
+    { id: 'cust_001', name: 'Alice Johnson', email: 'alice.j@example.com', avatar: 'https://placehold.co/100x100.png', totalOrders: 5, totalSpent: 289.50, joinDate: '2023-01-15' },
+    { id: 'cust_002', name: 'Bob Williams', email: 'bob.w@example.com', avatar: 'https://placehold.co/100x100.png', totalOrders: 2, totalSpent: 75.00, joinDate: '2023-05-20' },
+    { id: 'cust_003', name: 'Charlie Brown', email: 'charlie.b@example.com', avatar: 'https://placehold.co/100x100.png', totalOrders: 8, totalSpent: 412.75, joinDate: '2022-11-10' },
+    { id: 'cust_004', name: 'Diana Prince', email: 'diana.p@example.com', avatar: 'https://placehold.co/100x100.png', totalOrders: 3, totalSpent: 150.25, joinDate: '2023-08-01' },
+    { id: 'cust_005', name: 'Ethan Hunt', email: 'ethan.h@example.com', avatar: 'https://placehold.co/100x100.png', totalOrders: 1, totalSpent: 22.00, joinDate: '2024-02-18' },
+];
