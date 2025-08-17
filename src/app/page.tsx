@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useCart } from '@/hooks/use-cart';
+import { useToast } from '@/hooks/use-toast';
 
 const categories = [
   'All',
@@ -29,6 +31,8 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [sortBy, setSortBy] = React.useState('rating');
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     let newFilteredProducts = [...products];
@@ -56,6 +60,14 @@ export default function HomePage() {
     setFilteredProducts(newFilteredProducts);
   }, [searchQuery, selectedCategory, sortBy]);
 
+  const handleAddToCart = (product: Product) => {
+    addToCart(product);
+    toast({
+      title: 'Added to cart',
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
@@ -71,7 +83,13 @@ export default function HomePage() {
             Digital Shop
           </span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/cart">
+              <ShoppingCart />
+              <span className="sr-only">Cart</span>
+            </Link>
+          </Button>
           <Button variant="outline" asChild>
             <Link href="/login">Login</Link>
           </Button>
@@ -133,8 +151,8 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product) => (
-                <Card key={product.id} className="overflow-hidden">
-                  <Link href={`/products/${product.id}`} className="group block">
+                <Card key={product.id} className="group flex flex-col justify-between overflow-hidden">
+                   <Link href={`/products/${product.id}`} className="block">
                     <div className="overflow-hidden">
                       <Image
                         src={product.image}
@@ -158,19 +176,19 @@ export default function HomePage() {
                           </span>
                         </div>
                       </div>
-                      <Button className="mt-4 w-full" variant="outline" asChild>
-                        <span className="flex items-center">
-                           <ShoppingCart className="mr-2 h-4 w-4" />
-                           Add to Cart
-                        </span>
-                      </Button>
                     </CardContent>
                   </Link>
+                   <div className="p-4 pt-0">
+                     <Button className="w-full" variant="outline" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                         {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                      </Button>
+                   </div>
                 </Card>
               ))}
             </div>
              {filteredProducts.length === 0 && (
-              <div className="col-span-full text-center py-12">
+              <div className="col-span-full py-12 text-center">
                 <h3 className="text-2xl font-bold">No Products Found</h3>
                 <p className="text-muted-foreground">Try adjusting your search or filters.</p>
               </div>

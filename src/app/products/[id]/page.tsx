@@ -1,3 +1,5 @@
+
+'use client';
 import { products } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -15,6 +17,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { StarRating } from '@/components/star-rating';
+import { useCart } from '@/hooks/use-cart';
+import { useToast } from '@/hooks/use-toast';
+import type { Product } from '@/lib/types';
+
 
 export default function ProductDetailPage({
   params,
@@ -22,10 +28,20 @@ export default function ProductDetailPage({
   params: { id: string };
 }) {
   const product = products.find((p) => p.id === params.id);
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   if (!product) {
     notFound();
   }
+
+  const handleAddToCart = (product: Product) => {
+    addToCart(product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-12 md:px-6">
@@ -81,7 +97,7 @@ export default function ProductDetailPage({
             </div>
           )}
 
-          <Button size="lg" disabled={product.stock === 0}>
+          <Button size="lg" disabled={product.stock === 0} onClick={() => handleAddToCart(product)}>
             <ShoppingCart className="mr-2 h-5 w-5" />
             Add to Cart
           </Button>

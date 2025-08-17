@@ -6,8 +6,10 @@ import { useAuth } from '@/hooks/use-auth';
 import LoginPage from '@/app/login/page';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Gem } from 'lucide-react';
+import { Gem, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
+import { useCart } from '@/hooks/use-cart';
+import { Badge } from '@/components/ui/badge';
 
 export default function CustomerLayout({
   children,
@@ -15,6 +17,7 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   const { user, loading, logout } = useAuth();
+  const { cartCount } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -33,7 +36,7 @@ export default function CustomerLayout({
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:px-6">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:px-6">
         <Link href="/account" className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -47,6 +50,17 @@ export default function CustomerLayout({
           </span>
         </Link>
         <div className="flex items-center gap-4">
+           <Link href="/cart">
+            <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">
+                    {cartCount}
+                  </Badge>
+                )}
+                <span className="sr-only">Cart</span>
+              </Button>
+          </Link>
           <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>
             Admin Dashboard
           </Button>
