@@ -1,6 +1,4 @@
 
-'use client';
-
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -21,39 +19,9 @@ import {
 import { Header } from '@/components/header';
 import { getAdminOrders } from '@/lib/firestore-admin';
 import type { Order } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 
-export default function OrdersPage() {
-    const [orders, setOrders] = React.useState<Order[]>([]);
-    const [loading, setLoading] = React.useState(true);
-    const { toast } = useToast();
-
-    React.useEffect(() => {
-        const fetchOrders = async () => {
-            setLoading(true);
-            try {
-                // This page is part of the admin panel, but it's a client component.
-                // In a real-world scenario with proper permissions, you might have a dedicated
-                // server action or API route that uses the admin SDK to fetch this data securely.
-                // For now, we create a temporary server action-like function.
-                const ordersData = await (async () => {
-                  'use server';
-                  return getAdminOrders();
-                })();
-                setOrders(ordersData);
-            } catch (error) {
-                console.error("Failed to fetch orders:", error);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to load orders. Please try again.",
-                });
-            }
-            setLoading(false);
-        };
-
-        fetchOrders();
-    }, [toast]);
+export default async function OrdersPage() {
+    const orders: Order[] = await getAdminOrders();
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -65,9 +33,6 @@ export default function OrdersPage() {
             <CardDescription>An overview of your most recent sales.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-                <p>Loading orders...</p>
-            ) : (
                 <Table>
                 <TableHeader>
                     <TableRow>
@@ -112,7 +77,6 @@ export default function OrdersPage() {
                     ))}
                 </TableBody>
                 </Table>
-            )}
           </CardContent>
         </Card>
       </main>

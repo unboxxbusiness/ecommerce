@@ -31,7 +31,8 @@ import {
 import { Header } from '@/components/header';
 import type { Product } from '@/lib/types';
 import { ProductEditSheet } from '@/components/product-edit-sheet';
-import { getProducts, deleteProduct } from '@/lib/firestore';
+import { getAdminProducts } from '@/lib/firestore-admin';
+import { deleteProduct } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -52,10 +53,13 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const { toast } = useToast();
 
-  const fetchProducts = async () => {
+  const fetchProducts = React.useCallback(async () => {
     setLoading(true);
     try {
-      const productsData = await getProducts();
+      const productsData = await (async () => {
+        'use server';
+        return await getAdminProducts();
+      })();
       setProducts(productsData);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -66,11 +70,11 @@ export default function ProductsPage() {
       });
     }
     setLoading(false);
-  };
+  }, [toast]);
 
   React.useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   const handleAddProduct = () => {
     setSelectedProduct(null);

@@ -1,6 +1,4 @@
 
-'use client';
-
 import * as React from 'react';
 import {
   Card,
@@ -23,34 +21,9 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { getAdminCustomers } from '@/lib/firestore-admin';
 import type { Customer } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 
-export default function CustomersPage() {
-    const [customers, setCustomers] = React.useState<Customer[]>([]);
-    const [loading, setLoading] = React.useState(true);
-    const { toast } = useToast();
-
-    React.useEffect(() => {
-        const fetchCustomers = async () => {
-            setLoading(true);
-            try {
-                const customersData = await (async () => {
-                    'use server';
-                    return await getAdminCustomers();
-                })();
-                setCustomers(customersData);
-            } catch (error) {
-                console.error("Failed to fetch customers:", error);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to load customers. Please try again.",
-                });
-            }
-            setLoading(false);
-        };
-        fetchCustomers();
-    }, [toast]);
+export default async function CustomersPage() {
+    const customers: Customer[] = await getAdminCustomers();
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -67,9 +40,6 @@ export default function CustomersPage() {
             <CardDescription>View and manage your customer data.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-                <p>Loading customers...</p>
-            ) : (
                 <Table>
                 <TableHeader>
                     <TableRow>
@@ -101,7 +71,6 @@ export default function CustomersPage() {
                     ))}
                 </TableBody>
                 </Table>
-            )}
           </CardContent>
         </Card>
       </main>
