@@ -63,7 +63,7 @@ export default function CustomerLayout({
                 <span className="sr-only">Cart</span>
               </Button>
           </Link>
-          {isAdmin && <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>
+          {isAdmin && <Button variant="outline" onClick={() => router.push('/dashboard')}>
             Admin Dashboard
           </Button>}
           <Button onClick={logout}>Logout</Button>
