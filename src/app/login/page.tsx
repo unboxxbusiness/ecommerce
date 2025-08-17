@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const userCredential = await login(email, password);
       if (userCredential.user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-         router.push('/admin/dashboard');
+         router.push('/dashboard');
       } else {
          router.push('/account');
       }

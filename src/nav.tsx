@@ -17,10 +17,10 @@ import {
 } from '@/components/ui/sidebar';
 
 const navItems = [
-  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-  { href: '/admin/products', icon: Package, label: 'Products' },
-  { href: '/admin/customers', icon: Users, label: 'Customers' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/orders', icon: ShoppingCart, label: 'Orders' },
+  { href: '/products', icon: Package, label: 'Products' },
+  { href: '/customers', icon: Users, label: 'Customers' },
 ];
 
 export function Nav() {
