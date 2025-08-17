@@ -39,7 +39,7 @@ export default function CustomerLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:px-6">
-        <Link href="/account" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"

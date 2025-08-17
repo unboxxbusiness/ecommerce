@@ -22,11 +22,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    
+    if (!user) {
       router.push('/login');
+      return;
     }
-    if (!loading && user && user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-        router.push('/account');
+
+    if (user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+      router.push('/account');
     }
   }, [loading, user, router]);
 
@@ -35,8 +39,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-    // You can also show an unauthorized page here instead of the login page.
-    return <LoginPage />;
+    // Render nothing or a loading indicator while redirecting
+    return null;
   }
   
   return (

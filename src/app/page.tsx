@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/select';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 const categories = [
   'All',
@@ -33,6 +35,14 @@ export default function HomePage() {
   const [sortBy, setSortBy] = React.useState('rating');
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  
+  React.useEffect(() => {
+    if (!loading && user) {
+        router.push('/account');
+    }
+  }, [loading, user, router]);
 
   React.useEffect(() => {
     let newFilteredProducts = [...products];
@@ -67,6 +77,10 @@ export default function HomePage() {
       description: `${product.name} has been added to your cart.`,
     });
   };
+  
+  if (loading || user) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
