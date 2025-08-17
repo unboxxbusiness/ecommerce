@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Header } from '@/components/header';
-import { getOrders } from '@/lib/firestore';
+import { getAdminOrders } from '@/lib/firestore-admin';
 import type { Order } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,7 +32,14 @@ export default function OrdersPage() {
         const fetchOrders = async () => {
             setLoading(true);
             try {
-                const ordersData = await getOrders();
+                // This page is part of the admin panel, but it's a client component.
+                // In a real-world scenario with proper permissions, you might have a dedicated
+                // server action or API route that uses the admin SDK to fetch this data securely.
+                // For now, we create a temporary server action-like function.
+                const ordersData = await (async () => {
+                  'use server';
+                  return getAdminOrders();
+                })();
                 setOrders(ordersData);
             } catch (error) {
                 console.error("Failed to fetch orders:", error);

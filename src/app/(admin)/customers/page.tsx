@@ -21,7 +21,7 @@ import { Header } from '@/components/header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { getCustomers } from '@/lib/firestore';
+import { getAdminCustomers } from '@/lib/firestore-admin';
 import type { Customer } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,7 +34,10 @@ export default function CustomersPage() {
         const fetchCustomers = async () => {
             setLoading(true);
             try {
-                const customersData = await getCustomers();
+                const customersData = await (async () => {
+                    'use server';
+                    return await getAdminCustomers();
+                })();
                 setCustomers(customersData);
             } catch (error) {
                 console.error("Failed to fetch customers:", error);

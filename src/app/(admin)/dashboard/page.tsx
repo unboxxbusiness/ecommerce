@@ -8,13 +8,13 @@ import {
 import { DollarSign, Package, Users, ShoppingCart } from 'lucide-react';
 import { DashboardCharts } from '@/components/dashboard-charts';
 import { Header } from '@/components/header';
-import { getOrders, getProducts, getCustomers } from '@/lib/firestore';
+import { getAdminOrders, getAdminProducts, getAdminCustomers } from '@/lib/firestore-admin';
 import type { Order, Product, Customer } from '@/lib/types';
 
 export default async function DashboardPage() {
-  const orders: Order[] = await getOrders();
-  const products: Product[] = await getProducts();
-  const customers: Customer[] = await getCustomers();
+  const orders: Order[] = await getAdminOrders();
+  const products: Product[] = await getAdminProducts();
+  const customers: Customer[] = await getAdminCustomers();
   
   const totalRevenue = orders
     .filter(order => order.status === 'Delivered')
