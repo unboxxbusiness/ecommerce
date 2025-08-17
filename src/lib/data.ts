@@ -78,12 +78,12 @@ export const products: Product[] = [
 ];
 
 export const orders: Order[] = [
-  { id: 'ORD-240728A', customerName: 'Alice Johnson', customerEmail: 'alice.j@example.com', date: '2024-07-28', status: 'Delivered', total: 57.00, items: 2 },
-  { id: 'ORD-240728B', customerName: 'Bob Williams', customerEmail: 'bob.w@example.com', date: '2024-07-28', status: 'Shipped', total: 32.00, items: 1 },
-  { id: 'ORD-240727A', customerName: 'Charlie Brown', customerEmail: 'charlie.b@example.com', date: '2024-07-27', status: 'Pending', total: 18.50, items: 1 },
-  { id: 'ORD-240726A', customerName: 'Diana Prince', customerEmail: 'diana.p@example.com', date: '2024-07-26', status: 'Delivered', total: 43.50, items: 2 },
-  { id: 'ORD-240726B', customerName: 'Ethan Hunt', customerEmail: 'ethan.h@example.com', date: '2024-07-26', status: 'Cancelled', total: 25.00, items: 1 },
-  { id: 'ORD-240725A', customerName: 'Fiona Glenanne', customerEmail: 'fiona.g@example.com', date: '2024-07-25', status: 'Shipped', total: 15.00, items: 1 },
+  { id: 'ORD-240728A', customerName: 'Alice Johnson', customerEmail: 'alice.j@example.com', date: '2024-07-28', status: 'Delivered', total: 57.00, items: [{id: 'prod_001', name: 'Artisan Ceramic Mug', quantity: 1}, {id: 'prod_005', name: 'Reusable Beeswax Wraps', quantity: 1}] },
+  { id: 'ORD-240728B', customerName: 'Bob Williams', customerEmail: 'bob.w@example.com', date: '2024-07-28', status: 'Shipped', total: 32.00, items: [{id: 'prod_003', name: 'Hand-poured Soy Candle', quantity: 1}] },
+  { id: 'ORD-240727A', customerName: 'Charlie Brown', customerEmail: 'charlie.b@example.com', date: '2024-07-27', status: 'Pending', total: 18.50, items: [{id: 'prod_002', name: 'Organic Cotton Tote Bag', quantity: 1}] },
+  { id: 'ORD-240726A', customerName: 'Diana Prince', customerEmail: 'diana.p@example.com', date: '2024-07-26', status: 'Delivered', total: 43.50, items: [{id: 'prod_002', name: 'Organic Cotton Tote Bag', quantity: 1}, {id: 'prod_001', name: 'Artisan Ceramic Mug', quantity: 1}]},
+  { id: 'ORD-240726B', customerName: 'Ethan Hunt', customerEmail: 'ethan.h@example.com', date: '2024-07-26', status: 'Cancelled', total: 25.00, items: [{id: 'prod_001', name: 'Artisan Ceramic Mug', quantity: 1}] },
+  { id: 'ORD-240725A', customerName: 'Fiona Glenanne', customerEmail: 'fiona.g@example.com', date: '2024-07-25', status: 'Shipped', total: 15.00, items: [{id: 'prod_005', name: 'Reusable Beeswax Wraps', quantity: 1}] },
 ];
 
 export const customers: Customer[] = [

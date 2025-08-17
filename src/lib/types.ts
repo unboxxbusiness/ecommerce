@@ -31,7 +31,11 @@ export type Order = {
   date: string;
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
-  items: number;
+  items: {
+    id: string;
+    name: string;
+    quantity: number;
+  }[];
 };
 
 export type Customer = {

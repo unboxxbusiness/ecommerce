@@ -35,6 +35,7 @@ export default function OrdersPage() {
                   <TableHead>Customer</TableHead>
                   <TableHead className="hidden sm:table-cell">Date</TableHead>
                   <TableHead className="hidden md:table-cell">Status</TableHead>
+                  <TableHead className="hidden md:table-cell">Items</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                 </TableRow>
               </TableHeader>
@@ -61,6 +62,9 @@ export default function OrdersPage() {
                       >
                         {order.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                        {order.items.reduce((acc, item) => acc + item.quantity, 0)}
                     </TableCell>
                     <TableCell className="text-right">
                       ${order.total.toFixed(2)}
