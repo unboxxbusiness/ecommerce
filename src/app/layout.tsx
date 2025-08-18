@@ -14,6 +14,8 @@ import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { GoogleAnalytics } from '@/components/google-analytics';
+import { Suspense } from 'react';
 
 function CustomerLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
@@ -110,10 +112,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
-  const isAdminPath =
-    typeof window !== 'undefined' &&
-    window.location.pathname.startsWith('/dashboard');
+  const [pathname, setPathname] = React.useState('');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPathname(window.location.pathname);
+    }
+  }, []);
+
+  const isAdminPath = pathname.startsWith('/dashboard') || 
+                    pathname.startsWith('/orders') || 
+                    pathname.startsWith('/products') || 
+                    pathname.startsWith('/customers') || 
+                    pathname.startsWith('/coupons') || 
+                    pathname.startsWith('/marketing') || 
+                    pathname.startsWith('/settings');
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -130,6 +143,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
+        <Suspense>
+          <GoogleAnalytics />
+        </Suspense>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <CartProvider>
