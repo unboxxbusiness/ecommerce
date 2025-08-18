@@ -34,8 +34,12 @@ export default function LoginPage() {
       } else {
          router.push('/account');
       }
-    } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+    } catch (err: any) {
+      if (err.code === 'auth/invalid-credential') {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
       console.error(err);
     }
   };

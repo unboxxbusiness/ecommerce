@@ -77,14 +77,14 @@ export function ProfileManagementForm() {
         } else {
             toast({
                 title: 'Password Reset Email Sent',
-                description: 'Please check your inbox to reset your password.',
+                description: 'Check your inbox (and spam folder) to reset your password.',
             });
         }
     } catch(err) {
         toast({
             variant: 'destructive',
             title: 'Error',
-            description: 'An unexpected error occurred.',
+            description: 'An unexpected error occurred. Please try again.',
         });
     } finally {
         setIsSendingReset(false);

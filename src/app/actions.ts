@@ -1,9 +1,9 @@
+
 'use server';
 
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
 import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
-import { sendPasswordResetEmail } from 'firebase/auth';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
 
@@ -75,11 +75,16 @@ export async function handlePasswordReset(email: string) {
         return { error: 'Email is required.' };
     }
     try {
+        // This will throw an error if the user doesn't exist, which we catch.
+        await adminAuth.getUserByEmail(email); 
         await adminAuth.generatePasswordResetLink(email);
         return { success: true };
     } catch(error: any) {
         console.error("Failed to send password reset email:", error);
-        return { error: error.message || "An unexpected error occurred." };
+         if (error.code === 'auth/user-not-found') {
+            return { error: 'No account found with that email address.' };
+        }
+        return { error: "An unexpected error occurred while trying to send the reset email." };
     }
 }
 
