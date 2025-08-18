@@ -1,7 +1,8 @@
+
 'use client';
 
 import * as React from 'react';
-import { Book, Menu, Sunset, Trees, Zap, Gem, ShoppingCart } from "lucide-react";
+import { Gem, Menu, ShoppingCart } from "lucide-react";
 import Link from 'next/link';
 
 import {
@@ -82,7 +83,7 @@ export const Navbar = ({ siteContent, products, pages }: NavbarProps) => {
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2">
                 {siteContent.global.logoUrl ? (
-                    <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} />
+                    <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} data-ai-hint="logo" />
                 ) : (
                     <Gem className="size-8 text-primary" />
                 )}
@@ -137,7 +138,7 @@ export const Navbar = ({ siteContent, products, pages }: NavbarProps) => {
           <div className="flex items-center justify-between">
              <Link href="/" className="flex items-center gap-2">
                 {siteContent.global.logoUrl ? (
-                    <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} />
+                    <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} data-ai-hint="logo" />
                 ) : (
                     <Gem className="size-8 text-primary" />
                 )}
@@ -154,7 +155,7 @@ export const Navbar = ({ siteContent, products, pages }: NavbarProps) => {
                   <SheetTitle>
                      <Link href="/" className="flex items-center gap-2">
                        {siteContent.global.logoUrl ? (
-                            <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} />
+                            <img src={siteContent.global.logoUrl} className="w-8" alt={siteContent.global.siteName} data-ai-hint="logo" />
                         ) : (
                             <Gem className="size-8 text-primary" />
                         )}
@@ -256,7 +257,7 @@ const renderMenuItem = (item: MenuItem) => {
 
   return (
      <NavigationMenuItem key={item.title}>
-        <Link href={item.url} legacyBehavior passHref>
+        <Link href={item.url} legacyBehavior={false} passHref={false}>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 {item.title}
             </NavigationMenuLink>
