@@ -43,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="flex items-center">
+        <SidebarHeader className="flex items-center justify-between">
           <div className="flex items-center gap-2">
              <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary">
                 <Gem className="size-5" />
