@@ -10,7 +10,6 @@ import React, {
 import {
   User,
   onAuthStateChanged,
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -18,14 +17,12 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { handleCreateUserDocument } from '@/app/actions';
+import { doc, updateDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<any>;
-  signup: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<any>;
   updateUserProfile: (data: { displayName?: string, email?: string }) => Promise<void>;
 }
@@ -48,18 +45,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const login = (email: string, pass: string) => {
     return signInWithEmailAndPassword(auth, email, pass);
-  };
-  
-  const signup = async (email: string, pass: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
-    
-    // Create a customer document in Firestore via a server action
-    if (user) {
-      await handleCreateUserDocument(user.uid, user.email!, user.displayName);
-    }
-
-    return userCredential;
   };
   
   const logout = () => {
@@ -99,7 +84,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     loading,
     login,
-    signup,
     logout,
     updateUserProfile,
   };

@@ -3,8 +3,6 @@
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
 import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
-import { getAuth } from 'firebase/auth';
-import { app } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
@@ -85,25 +83,50 @@ export async function handlePasswordReset(email: string) {
     }
 }
 
-export async function handleCreateUserDocument(uid: string, email: string, displayName?: string | null) {
-  if (!uid || !email) {
-    return { error: 'User ID and email are required.' };
-  }
-  try {
-    const customerRef = adminDb.collection('customers').doc(uid);
-    await customerRef.set({
-        name: displayName || email.split('@')[0],
-        email: email,
-        avatar: `https://placehold.co/100x100.png`,
-        totalOrders: 0,
-        totalSpent: 0,
-        joinDate: serverTimestamp(),
-        isActive: true,
-        role: 'customer',
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to create user document:', error);
-    return { error: 'Failed to initialize user account.' };
-  }
+const signupSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+});
+
+export async function handleSignup(formData: FormData) {
+    const rawData = {
+        email: formData.get('email'),
+        password: formData.get('password'),
+    };
+
+    const validation = signupSchema.safeParse(rawData);
+    if (!validation.success) {
+        return { error: "Invalid email or password. Password must be at least 6 characters." };
+    }
+    
+    const { email, password } = validation.data;
+
+    try {
+        const userRecord = await adminAuth.createUser({
+            email,
+            password,
+            displayName: email.split('@')[0],
+        });
+
+        const customerRef = adminDb.collection('customers').doc(userRecord.uid);
+        await customerRef.set({
+            name: userRecord.displayName || email.split('@')[0],
+            email: email,
+            avatar: `https://placehold.co/100x100.png`,
+            totalOrders: 0,
+            totalSpent: 0,
+            joinDate: serverTimestamp(),
+            isActive: true,
+            role: 'customer',
+        });
+
+        return { success: true, uid: userRecord.uid };
+
+    } catch (error: any) {
+        console.error("Signup failed:", error);
+        if (error.code === 'auth/email-already-exists') {
+            return { error: 'An account with this email already exists.' };
+        }
+        return { error: 'Failed to create account. Please try again.' };
+    }
 }

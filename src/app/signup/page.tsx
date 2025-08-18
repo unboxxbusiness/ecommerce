@@ -15,29 +15,48 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Gem } from 'lucide-react';
+import { Gem, Loader2 } from 'lucide-react';
+import { handleSignup } from '@/app/actions';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-   const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { signup } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
   const router = useRouter();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const onSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-     if (password !== confirmPassword) {
+    setIsLoading(true);
+
+    if (password !== confirmPassword) {
       setError("Passwords don't match.");
+      setIsLoading(false);
       return;
     }
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
     try {
-      await signup(email, password);
-      router.push('/account');
+      const result = await handleSignup(formData);
+
+      if (result.error) {
+        setError(result.error);
+      } else if (result.success) {
+        // Automatically log the user in after successful signup
+        await login(email, password);
+        router.push('/account');
+      }
     } catch (err) {
-      setError('Failed to sign up. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,7 +79,7 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSignup} className="grid gap-4">
+            <form onSubmit={onSignupSubmit} className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -70,6 +89,7 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -78,9 +98,10 @@ export default function SignupPage() {
                   id="password"
                   type="password"
                   required
-                   minLength={6}
+                  minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
                <div className="grid gap-2">
@@ -91,10 +112,12 @@ export default function SignupPage() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create Account
               </Button>
             </form>
