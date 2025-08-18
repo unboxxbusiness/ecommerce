@@ -563,10 +563,10 @@ const SidebarMenuButton = React.forwardRef<
     const label = childNodes.find((child) => React.isValidElement(child) && child.type === 'span');
 
     const buttonContent = (
-         <>
+         <div className="flex items-center gap-2">
             {icon}
             <span className={cn('truncate', state === 'collapsed' && 'hidden')}>{label}</span>
-         </>
+         </div>
     )
 
     const button = (
@@ -776,5 +776,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-    
