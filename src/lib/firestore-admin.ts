@@ -1,5 +1,5 @@
 
-import 'server-only';
+'use server-only';
 
 import { adminDb } from './firebase-admin';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
@@ -204,6 +204,32 @@ export const getAdminPage = async (id: string): Promise<Page | null> => {
         return null;
     } catch(error) {
         console.error(`Failed to fetch page ${id}:`, error);
+        return null;
+    }
+}
+
+export const getPageById = async (id: string): Promise<Page | null> => {
+    try {
+        const docRef = adminDb.collection('pages').doc(id);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists()) {
+            return null;
+        }
+
+        const pageData = docSnap.data();
+        if (!pageData) return null;
+
+        // Convert Firestore Timestamps to serializable strings if they exist
+        if (pageData.createdAt && pageData.createdAt instanceof Timestamp) {
+            pageData.createdAt = pageData.createdAt.toDate().toISOString();
+        }
+        if (pageData.updatedAt && pageData.updatedAt instanceof Timestamp) {
+            pageData.updatedAt = pageData.updatedAt.toDate().toISOString();
+        }
+        return { id: docSnap.id, ...pageData } as Page;
+    } catch (error) {
+        console.error(`Failed to fetch page by ID ${id}:`, error);
         return null;
     }
 }

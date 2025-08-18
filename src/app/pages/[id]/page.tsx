@@ -1,6 +1,6 @@
 
 
-import { getPageById } from '@/lib/firestore';
+import { getPageById } from '@/lib/firestore-admin';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 60; // Revalidate at most every 60 seconds

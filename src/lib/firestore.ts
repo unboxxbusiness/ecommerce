@@ -158,26 +158,6 @@ export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
 };
 
-
-export const getPageById = async (id: string): Promise<Page | null> => {
-    const docRef = doc(db, 'pages', id);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-        return null;
-    }
-
-    const pageData = docSnap.data();
-    // Convert Firestore Timestamps to serializable strings if they exist
-    if (pageData.createdAt && typeof pageData.createdAt.toDate === 'function') {
-        pageData.createdAt = pageData.createdAt.toDate().toISOString();
-    }
-    if (pageData.updatedAt && typeof pageData.updatedAt.toDate === 'function') {
-        pageData.updatedAt = pageData.updatedAt.toDate().toISOString();
-    }
-    return { id: docSnap.id, ...pageData } as Page;
-}
-
 export const getPageBySlug = async (slug: string): Promise<Page | null> => {
     const q = query(
         collection(db, 'pages'), 
