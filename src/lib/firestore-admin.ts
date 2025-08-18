@@ -1,4 +1,5 @@
 
+
 'use server-only';
 
 import { adminDb } from './firebase-admin';
@@ -233,6 +234,36 @@ export const getPageById = async (id: string): Promise<Page | null> => {
         return null;
     }
 }
+
+export const getPageBySlug = async (slug: string): Promise<Page | null> => {
+    try {
+        const q = adminDb.collection('pages')
+            .where('slug', '==', slug)
+            .limit(1);
+
+        const querySnapshot = await q.get();
+        if (querySnapshot.empty) {
+            return null;
+        }
+        const pageDoc = querySnapshot.docs[0];
+        const pageData = pageDoc.data();
+        if (!pageData) return null;
+
+        // Convert timestamps correctly
+        const createdAt = pageData.createdAt instanceof Timestamp 
+            ? pageData.createdAt.toDate().toISOString() 
+            : new Date().toISOString();
+        const updatedAt = pageData.updatedAt instanceof Timestamp 
+            ? pageData.updatedAt.toDate().toISOString() 
+            : new Date().toISOString();
+
+        return { id: pageDoc.id, ...pageData, createdAt, updatedAt } as Page;
+    } catch (error) {
+        console.error(`Failed to fetch page by slug ${slug}:`, error);
+        return null;
+    }
+};
+
 
 export const deletePage = (id: string) => {
     return adminDb.collection('pages').doc(id).delete();

@@ -157,23 +157,3 @@ export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
 export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
 };
-
-export const getPageBySlug = async (slug: string): Promise<Page | null> => {
-    const q = query(
-        collection(db, 'pages'),
-        where('slug', '==', slug),
-        where('isPublished', '==', true)
-    );
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-        return null;
-    }
-    const pageDoc = querySnapshot.docs[0];
-    const pageData = pageDoc.data();
-    
-    // Ensure timestamps are converted to strings
-    const createdAt = pageData.createdAt?.toDate ? pageData.createdAt.toDate().toISOString() : pageData.createdAt;
-    const updatedAt = pageData.updatedAt?.toDate ? pageData.updatedAt.toDate().toISOString() : pageData.updatedAt;
-
-    return { id: pageDoc.id, ...pageData, createdAt, updatedAt } as Page;
-};
