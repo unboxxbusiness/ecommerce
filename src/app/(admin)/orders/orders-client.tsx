@@ -26,9 +26,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download } from 'lucide-react';
+import { MoreHorizontal, Download, Ship } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateOrderStatus } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
@@ -62,7 +63,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
         }
     };
     
-    const statusOptions: Order['status'][] = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
+    const statusOptions: Order['status'][] = ['Pending', 'Ready to Ship', 'Shipped', 'Delivered', 'Cancelled'];
 
     const handleExport = () => {
         const dataToExport = orders.map(order => ({
@@ -87,6 +88,32 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
         
         toast({ title: 'Export Complete', description: 'Your orders have been downloaded as a CSV file.' });
     };
+
+    const getStatusVariant = (status: Order['status']) => {
+        switch(status) {
+            case 'Delivered':
+                return 'default';
+            case 'Shipped':
+                return 'secondary';
+            case 'Ready to Ship':
+                return 'secondary';
+            case 'Cancelled':
+                return 'destructive';
+            case 'Pending':
+            default:
+                return 'outline';
+        }
+    }
+     const getStatusClass = (status: Order['status']) => {
+        switch(status) {
+            case 'Delivered':
+                return 'bg-green-600 text-white';
+            case 'Ready to Ship':
+                return 'bg-blue-500 text-white';
+            default:
+                return '';
+        }
+    }
 
   return (
     <>
@@ -128,14 +155,8 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                             <TableCell className="hidden sm:table-cell">{new Date(order.date).toLocaleDateString()}</TableCell>
                             <TableCell className="hidden md:table-cell">
                             <Badge
-                                variant={
-                                order.status === 'Delivered'
-                                    ? 'default'
-                                    : order.status === 'Cancelled'
-                                    ? 'destructive'
-                                    : 'secondary'
-                                }
-                                className={order.status === 'Delivered' ? 'bg-green-600 text-white' : ''}
+                                variant={getStatusVariant(order.status)}
+                                className={getStatusClass(order.status)}
                             >
                                 {order.status}
                             </Badge>
@@ -155,6 +176,14 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        {order.status === 'Pending' && (
+                                            <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'Ready to Ship')}>
+                                                <Ship className="mr-2 h-4 w-4" />
+                                                Create Shipment
+                                            </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuSeparator />
                                         <DropdownMenuLabel>Update Status</DropdownMenuLabel>
                                         {statusOptions.map(status => (
                                             <DropdownMenuItem 

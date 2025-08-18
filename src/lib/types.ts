@@ -37,7 +37,7 @@ export type Order = {
   customerName: string;
   customerEmail: string;
   date: string;
-  status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Pending' | 'Ready to Ship' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
   items: OrderItem[];
   shippingAddress: {

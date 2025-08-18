@@ -43,6 +43,32 @@ export default function AccountPage() {
         });
     }
   }, [user]);
+
+   const getStatusVariant = (status: Order['status']) => {
+        switch(status) {
+            case 'Delivered':
+                return 'default';
+            case 'Shipped':
+                return 'secondary';
+            case 'Ready to Ship':
+                return 'secondary';
+            case 'Cancelled':
+                return 'destructive';
+            case 'Pending':
+            default:
+                return 'outline';
+        }
+    }
+     const getStatusClass = (status: Order['status']) => {
+        switch(status) {
+            case 'Delivered':
+                return 'bg-green-600 text-white';
+            case 'Ready to Ship':
+                return 'bg-blue-500 text-white';
+            default:
+                return '';
+        }
+    }
   
 
   return (
@@ -100,14 +126,8 @@ export default function AccountPage() {
                     <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                        <Badge
-                        variant={
-                          order.status === 'Delivered'
-                            ? 'default'
-                            : order.status === 'Cancelled'
-                            ? 'destructive'
-                            : 'secondary'
-                        }
-                        className={order.status === 'Delivered' ? 'bg-green-600 text-white' : ''}
+                        variant={getStatusVariant(order.status)}
+                        className={getStatusClass(order.status)}
                       >
                         {order.status}
                       </Badge>
