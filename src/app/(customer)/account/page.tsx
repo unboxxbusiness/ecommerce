@@ -23,11 +23,19 @@ import { Button } from '@/components/ui/button';
 import { getCustomerOrders } from '@/lib/firestore';
 import type { Order } from '@/lib/types';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AccountPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     if (user?.email) {
@@ -74,6 +82,9 @@ export default function AccountPage() {
         }
     }
   
+    if (authLoading || !user) {
+        return <div>Loading...</div>;
+    }
 
   return (
     <div className="space-y-4 p-4 pt-6 md:p-8">
@@ -99,7 +110,7 @@ export default function AccountPage() {
               <p className="text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button>Edit Profile</Button>
+          <Button onClick={() => router.push('/settings')}>Edit Profile</Button>
         </CardContent>
       </Card>
 
