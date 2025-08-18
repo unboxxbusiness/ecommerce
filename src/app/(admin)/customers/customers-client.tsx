@@ -45,6 +45,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { deleteCustomer, updateCustomer } from '@/lib/firestore';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 export function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
@@ -64,6 +65,19 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete customer.' });
     }
   };
+
+  const getRoleVariant = (role: Customer['role']) => {
+    switch (role) {
+        case 'admin':
+            return 'destructive';
+        case 'manager':
+            return 'default';
+        case 'delivery partner':
+            return 'secondary';
+        default:
+            return 'outline';
+    }
+  }
 
   return (
     <>
@@ -86,6 +100,7 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden sm:table-cell">Join Date</TableHead>
                   <TableHead className="hidden md:table-cell">Total Orders</TableHead>
@@ -107,6 +122,11 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
                           <p className="text-sm text-muted-foreground">{customer.email}</p>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                        <Badge variant={getRoleVariant(customer.role)} className="capitalize">
+                            {customer.role}
+                        </Badge>
                     </TableCell>
                      <TableCell>
                         <Switch
