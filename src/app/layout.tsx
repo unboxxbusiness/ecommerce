@@ -27,6 +27,7 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
   const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
   const [contentLoading, setContentLoading] = React.useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   usePushNotifications();
@@ -45,12 +46,13 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
   }, [])
 
   React.useEffect(() => {
-    if (!loading && isAdmin) {
+    // Only redirect admin if they are not trying to view a public content page.
+    if (!loading && isAdmin && !pathname.startsWith('/p/')) {
       router.push('/dashboard');
     }
-  }, [loading, isAdmin, router]);
+  }, [loading, isAdmin, router, pathname]);
 
-  if (isAdmin) {
+  if (isAdmin && !pathname.startsWith('/p/')) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
             <p>Redirecting to dashboard...</p>
