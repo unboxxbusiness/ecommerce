@@ -3,7 +3,7 @@
 
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment } from 'firebase/firestore';
-import type { Order, Product } from './types';
+import type { Order, Product, Customer } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
 
@@ -92,4 +92,23 @@ export const createOrder = async (orderData: Omit<Order, 'id'>) => {
 export const updateOrderStatus = (orderId: string, status: Order['status']) => {
     const orderRef = doc(db, 'orders', orderId);
     return updateDoc(orderRef, { status });
+};
+
+// Customer CRUD
+export const createCustomer = (customerData: Omit<Customer, 'id' | 'joinDate' | 'totalOrders' | 'totalSpent'>) => {
+    return addDoc(collection(db, 'customers'), {
+        ...customerData,
+        joinDate: serverTimestamp(),
+        totalOrders: 0,
+        totalSpent: 0,
+    });
+};
+
+export const updateCustomer = (id: string, customerData: Partial<Customer>) => {
+    const customerRef = doc(db, 'customers', id);
+    return updateDoc(customerRef, customerData);
+};
+
+export const deleteCustomer = (id: string) => {
+    return deleteDoc(doc(db, 'customers', id));
 };

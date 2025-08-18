@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         totalOrders: 0,
         totalSpent: 0,
         joinDate: serverTimestamp(),
+        isActive: true,
       });
     }
 

@@ -56,4 +56,5 @@ export type Customer = {
   totalOrders: number;
   totalSpent: number;
   joinDate: string; // Should be ISO string or server timestamp
+  isActive: boolean;
 };
