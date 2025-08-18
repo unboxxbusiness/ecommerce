@@ -2,18 +2,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarProvider,
-} from '@/components/ui/sidebar';
-import { Nav } from '@/nav';
-import { Button } from '@/components/ui/button';
-import { Gem } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import {useEffect} from 'react';
+import { Sidebar } from './sidebar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -41,21 +32,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
   
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary">
-                <Gem className="size-5" />
-             </Button>
-            <span className="font-headline text-lg font-semibold group-data-[collapsible=icon]:hidden">Digital Shop</span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <Nav />
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar />
+      <main className="flex-1">
+        {children}
+      </main>
+    </div>
   );
 }

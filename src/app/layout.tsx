@@ -188,36 +188,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [pathname, setPathname] = React.useState('');
+  const pathname = usePathname();
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setPathname(window.location.pathname);
-    }
-  }, []);
-  
-  const currentPath = usePathname();
-   React.useEffect(() => {
-    setPathname(currentPath);
-  }, [currentPath]);
-
-  // Updated logic: Only treat specific URLs as admin paths.
-  const isAdminPath = pathname === '/products' ||
-                      pathname === '/pages' ||
-                      pathname.startsWith('/dashboard') || 
-                      pathname.startsWith('/orders') || 
-                      pathname.startsWith('/products/new') || 
-                      /^\/products\/[^/]+\/edit$/.test(pathname) ||
-                      pathname.startsWith('/customers') || 
-                      pathname.startsWith('/coupons') || 
+  const isAdminPath = pathname.startsWith('/dashboard') ||
+                      pathname.startsWith('/orders') ||
+                      pathname.startsWith('/products') ||
+                      pathname.startsWith('/customers') ||
+                      pathname.startsWith('/coupons') ||
                       pathname.startsWith('/marketing') ||
                       pathname.startsWith('/content') ||
-                      pathname.startsWith('/pages/new') ||
-                      /^\/pages\/[^/]+\/edit$/.test(pathname) ||
+                      pathname.startsWith('/pages') ||
                       pathname.startsWith('/settings');
 
-  const isPublicContentPage = /^\/p\/[^/]+$/.test(pathname);
-  const isCustomerPath = !isAdminPath || isPublicContentPage;
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
+  const isPublicPage = !isAdminPath && !isAuthPage;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -241,7 +225,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <CartProvider>
-              {isCustomerPath ? <CustomerLayout>{children}</CustomerLayout> : children}
+              {isPublicPage ? <CustomerLayout>{children}</CustomerLayout> : children}
             </CartProvider>
           </AuthProvider>
           <Toaster />
