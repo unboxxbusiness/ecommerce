@@ -213,7 +213,7 @@ export const getPageById = async (id: string): Promise<Page | null> => {
         const docRef = adminDb.collection('pages').doc(id);
         const docSnap = await docRef.get();
 
-        if (!docSnap.exists()) {
+        if (!docSnap.exists) {
             return null;
         }
 
