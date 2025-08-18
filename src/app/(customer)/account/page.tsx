@@ -52,6 +52,8 @@ export default function AccountPage() {
                 return 'secondary';
             case 'Ready to Ship':
                 return 'secondary';
+             case 'Processing':
+                return 'secondary';
             case 'Cancelled':
                 return 'destructive';
             case 'Pending':
@@ -65,6 +67,8 @@ export default function AccountPage() {
                 return 'bg-green-600 text-white';
             case 'Ready to Ship':
                 return 'bg-blue-500 text-white';
+            case 'Processing':
+                return 'bg-purple-500 text-white';
             default:
                 return '';
         }

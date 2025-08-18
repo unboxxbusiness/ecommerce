@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useAuth } from '@/hooks/use-auth';
-import { createOrder } from '@/lib/firestore';
+import { createOrder, updateOrderStatus } from '@/lib/firestore';
 import { Loader2, CreditCard } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -51,7 +51,13 @@ export default function CheckoutPage() {
     resolver: zodResolver(shippingSchema),
     defaultValues: { fullName: '', address: '', city: '', zip: '', country: '' },
   });
-
+  
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
 
   if (cartItems.length === 0 && currentStep < 2) {
      router.push('/cart');
@@ -81,33 +87,76 @@ export default function CheckoutPage() {
     }
     setIsPlacingOrder(true);
     
-    // In a real implementation, this is where you would:
-    // 1. Call your backend to create a Razorpay order, get an order_id.
-    // 2. Open the Razorpay checkout modal with the order_id.
-    // 3. The `handler` function in Razorpay options would handle success/failure.
-    // 4. On success, you'd call a webhook or another server action to verify the payment
-    //    and then create the order in your database with 'Pending' or 'Processing' status.
-    
-    // For now, we will simulate this by creating the order with "Pending" status directly.
-    
     try {
-        await createOrder({
+        // 1. Create order in our DB with 'pending' status
+        const orderId = await createOrder({
             customerName: shippingForm.getValues('fullName'),
             customerEmail: user.email!,
             date: new Date().toISOString(),
-            // Status is 'Pending' because payment hasn't been confirmed by a real gateway.
             status: 'Pending',
             total: total,
             items: cartItems.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
             shippingAddress: shippingForm.getValues()
         });
 
-        toast({
-            title: "Order Placed!",
-            description: "Your order has been received and is awaiting payment confirmation."
+        // 2. Create Razorpay order
+        const res = await fetch('/api/razorpay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total }),
         });
-        clearCart();
-        router.push('/account');
+
+        if (!res.ok) {
+            throw new Error('Failed to create Razorpay order.');
+        }
+
+        const razorpayOrder = await res.json();
+
+        // 3. Open Razorpay checkout
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
+            name: "Digital Shop",
+            description: "Order Payment",
+            order_id: razorpayOrder.id,
+            handler: async function (response: any) {
+                const verificationRes = await fetch('/api/razorpay/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        orderId: orderId, // Our internal order ID
+                    }),
+                });
+
+                const verificationData = await verificationRes.json();
+                
+                if (verificationData.isVerified) {
+                    toast({
+                        title: "Payment Successful!",
+                        description: "Your order has been placed."
+                    });
+                    clearCart();
+                    router.push('/account');
+                } else {
+                     await updateOrderStatus(orderId, 'Cancelled');
+                     toast({ variant: 'destructive', title: 'Payment Failed', description: 'Your payment could not be verified. Please try again.' });
+                }
+            },
+            prefill: {
+                name: shippingForm.getValues('fullName'),
+                email: user.email,
+            },
+            theme: {
+                color: "#16a34a"
+            }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
 
     } catch (error) {
         console.error("Failed to place order:", error);
@@ -204,11 +253,11 @@ export default function CheckoutPage() {
                           <CreditCard className="h-4 w-4" />
                           <AlertTitle>Pay with Razorpay</AlertTitle>
                           <AlertDescription>
-                            You will be redirected to Razorpay to complete your payment securely. This is a simulated flow.
+                            You will be redirected to Razorpay to complete your payment securely.
                           </AlertDescription>
                         </Alert>
                          <p className="text-sm text-muted-foreground">
-                            By proceeding, you agree to the terms and conditions of our payment provider. A full integration requires developer setup.
+                            By proceeding, you agree to the terms and conditions of our payment provider.
                          </p>
                     </CardContent>
                     <CardFooter className="justify-between">
@@ -234,7 +283,7 @@ export default function CheckoutPage() {
                         <Separator/>
                          <div>
                             <h3 className="font-semibold mb-2">Payment Method:</h3>
-                            <p>Razorpay (Simulated)</p>
+                            <p>Razorpay</p>
                         </div>
                         <Separator/>
                          <div>
@@ -263,7 +312,7 @@ export default function CheckoutPage() {
                          <Button variant="outline" onClick={handlePrevStep} disabled={isPlacingOrder}>Back to Payment</Button>
                          <Button onClick={handlePlaceOrder} disabled={isPlacingOrder}>
                             {isPlacingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Place Order
+                            Place Order & Pay
                          </Button>
                     </CardFooter>
                 </Card>

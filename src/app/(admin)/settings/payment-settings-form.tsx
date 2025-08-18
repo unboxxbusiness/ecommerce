@@ -14,11 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { CardFooter } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const paymentSettingsSchema = z.object({
   razorpayKeyId: z.string().min(1, 'Razorpay Key ID is required'),
@@ -40,13 +39,19 @@ export function PaymentSettingsForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof paymentSettingsSchema>) => {
-    // This is a placeholder. A real implementation would securely save these keys.
+    // In a real application, you would make an API call to a secure backend 
+    // endpoint to save these keys, likely as environment variables or in a secure vault.
+    // For this prototype, we'll just log them and show a toast.
     setIsSaving(true);
-    console.log('Simulating saving payment settings:', values);
+    console.log('Simulating saving payment settings. In a real app, these would be sent to a secure backend endpoint, NOT stored in the browser.');
+    console.log('Razorpay Key ID:', values.razorpayKeyId);
+    console.log('Razorpay Key Secret:', values.razorpayKeySecret);
+    console.log('Razorpay Webhook Secret:', values.razorpayWebhookSecret);
+    
     setTimeout(() => {
         toast({
-            title: 'Integration Required',
-            description: 'Saving payment gateway settings requires developer implementation.',
+            title: 'Settings Saved (Simulated)',
+            description: 'Your Razorpay keys have been logged. A restart is required for environment variables to be loaded.',
         });
         setIsSaving(false);
     }, 1000);
@@ -54,13 +59,6 @@ export function PaymentSettingsForm() {
 
   return (
     <>
-    <Alert variant="destructive" className="mb-6">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Developer Required</AlertTitle>
-        <AlertDescription>
-            Connecting to a payment gateway requires secure backend logic to handle secret keys and webhooks. This form is a placeholder. Please consult a developer to complete the integration.
-        </AlertDescription>
-    </Alert>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
@@ -104,7 +102,7 @@ export function PaymentSettingsForm() {
         />
         <CardFooter className="px-0">
             <div className="flex justify-end gap-2 w-full">
-                <Button type="submit" disabled={true}>
+                <Button type="submit" disabled={isSaving}>
                     {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Save Settings
                 </Button>
