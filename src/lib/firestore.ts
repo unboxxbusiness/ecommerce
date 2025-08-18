@@ -88,3 +88,8 @@ export const createOrder = async (orderData: Omit<Order, 'id'>) => {
 
     return orderRef.id;
 };
+
+export const updateOrderStatus = (orderId: string, status: Order['status']) => {
+    const orderRef = doc(db, 'orders', orderId);
+    return updateDoc(orderRef, { status });
+};
