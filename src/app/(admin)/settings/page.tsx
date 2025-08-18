@@ -18,7 +18,7 @@ export default function SettingsPage() {
     <div className="flex min-h-screen w-full flex-col">
       <Header title="Settings" />
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-        <Tabs defaultValue="profile">
+        <Tabs defaultValue="profile" className="w-full">
           <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="theme">Appearance</TabsTrigger>
@@ -44,7 +44,7 @@ export default function SettingsPage() {
                 <CardDescription>
                   Choose how you want the dashboard to look.
                 </CardDescription>
-              </CardHeader>
+              </Header>
               <CardContent>
                 <ThemeToggle />
               </CardContent>
