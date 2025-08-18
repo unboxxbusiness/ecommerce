@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Header } from '@/components/header';
 import type { Order } from '@/lib/types';
 import {
   DropdownMenu,
@@ -117,13 +116,14 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
 
   return (
     <>
-        <Header title="Orders">
-            <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
-                <Download className="h-4 w-4" />
-                Export CSV
-            </Button>
-        </Header>
         <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+             <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
+                <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                </Button>
+            </div>
             <Card>
             <CardHeader>
                 <CardTitle>Recent Orders</CardTitle>

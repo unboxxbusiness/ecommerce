@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import type { Page } from '@/lib/types';
@@ -67,15 +66,16 @@ export function PagesClient({ initialPages }: { initialPages: Page[] }) {
 
   return (
     <>
-      <Header title="Pages">
-         <Button size="sm" className="gap-1" asChild>
-            <Link href="/pages/new">
-                <PlusCircle className="h-4 w-4" />
-                Add Page
-            </Link>
-        </Button>
-      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Pages</h2>
+            <Button size="sm" className="gap-1" asChild>
+                <Link href="/pages/new">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Page
+                </Link>
+            </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Content Pages</CardTitle>

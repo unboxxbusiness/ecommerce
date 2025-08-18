@@ -3,7 +3,6 @@ import * as React from 'react';
 import { getAdminProducts } from '@/lib/firestore-admin';
 import type { Product } from '@/lib/types';
 import { ProductsClient } from './products-client';
-import { Header } from '@/components/header';
 
 export default async function ProductsPage() {
   const initialProducts: Product[] = await getAdminProducts();

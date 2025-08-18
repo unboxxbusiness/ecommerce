@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/card';
 import { DollarSign, Package, Users, ShoppingCart, ArrowUpRight } from 'lucide-react';
 import { DashboardCharts } from '@/components/dashboard-charts';
-import { Header } from '@/components/header';
 import { getAdminOrders, getAdminProducts, getAdminCustomers } from '@/lib/firestore-admin';
 import type { Order, Product, Customer } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -55,7 +54,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header title="Dashboard" />
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

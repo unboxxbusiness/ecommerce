@@ -1,6 +1,5 @@
 
 import * as React from 'react';
-import { Header } from '@/components/header';
 import {
   Card,
   CardContent,
@@ -18,8 +17,8 @@ export default async function ContentPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header title="Content Management" />
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <h2 className="text-3xl font-bold tracking-tight">Content Management</h2>
         <Tabs defaultValue="homepage" className="w-full">
           <TabsList className="grid w-full max-w-lg grid-cols-2">
             <TabsTrigger value="homepage">Home Page</TabsTrigger>

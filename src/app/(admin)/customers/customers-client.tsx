@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Header } from '@/components/header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
@@ -107,21 +106,22 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
 
   return (
     <>
-      <Header title="Customers">
-        <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
-                <Download className="h-4 w-4" />
-                Export CSV
-            </Button>
-            <Button size="sm" className="gap-1" asChild>
-                <Link href="/customers/new">
-                    <PlusCircle className="h-4 w-4" />
-                    Add Customer
-                </Link>
-            </Button>
-        </div>
-      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
+            <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                </Button>
+                <Button size="sm" className="gap-1" asChild>
+                    <Link href="/customers/new">
+                        <PlusCircle className="h-4 w-4" />
+                        Add Customer
+                    </Link>
+                </Button>
+            </div>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Customer Profiles</CardTitle>

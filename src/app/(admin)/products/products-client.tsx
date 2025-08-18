@@ -28,7 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Header } from '@/components/header';
 import type { Product } from '@/lib/types';
 import { deleteProduct } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -75,15 +74,16 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
 
   return (
     <>
-      <Header title="Products">
-        <Button size="sm" className="gap-1" asChild>
-          <Link href="/products/new">
-            <PlusCircle className="h-4 w-4" />
-            Add Product
-          </Link>
-        </Button>
-      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+            <Button size="sm" className="gap-1" asChild>
+                <Link href="/products/new">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Product
+                </Link>
+            </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Product Catalog</CardTitle>

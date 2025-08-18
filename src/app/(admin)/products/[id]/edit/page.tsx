@@ -1,7 +1,6 @@
 
 import * as React from 'react';
 import { ProductForm } from '../../product-form';
-import { Header } from '@/components/header';
 import { getAdminProduct } from '@/lib/firestore-admin';
 import { notFound } from 'next/navigation';
 import {
@@ -28,15 +27,15 @@ export default async function EditProductPage({
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header title="Edit Product">
-        <Button variant="outline" size="sm" asChild>
-            <Link href="/products">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-            </Link>
-        </Button>
-      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" asChild>
+                <Link href="/products">
+                    <ArrowLeft className="h-4 w-4" />
+                </Link>
+            </Button>
+            <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+        </div>
         <Card>
             <CardHeader>
                 <CardTitle>Edit Product Details</CardTitle>

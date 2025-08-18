@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import type { Coupon } from '@/lib/types';
@@ -77,15 +76,16 @@ export function CouponsClient({ initialCoupons }: { initialCoupons: Coupon[] }) 
 
   return (
     <>
-      <Header title="Coupons">
-         <Button size="sm" className="gap-1" asChild>
-            <Link href="/coupons/new">
-                <PlusCircle className="h-4 w-4" />
-                Add Coupon
-            </Link>
-        </Button>
-      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Coupons</h2>
+            <Button size="sm" className="gap-1" asChild>
+                <Link href="/coupons/new">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Coupon
+                </Link>
+            </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Promo Codes</CardTitle>

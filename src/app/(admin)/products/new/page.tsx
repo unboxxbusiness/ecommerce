@@ -1,7 +1,6 @@
 
 import * as React from 'react';
 import { ProductForm } from '../product-form';
-import { Header } from '@/components/header';
 import {
   Card,
   CardContent,
@@ -13,8 +12,8 @@ import {
 export default function NewProductPage() {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header title="Add New Product" />
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+        <h2 className="text-3xl font-bold tracking-tight">Add New Product</h2>
         <Card>
             <CardHeader>
                 <CardTitle>Create a New Product</CardTitle>
