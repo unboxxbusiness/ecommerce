@@ -10,6 +10,7 @@ import {
   Megaphone,
   Settings,
   Palette,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -28,6 +29,7 @@ const navItems = [
   { href: '/coupons', icon: TicketPercent, label: 'Coupons' },
   { href: '/marketing', icon: Megaphone, label: 'Marketing' },
   { href: '/content', icon: Palette, label: 'Content' },
+  { href: '/pages', icon: FileText, label: 'Pages' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 

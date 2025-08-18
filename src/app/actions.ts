@@ -5,9 +5,9 @@ import { optimizeProductDescription } from '@/ai/flows/optimize-product-descript
 import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { serverTimestamp } from 'firebase/firestore';
-import { updateSiteContent as adminUpdateSiteContent } from '@/lib/firestore-admin';
-import type { SiteContent } from '@/lib/types';
+import { FieldValue, serverTimestamp } from 'firebase/firestore';
+import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage } from '@/lib/firestore-admin';
+import type { Page, SiteContent } from '@/lib/types';
 import { cookies } from 'next/headers';
 
 
@@ -170,5 +170,79 @@ export async function handleUpdateSiteContent(contentData: Partial<SiteContent>)
     } catch (error) {
         console.error('Failed to update site content:', error);
         return { error: 'An unexpected server error occurred while updating content.' };
+    }
+}
+
+const pageSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  slug: z.string().min(3, 'Slug must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
+  content: z.string().min(10, 'Content is required.'),
+  isPublished: z.boolean(),
+});
+
+
+export async function handleCreatePage(data: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+
+    const validation = pageSchema.safeParse(data);
+    if (!validation.success) {
+        return { error: 'Invalid page data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    
+    try {
+        const pageRef = adminDb.collection('pages');
+        const newPage = {
+            ...validation.data,
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        }
+        await pageRef.add(newPage);
+        return { success: true };
+    } catch(error) {
+        console.error("Failed to create page:", error);
+        return { error: 'An unexpected server error occurred while creating the page.' };
+    }
+}
+
+export async function handleUpdatePage(id: string, data: Partial<Page>) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+    
+    const validation = pageSchema.partial().safeParse(data);
+    if (!validation.success) {
+        return { error: 'Invalid page data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    
+     try {
+        const pageRef = adminDb.collection('pages').doc(id);
+        const updatedPage = {
+            ...validation.data,
+            updatedAt: FieldValue.serverTimestamp(),
+        }
+        await pageRef.update(updatedPage);
+        return { success: true };
+    } catch(error) {
+        console.error("Failed to update page:", error);
+        return { error: 'An unexpected server error occurred while updating the page.' };
+    }
+}
+
+export async function handleDeletePage(id: string) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+
+    try {
+        await adminDeletePage(id);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete page:', error);
+        return { error: 'An unexpected server error occurred while deleting the page.' };
     }
 }

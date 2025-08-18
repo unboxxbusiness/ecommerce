@@ -112,3 +112,13 @@ export type SiteContent = {
     };
   };
 };
+
+export type Page = {
+    id: string;
+    title: string;
+    slug: string;
+    content: string; // Stored as HTML
+    isPublished: boolean;
+    createdAt: string; // ISO string
+    updatedAt: string; // ISO string
+}

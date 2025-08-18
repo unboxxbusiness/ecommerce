@@ -3,7 +3,7 @@ import 'server-only';
 
 import { adminDb } from './firebase-admin';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
-import type { Product, Order, Customer, Coupon, SiteContent } from './types';
+import type { Product, Order, Customer, Coupon, SiteContent, Page } from './types';
 
 // These functions use the ADMIN SDK and are for SERVER-SIDE use only.
 
@@ -184,3 +184,30 @@ export const updateSiteContent = (contentData: Partial<SiteContent>) => {
     // We can handle timestamps specifically if needed, but for this CMS, it's not required.
     return contentRef.set(contentData, { merge: true });
 };
+
+// Page functions for admin
+export const getAdminPages = () => fetchCollection<Page>('pages');
+
+export const getAdminPage = async (id: string): Promise<Page | null> => {
+    try {
+        const docRef = adminDb.collection('pages').doc(id);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+            const docData = docSnap.data();
+             for (const key in docData) {
+                if (docData[key] instanceof Timestamp) {
+                    docData[key] = (docData[key] as Timestamp).toDate().toISOString();
+                }
+            }
+            return { id: docSnap.id, ...docData } as Page;
+        }
+        return null;
+    } catch(error) {
+        console.error(`Failed to fetch page ${id}:`, error);
+        return null;
+    }
+}
+
+export const deletePage = (id: string) => {
+    return adminDb.collection('pages').doc(id).delete();
+}

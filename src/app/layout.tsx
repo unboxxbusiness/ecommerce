@@ -208,6 +208,7 @@ export default function RootLayout({
                       pathname.startsWith('/coupons') || 
                       pathname.startsWith('/marketing') ||
                       pathname.startsWith('/content') ||
+                      pathname.startsWith('/pages') ||
                       pathname.startsWith('/settings');
 
 

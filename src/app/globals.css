@@ -82,4 +82,24 @@
   body {
     @apply bg-background text-foreground;
   }
+  .is-active {
+    @apply bg-primary/20 text-primary;
+  }
+  .prose {
+    h1,h2,h3,h4,h5,h6 {
+      @apply my-4;
+    }
+    p {
+      @apply my-2;
+    }
+    a {
+        @apply text-primary hover:text-primary/80;
+    }
+    ul {
+        @apply list-disc list-inside;
+    }
+    ol {
+        @apply list-decimal list-inside;
+    }
+  }
 }

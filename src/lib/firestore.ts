@@ -3,7 +3,7 @@
 
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment, arrayUnion, setDoc } from 'firebase/firestore';
-import type { Order, Product, Customer, Coupon, SiteContent } from './types';
+import type { Order, Product, Customer, Coupon, Page } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
 
@@ -157,3 +157,18 @@ export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
 export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
 };
+
+
+export const getPageBySlug = async (slug: string): Promise<Page | null> => {
+    const q = query(
+        collection(db, 'pages'), 
+        where('slug', '==', slug), 
+        where('isPublished', '==', true)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const pageDoc = querySnapshot.docs[0];
+    return { id: pageDoc.id, ...pageDoc.data() } as Page;
+}
