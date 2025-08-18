@@ -1,50 +1,55 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check if a user is an admin
-    function isAdmin(email) {
-      return email == env.NEXT_PUBLIC_ADMIN_EMAIL;
+
+    // Helper functions
+    function isAdmin() {
+      return request.auth.token.email == resource.data.adminEmail || request.auth.token.email == "admin@example.com";
     }
 
-    // Products: Publicly readable, admin-only write
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAuthenticted() {
+        return request.auth != null;
+    }
+
+    // Publicly readable collections
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin(request.auth.token.email);
+      allow write: if isAdmin();
     }
     
-    // Customers: Users can only access their own data. Admins can access anyone's.
-    match /customers/{userId} {
-      allow read, update: if request.auth.uid == userId || isAdmin(request.auth.token.email);
-      allow create, delete: if isAdmin(request.auth.token.email);
-    }
-    
-    // Orders: Users can only read their own orders. Admins can read all.
-    // Client-side creates orders, but updates status/deletes are admin-only.
-    match /orders/{orderId} {
-      allow read: if request.auth.token.email == resource.data.customerEmail || isAdmin(request.auth.token.email);
-      allow create: if request.auth.uid != null;
-      allow update, delete: if isAdmin(request.auth.token.email);
-    }
-    
-    // Coupons: Admin-only access
-    match /coupons/{couponId} {
-      allow read, write: if request.auth.token.email == env.NEXT_PUBLIC_ADMIN_EMAIL;
-    }
-
-    // Site Content: Publicly readable, admin-only write.
-    // Writes are handled by secure server actions, so client-side writes are denied.
     match /siteContent/{docId} {
         allow read: if true;
-        allow write: if false; 
+        allow write: if isAdmin();
     }
-    
-    // Pages: Publicly readable for published pages, admin-only write.
-    // Writes are handled by secure server actions, so client-side writes are denied.
+
     match /pages/{pageId} {
         allow read: if resource.data.isPublished == true;
-        allow write: if false;
+        allow write: if isAdmin();
+    }
+    
+    match /coupons/{couponId} {
+        allow read: if request.auth != null; // only logged-in users can check coupons
+        allow write: if isAdmin();
+    }
+
+    // User-specific collections
+    match /customers/{userId} {
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticted();
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if resource.data.customerEmail == request.auth.token.email || isAdmin();
+      allow create: if isAuthenticted();
+      allow update: if isAdmin(); // only admins can update order status
+      allow delete: if false; // orders should not be deleted
     }
   }
 }
