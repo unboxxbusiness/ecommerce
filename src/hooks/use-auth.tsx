@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         totalSpent: 0,
         joinDate: serverTimestamp(),
         isActive: true,
+        role: 'customer',
       });
     }
 

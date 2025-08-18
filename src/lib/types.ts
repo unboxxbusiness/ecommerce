@@ -9,7 +9,7 @@ export type Review = {
 };
 
 export type Product = {
-  id: string;
+  id:string;
   name: string;
   description: string;
   price: number;
@@ -58,6 +58,7 @@ export type Customer = {
   totalSpent: number;
   joinDate: string; // Should be ISO string or server timestamp
   isActive: boolean;
+  role: 'admin' | 'manager' | 'delivery partner' | 'customer';
 };
 
 export type Coupon = {
