@@ -59,6 +59,7 @@ export type Customer = {
   joinDate: string; // Should be ISO string or server timestamp
   isActive: boolean;
   role: 'admin' | 'manager' | 'delivery partner' | 'customer';
+  fcmTokens?: string[];
 };
 
 export type Coupon = {

@@ -2,7 +2,7 @@
 'use client';
 
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment, arrayUnion } from 'firebase/firestore';
 import type { Order, Product, Customer, Coupon } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
@@ -112,6 +112,14 @@ export const updateCustomer = (id: string, customerData: Partial<Customer>) => {
 export const deleteCustomer = (id: string) => {
     return deleteDoc(doc(db, 'customers', id));
 };
+
+export const saveFcmToken = (userId: string, token: string) => {
+    const customerRef = doc(db, 'customers', userId);
+    return updateDoc(customerRef, {
+        fcmTokens: arrayUnion(token)
+    });
+}
+
 
 // Coupon CRUD
 export const getActiveCouponByCode = async (code: string): Promise<Coupon | null> => {

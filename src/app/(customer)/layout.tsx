@@ -11,6 +11,7 @@ import { Gem, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 export default function CustomerLayout({
   children,
@@ -21,6 +22,8 @@ export default function CustomerLayout({
   const { cartCount } = useCart();
   const router = useRouter();
   const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+  
+  usePushNotifications();
 
   useEffect(() => {
     if (!loading && !user) {
