@@ -4,6 +4,10 @@
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
 import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
+import { getAuth } from 'firebase/auth';
+import { app } from '@/lib/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { adminAuth } from '@/lib/firebase-admin';
 
 const optimizeDescriptionSchema = z.object({
   productName: z.string(),
@@ -65,5 +69,18 @@ export async function handleSendNotification(formData: FormData) {
     } catch (error) {
         console.error('Failed to send notification:', error);
         return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handlePasswordReset(email: string) {
+    if (!email) {
+        return { error: 'Email is required.' };
+    }
+    try {
+        await adminAuth.generatePasswordResetLink(email);
+        return { success: true };
+    } catch(error: any) {
+        console.error("Failed to send password reset email:", error);
+        return { error: error.message || "An unexpected error occurred." };
     }
 }
