@@ -9,11 +9,8 @@ import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -26,7 +23,8 @@ import {
 } from '@/components/ui/form';
 import { useAuth } from '@/hooks/use-auth';
 import { createOrder } from '@/lib/firestore';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const shippingSchema = z.object({
   fullName: z.string().min(3, 'Full name is required'),
@@ -36,23 +34,8 @@ const shippingSchema = z.object({
   country: z.string().min(2, 'Country is required'),
 });
 
-const paymentSchema = z.object({
-  paymentMethod: z.enum(['credit-card', 'paypal'], {
-    required_error: 'You need to select a payment method.',
-  }),
-  cardNumber: z.string().optional(),
-  expiryDate: z.string().optional(),
-  cvc: z.string().optional(),
-}).refine(data => {
-    if (data.paymentMethod === 'credit-card') {
-        return !!data.cardNumber && !!data.expiryDate && !!data.cvc;
-    }
-    return true;
-}, { message: "Credit card details are required", path: ['cardNumber']});
-
 
 type ShippingForm = z.infer<typeof shippingSchema>;
-type PaymentForm = z.infer<typeof paymentSchema>;
 
 const steps = ['Shipping', 'Payment', 'Review'];
 
@@ -60,7 +43,7 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = React.useState(0);
   const [isPlacingOrder, setIsPlacingOrder] = React.useState(false);
   const { user } = useAuth();
-  const { cartItems, subtotal, discount, total, couponApplied, clearCart } = useCart();
+  const { cartItems, subtotal, discount, total, clearCart } = useCart();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -69,10 +52,6 @@ export default function CheckoutPage() {
     defaultValues: { fullName: '', address: '', city: '', zip: '', country: '' },
   });
 
-  const paymentForm = useForm<PaymentForm>({
-    resolver: zodResolver(paymentSchema),
-    defaultValues: { paymentMethod: 'credit-card' },
-  });
 
   if (cartItems.length === 0 && currentStep < 2) {
      router.push('/cart');
@@ -84,7 +63,7 @@ export default function CheckoutPage() {
     if (currentStep === 0) {
       isValid = await shippingForm.trigger();
     } else if (currentStep === 1) {
-      isValid = await paymentForm.trigger();
+      isValid = true;
     }
     if (isValid) {
       setCurrentStep((prev) => prev + 1);
@@ -101,11 +80,22 @@ export default function CheckoutPage() {
         return;
     }
     setIsPlacingOrder(true);
+    
+    // In a real implementation, this is where you would:
+    // 1. Call your backend to create a Razorpay order, get an order_id.
+    // 2. Open the Razorpay checkout modal with the order_id.
+    // 3. The `handler` function in Razorpay options would handle success/failure.
+    // 4. On success, you'd call a webhook or another server action to verify the payment
+    //    and then create the order in your database with 'Pending' or 'Processing' status.
+    
+    // For now, we will simulate this by creating the order with "Pending" status directly.
+    
     try {
         await createOrder({
             customerName: shippingForm.getValues('fullName'),
             customerEmail: user.email!,
             date: new Date().toISOString(),
+            // Status is 'Pending' because payment hasn't been confirmed by a real gateway.
             status: 'Pending',
             total: total,
             items: cartItems.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
@@ -114,7 +104,7 @@ export default function CheckoutPage() {
 
         toast({
             title: "Order Placed!",
-            description: "Thank you for your purchase. You will receive a confirmation email shortly."
+            description: "Your order has been received and is awaiting payment confirmation."
         });
         clearCart();
         router.push('/account');
@@ -205,40 +195,27 @@ export default function CheckoutPage() {
             )}
 
             {currentStep === 1 && (
-                 <FormProvider {...paymentForm}>
-                    <Form {...paymentForm}>
-                         <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }}>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Payment Method</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <FormField control={paymentForm.control} name="paymentMethod" render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 gap-4">
-                                                    <Label className="flex items-center gap-4 rounded-md border p-4 cursor-pointer hover:bg-accent">
-                                                        <RadioGroupItem value="credit-card" />
-                                                        <span>Credit Card</span>
-                                                    </Label>
-                                                     <Label className="flex items-center gap-4 rounded-md border p-4 cursor-pointer hover:bg-accent">
-                                                        <RadioGroupItem value="paypal" />
-                                                        <span>PayPal</span>
-                                                    </Label>
-                                                </RadioGroup>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                </CardContent>
-                                <CardFooter className="justify-between">
-                                    <Button variant="outline" onClick={handlePrevStep}>Back to Shipping</Button>
-                                    <Button type="submit">Continue to Review</Button>
-                                </CardFooter>
-                            </Card>
-                         </form>
-                    </Form>
-                 </FormProvider>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Payment Method</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Alert>
+                          <CreditCard className="h-4 w-4" />
+                          <AlertTitle>Pay with Razorpay</AlertTitle>
+                          <AlertDescription>
+                            You will be redirected to Razorpay to complete your payment securely. This is a simulated flow.
+                          </AlertDescription>
+                        </Alert>
+                         <p className="text-sm text-muted-foreground">
+                            By proceeding, you agree to the terms and conditions of our payment provider. A full integration requires developer setup.
+                         </p>
+                    </CardContent>
+                    <CardFooter className="justify-between">
+                        <Button variant="outline" onClick={handlePrevStep}>Back to Shipping</Button>
+                        <Button onClick={handleNextStep}>Continue to Review</Button>
+                    </CardFooter>
+                </Card>
             )}
             
             {currentStep === 2 && (
@@ -257,7 +234,7 @@ export default function CheckoutPage() {
                         <Separator/>
                          <div>
                             <h3 className="font-semibold mb-2">Payment Method:</h3>
-                            <p>{paymentForm.getValues('paymentMethod') === 'credit-card' ? "Credit Card" : "PayPal"}</p>
+                            <p>Razorpay (Simulated)</p>
                         </div>
                         <Separator/>
                          <div>

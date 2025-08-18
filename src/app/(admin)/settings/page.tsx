@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileManagementForm } from './profile-management-form';
 import { ThemeToggle } from './theme-toggle';
+import { PaymentSettingsForm } from './payment-settings-form';
 
 export default function SettingsPage() {
   return (
@@ -18,9 +19,10 @@ export default function SettingsPage() {
       <Header title="Settings" />
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <Tabs defaultValue="profile">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="theme">Appearance</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
           </TabsList>
           <TabsContent value="profile">
             <Card>
@@ -45,6 +47,19 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <ThemeToggle />
+              </CardContent>
+            </Card>
+          </TabsContent>
+           <TabsContent value="payments">
+             <Card>
+              <CardHeader>
+                <CardTitle>Payment Gateway</CardTitle>
+                <CardDescription>
+                  Configure your payment provider settings.
+                </CardDescription>
+              </Header>
+              <CardContent>
+                <PaymentSettingsForm />
               </CardContent>
             </Card>
           </TabsContent>
