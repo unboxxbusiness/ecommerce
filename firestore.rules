@@ -2,32 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // By default, deny all reads and writes.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper function to check if the user is an admin
+    // Replace 'admin@example.com' with your actual admin email in Firebase console if needed
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == get(/databases/$(database)/documents/settings/admin).data.admin_email;
+    }
     
-    // Products can be read by anyone, but only written by an admin.
+    // Authenticated users can read their own customer data
+    match /customers/{userId} {
+      allow get, update: if request.auth != null && request.auth.uid == userId;
+      // Admins can create, read, update, delete any customer
+      allow read, write: if isAdmin();
+    }
+    
+    // Products are publicly readable, but only admins can modify them.
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth.token.email == resource.data.adminEmail; 
+      allow write: if isAdmin();
     }
 
-    // Customers can only manage their own document. Admins have full access.
-    match /customers/{userId} {
-      allow read, update: if request.auth.uid == userId;
-      allow create, delete: if request.auth.token.email == resource.data.adminEmail;
-    }
-
-    // Users can create orders and read their own orders. Admins have full access.
+    // Orders can be created by any authenticated user.
+    // Users can only read their own orders.
+    // Admins can read/write all orders.
     match /orders/{orderId} {
-      allow create: if request.auth.uid != null && request.resource.data.customerEmail == request.auth.token.email;
-      allow read: if request.resource.data.customerEmail == request.auth.token.email || request.auth.token.email == resource.data.adminEmail;
-      allow update, delete: if request.auth.token.email == resource.data.adminEmail;
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read, write: if isAdmin();
     }
-
-    function isAdmin() {
-      // In a real app, you might have a custom claim or a separate admin collection.
-      // For now, we'll check against the admin email environment variable.
-      // This function assumes you'll pass the admin email in the resource data for write operations,
-      // which is not ideal but works as a starting point. A more secure approach is using custom claims.
-      return request.auth.token.email == resource.data.adminEmail;
+    
+    // Coupons can only be read/written by admins, but read by authenticated users.
+    match /coupons/{couponId} {
+      allow get: if request.auth != null;
+      allow list, write: if isAdmin();
+    }
+    
+     // Allow admins to manage settings
+    match /settings/{settingId} {
+      allow read, write: if isAdmin();
     }
   }
 }
