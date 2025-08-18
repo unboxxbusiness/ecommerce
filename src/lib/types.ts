@@ -69,3 +69,46 @@ export type Coupon = {
   isActive: boolean;
   createdAt: string; // Should be ISO string or server timestamp
 };
+
+export type FooterLink = {
+  id: string;
+  text: string;
+  url: string;
+};
+
+export type Testimonial = {
+  id: string;
+  quote: string;
+  author: string;
+  authorRole: string;
+};
+
+export type SiteContent = {
+  global: {
+    siteName: string;
+    logoUrl: string;
+    footerLinks: FooterLink[];
+  };
+  homePage: {
+    hero: {
+      show: boolean;
+      title: string;
+      subtitle: string;
+      ctaText: string;
+      ctaLink: string;
+      imageUrl: string;
+    };
+    testimonials: {
+      show: boolean;
+      title: string;
+      items: Testimonial[];
+    };
+    ctaBlock: {
+      show: boolean;
+      title: string;
+      subtitle: string;
+      ctaText: string;
+      ctaLink: string;
+    };
+  };
+};

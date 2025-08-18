@@ -17,15 +17,32 @@ import { Badge } from '@/components/ui/badge';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { Suspense } from 'react';
+import type { SiteContent } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 function CustomerLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
   const { cartCount } = useCart();
+  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
+  const [contentLoading, setContentLoading] = React.useState(true);
   const router = useRouter();
   const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
-  // Initialize push notifications for logged-in users
   usePushNotifications();
+
+  React.useEffect(() => {
+    fetch('/api/content')
+      .then(res => res.json())
+      .then(data => {
+          setSiteContent(data)
+          setContentLoading(false)
+      })
+      .catch(err => {
+          console.error("Failed to load site content", err)
+          setContentLoading(false)
+      })
+  }, [])
 
   React.useEffect(() => {
     if (!loading && isAdmin) {
@@ -41,20 +58,38 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+  const HeaderContent = () => {
+    if (contentLoading || !siteContent) {
+      return (
+        <>
+            <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-6 w-24" />
+            </div>
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-8 w-24" />
+            </div>
+        </>
+      )
+    }
+    return (
+        <>
         <Link href="/" className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary"
-          >
-            <Gem className="size-5" />
-          </Button>
-          <span className="font-headline text-lg font-semibold">
-            Digital Shop
-          </span>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary"
+            >
+                {siteContent.global.logoUrl ? (
+                    <img src={siteContent.global.logoUrl} alt={siteContent.global.siteName} className="size-5" />
+                ) : (
+                    <Gem className="size-5" />
+                )}
+            </Button>
+            <span className="font-headline text-lg font-semibold">
+                {siteContent.global.siteName}
+            </span>
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/cart">
@@ -100,22 +135,46 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
             </>
           )}
         </div>
+        </>
+    );
+  };
+  
+   const FooterContent = () => {
+    if (contentLoading || !siteContent) {
+        return (
+            <div className="container flex flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:px-6">
+                <Skeleton className="h-4 w-48" />
+                <div className="flex gap-4 sm:gap-6">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-24" />
+                </div>
+            </div>
+        )
+    }
+    return (
+        <div className="container flex flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:px-6">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} {siteContent.global.siteName}. All rights reserved.
+          </p>
+          <nav className="flex gap-4 sm:gap-6">
+            {siteContent.global.footerLinks.map(link => (
+                 <Link key={link.id} href={link.url} className="text-sm hover:underline">
+                    {link.text}
+                </Link>
+            ))}
+          </nav>
+        </div>
+    )
+   }
+
+  return (
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+        <HeaderContent />
       </header>
       <main className="flex-1">{children}</main>
       <footer className="border-t bg-muted/40 py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:px-6">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Digital Shop. All rights reserved.
-          </p>
-          <nav className="flex gap-4 sm:gap-6">
-            <Link href="#" className="text-sm hover:underline">
-              Terms of Service
-            </Link>
-            <Link href="#" className="text-sm hover:underline">
-              Privacy Policy
-            </Link>
-          </nav>
-        </div>
+        <FooterContent />
       </footer>
     </div>
   );
@@ -141,15 +200,15 @@ export default function RootLayout({
   }, [currentPath]);
 
   // Updated logic: Only treat specific URLs as admin paths.
-  const isAdminPath = [
-    '/dashboard',
-    '/orders',
-    '/products',
-    '/customers',
-    '/coupons',
-    '/marketing',
-    '/settings',
-  ].includes(pathname) || /^\/(products|customers|coupons)\/.+\/edit$/.test(pathname) || /^\/(products|customers|coupons)\/new$/.test(pathname);
+  const isAdminPath = pathname.startsWith('/dashboard') || 
+                      pathname.startsWith('/orders') || 
+                      pathname.startsWith('/products/new') || 
+                      /^\/products\/[^/]+\/edit$/.test(pathname) ||
+                      pathname.startsWith('/customers') || 
+                      pathname.startsWith('/coupons') || 
+                      pathname.startsWith('/marketing') ||
+                      pathname.startsWith('/content') ||
+                      pathname.startsWith('/settings');
 
 
   return (

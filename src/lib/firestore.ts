@@ -2,8 +2,8 @@
 'use client';
 
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment, arrayUnion } from 'firebase/firestore';
-import type { Order, Product, Customer, Coupon } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment, arrayUnion, setDoc } from 'firebase/firestore';
+import type { Order, Product, Customer, Coupon, SiteContent } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
 
@@ -156,4 +156,10 @@ export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
 
 export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
+};
+
+// Site Content
+export const updateSiteContent = (contentData: Partial<SiteContent>) => {
+    const contentRef = doc(db, 'siteContent', 'main');
+    return setDoc(contentRef, contentData, { merge: true });
 };

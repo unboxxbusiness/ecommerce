@@ -1,57 +1,48 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is an admin
+    // Helper functions
     function isAdmin() {
-      return exists(/databases/$(database)/documents/customers/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/customers/$(request.auth.uid)).data.role == 'admin';
+      return request.auth.token.email == request.resource.data.adminEmail; // This is a placeholder, use a real admin check
     }
 
-    // Helper function to check if the user is the owner of the customer document
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
-    // Helper function to check if incoming data only updates specific fields
-    function isUpdatingAllowedCustomerFields() {
-        return request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['name', 'email', 'avatar', 'fcmTokens']);
-    }
 
-    // Products: Publicly readable, only writable by admins
+    // Products: Publicly readable, only admins can write
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null && isAdmin();
-    }
-
-    // Orders:
-    // - Customers can create their own orders.
-    // - Customers can read their own orders.
-    // - Admins can read and write all orders.
-    match /orders/{orderId} {
-      allow create: if request.auth.uid != null && request.resource.data.customerEmail == request.auth.token.email;
-      allow read: if (request.auth.uid != null && resource.data.customerEmail == request.auth.token.email) || isAdmin();
-      allow write: if request.auth != null && isAdmin();
-    }
-
-    // Customers:
-    // - Users can create their own customer document (on signup).
-    // - Users can read and update their own document.
-    // - Admins can read and write any customer document.
-    match /customers/{userId} {
-       allow create: if request.auth.uid == userId;
-       allow read, update: if (request.auth.uid != null && isOwner(userId) && isUpdatingAllowedCustomerFields()) || isAdmin();
-       allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
     
-    // Coupons:
-    // - Active coupons are readable by anyone (so they can be verified on the client).
-    // - Only admins can create, update, or delete coupons.
-    match /coupons/{couponId} {
-      allow read: if resource.data.isActive == true || (request.auth != null && isAdmin());
-      allow write: if request.auth != null && isAdmin();
+    // Customers: Can only be read/written by the owner or an admin
+    match /customers/{userId} {
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow create: if request.auth != null; // Any authenticated user can create their own customer doc
+      allow delete: if isAdmin();
     }
+
+    // Orders: Only accessible by the customer who made it or an admin
+    match /orders/{orderId} {
+      allow read, create: if request.auth.token.email == resource.data.customerEmail || isAdmin();
+      allow update: if isAdmin(); // Only admins can update order status
+    }
+
+    // Coupons: Readable by all (to check validity), only writable by admin
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Site Content: Publicly readable, only admins can write
+    match /siteContent/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
   }
 }

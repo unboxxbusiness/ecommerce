@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Product } from '@/lib/types';
+import type { Product, SiteContent } from '@/lib/types';
 import { ShoppingCart, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,9 +19,75 @@ import {
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { getProducts } from '@/lib/firestore';
+import { getSiteContent } from '@/lib/firestore-admin';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+
+function HeroSection({ hero }: { hero: SiteContent['homePage']['hero'] }) {
+    if (!hero.show) return null;
+    return (
+        <section className="relative bg-muted/40 text-center">
+            <Image 
+                src={hero.imageUrl}
+                alt={hero.title}
+                layout="fill"
+                objectFit="cover"
+                className="absolute inset-0 z-0 opacity-20"
+                data-ai-hint="hero background"
+            />
+            <div className="relative z-10 container px-4 md:px-6 py-24 md:py-32 lg:py-48">
+                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+                    {hero.title}
+                </h1>
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed mt-4">
+                    {hero.subtitle}
+                </p>
+                <Button size="lg" className="mt-8" asChild>
+                    <Link href={hero.ctaLink}>{hero.ctaText}</Link>
+                </Button>
+            </div>
+        </section>
+    );
+}
+
+function TestimonialsSection({ testimonials }: { testimonials: SiteContent['homePage']['testimonials'] }) {
+    if (!testimonials.show || testimonials.items.length === 0) return null;
+
+    return (
+        <section className="bg-background py-12 md:py-24">
+            <div className="container px-4 md:px-6">
+                <h2 className="text-3xl font-bold tracking-tighter text-center mb-12">{testimonials.title}</h2>
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                    {testimonials.items.map(item => (
+                        <Card key={item.id} className="p-6">
+                            <CardContent className="p-0">
+                                <blockquote className="text-lg font-semibold leading-snug">
+                                    &ldquo;{item.quote}&rdquo;
+                                </blockquote>
+                                <div className="mt-4 flex items-center gap-3">
+                                     <Avatar>
+                                        <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" />
+                                        <AvatarFallback>{item.author.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-semibold">{item.author}</p>
+                                        <p className="text-sm text-muted-foreground">{item.authorRole}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 
 export default function HomePage() {
   const [allProducts, setAllProducts] = React.useState<Product[]>([]);
+  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
   const [filteredProducts, setFilteredProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -31,19 +97,26 @@ export default function HomePage() {
   const { toast } = useToast();
   
   React.useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchInitialData = async () => {
         setLoading(true);
         try {
-            const products = await getProducts();
+            const [products, content] = await Promise.all([
+              getProducts(),
+              // This is a client component, but we can call a server action or API route
+              // to get server-only data. For simplicity here, we'll fetch on client.
+              // In a real app, this would be a server component passing data down.
+              fetch('/api/content').then(res => res.json()),
+            ]);
             setAllProducts(products);
             setFilteredProducts(products);
+            setSiteContent(content);
         } catch (err) {
             console.error(err);
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to load products.' });
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to load site data.' });
         }
         setLoading(false);
     }
-    fetchProducts();
+    fetchInitialData();
   }, [toast]);
 
   const categories = React.useMemo(() => {
@@ -84,19 +157,21 @@ export default function HomePage() {
     });
   };
 
+  if (loading || !siteContent) {
+      return (
+          <div className="container py-12">
+            <Skeleton className="h-48 w-full mb-12" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+            </div>
+          </div>
+      )
+  }
+
   return (
     <>
-      <section className="bg-muted/40 py-12 text-center md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Discover Our Unique Collection
-          </h1>
-          <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-            Handcrafted goods, sustainable products, and timeless designs for
-            your modern lifestyle.
-          </p>
-        </div>
-      </section>
+      <HeroSection hero={siteContent.homePage.hero} />
+      
       <section className="py-12 md:py-24">
         <div className="container px-4 md:px-6">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
@@ -188,6 +263,20 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <TestimonialsSection testimonials={siteContent.homePage.testimonials} />
+
+      {siteContent.homePage.ctaBlock.show && (
+          <section className="bg-muted/40 py-12 md:py-24">
+              <div className="container text-center">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{siteContent.homePage.ctaBlock.title}</h2>
+                  <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed mt-4">{siteContent.homePage.ctaBlock.subtitle}</p>
+                  <Button size="lg" className="mt-8" asChild>
+                      <Link href={siteContent.homePage.ctaBlock.ctaLink}>{siteContent.homePage.ctaBlock.ctaText}</Link>
+                  </Button>
+              </div>
+          </section>
+      )}
     </>
   );
 }
