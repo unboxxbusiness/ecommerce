@@ -3,7 +3,7 @@
 
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment } from 'firebase/firestore';
-import type { Order, Product, Customer } from './types';
+import type { Order, Product, Customer, Coupon } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
 
@@ -111,4 +111,40 @@ export const updateCustomer = (id: string, customerData: Partial<Customer>) => {
 
 export const deleteCustomer = (id: string) => {
     return deleteDoc(doc(db, 'customers', id));
+};
+
+// Coupon CRUD
+export const getActiveCouponByCode = async (code: string): Promise<Coupon | null> => {
+    const q = query(
+        collection(db, 'coupons'), 
+        where('code', '==', code.toUpperCase()), 
+        where('isActive', '==', true)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const couponDoc = querySnapshot.docs[0];
+    return { id: couponDoc.id, ...couponDoc.data() } as Coupon;
+};
+
+
+export const createCoupon = (couponData: Omit<Coupon, 'id' | 'createdAt'>) => {
+    return addDoc(collection(db, 'coupons'), {
+        ...couponData,
+        code: couponData.code.toUpperCase(),
+        createdAt: serverTimestamp(),
+    });
+};
+
+export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
+    if (couponData.code) {
+        couponData.code = couponData.code.toUpperCase();
+    }
+    const couponRef = doc(db, 'coupons', id);
+    return updateDoc(couponRef, couponData);
+};
+
+export const deleteCoupon = (id: string) => {
+    return deleteDoc(doc(db, 'coupons', id));
 };

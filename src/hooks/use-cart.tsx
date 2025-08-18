@@ -2,7 +2,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Product } from '@/lib/types';
+import type { Product, Coupon } from '@/lib/types';
+import { getActiveCouponByCode } from '@/lib/firestore';
 
 interface CartItem extends Product {
   quantity: number;
@@ -14,7 +15,7 @@ interface CartContextType {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  applyCoupon: (couponCode: string) => boolean;
+  applyCoupon: (couponCode: string) => Promise<boolean>;
   cartCount: number;
   subtotal: number;
   discount: number;
@@ -24,31 +25,26 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const COUPONS: Record<string, number> = {
-  'SUMMER10': 0.10,
-  'WELCOME20': 0.20,
-};
-
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [total, setTotal] = useState(0);
-  const [couponApplied, setCouponApplied] = useState<string | null>(null);
+  const [coupon, setCoupon] = useState<Coupon | null>(null);
 
   useEffect(() => {
     // In a real app, you would persist and load cart from localStorage
     const newSubtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const newCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const newDiscount = couponApplied ? newSubtotal * (COUPONS[couponApplied] || 0) : 0;
+    const newDiscount = coupon ? newSubtotal * coupon.discount : 0;
     
     setSubtotal(newSubtotal);
     setCartCount(newCartCount);
     setDiscount(newDiscount);
     setTotal(newSubtotal - newDiscount);
 
-  }, [cartItems, couponApplied]);
+  }, [cartItems, coupon]);
 
   const addToCart = (product: Product) => {
     setCartItems(prevItems => {
@@ -80,15 +76,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setCartItems([]);
-    setCouponApplied(null);
+    setCoupon(null);
   };
 
-  const applyCoupon = (couponCode: string): boolean => {
-    if (COUPONS[couponCode]) {
-      setCouponApplied(couponCode.toUpperCase());
+  const applyCoupon = async (couponCode: string): Promise<boolean> => {
+    const foundCoupon = await getActiveCouponByCode(couponCode);
+    if (foundCoupon) {
+      setCoupon(foundCoupon);
       return true;
     }
-    setCouponApplied(null);
+    setCoupon(null);
     return false;
   };
 
@@ -103,7 +100,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     subtotal,
     discount,
     total,
-    couponApplied
+    couponApplied: coupon?.code || null,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

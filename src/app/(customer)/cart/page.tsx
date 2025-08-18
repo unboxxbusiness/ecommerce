@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, Minus, Plus } from 'lucide-react';
+import { Trash2, Minus, Plus, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
@@ -24,14 +24,19 @@ export default function CartPage() {
     couponApplied 
   } = useCart();
   const [couponCode, setCouponCode] = React.useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = React.useState(false);
   const { toast } = useToast();
 
-  const handleApplyCoupon = () => {
-    if (applyCoupon(couponCode)) {
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsApplyingCoupon(true);
+    const success = await applyCoupon(couponCode);
+    if (success) {
       toast({ title: "Coupon applied!", description: `Coupon "${couponCode.toUpperCase()}" has been applied.` });
     } else {
-      toast({ variant: 'destructive', title: "Invalid coupon", description: 'The coupon code you entered is not valid.' });
+      toast({ variant: 'destructive', title: "Invalid coupon", description: 'The coupon code you entered is not valid or has expired.' });
     }
+    setIsApplyingCoupon(false);
   };
 
   return (
@@ -127,9 +132,10 @@ export default function CartPage() {
                           placeholder="Enter coupon" 
                           value={couponCode} 
                           onChange={(e) => setCouponCode(e.target.value)}
-                          disabled={!!couponApplied}
+                          disabled={!!couponApplied || isApplyingCoupon}
                         />
-                        <Button onClick={handleApplyCoupon} disabled={!!couponApplied}>
+                        <Button onClick={handleApplyCoupon} disabled={!!couponApplied || isApplyingCoupon || !couponCode}>
+                          {isApplyingCoupon && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                           {couponApplied ? 'Applied' : 'Apply'}
                         </Button>
                     </div>

@@ -1,4 +1,5 @@
 
+
 export type Review = {
   id: string;
   author: string;
@@ -57,4 +58,12 @@ export type Customer = {
   totalSpent: number;
   joinDate: string; // Should be ISO string or server timestamp
   isActive: boolean;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discount: number; // Stored as a decimal, e.g., 0.10 for 10%
+  isActive: boolean;
+  createdAt: string; // Should be ISO string or server timestamp
 };
