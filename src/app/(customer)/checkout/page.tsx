@@ -42,7 +42,7 @@ const steps = ['Shipping', 'Payment', 'Review'];
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = React.useState(0);
   const [isPlacingOrder, setIsPlacingOrder] = React.useState(false);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { cartItems, subtotal, discount, total, clearCart } = useCart();
   const router = useRouter();
   const { toast } = useToast();
@@ -51,6 +51,12 @@ export default function CheckoutPage() {
     resolver: zodResolver(shippingSchema),
     defaultValues: { fullName: '', address: '', city: '', zip: '', country: '' },
   });
+
+  React.useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
   
   React.useEffect(() => {
     const script = document.createElement('script');
@@ -58,6 +64,10 @@ export default function CheckoutPage() {
     script.async = true;
     document.body.appendChild(script);
   }, []);
+
+  if (authLoading || !user) {
+    return <div>Loading...</div>; // Or a loading spinner
+  }
 
   if (cartItems.length === 0 && currentStep < 2) {
      router.push('/cart');
@@ -291,7 +301,7 @@ export default function CheckoutPage() {
                             {cartItems.map(item => (
                                 <div key={item.id} className="flex items-center justify-between py-2">
                                     <div className="flex items-center gap-4">
-                                        <Image src={item.image} alt={item.name} width={50} height={50} className="rounded-md" />
+                                        <Image src={item.image || 'https://placehold.co/50x50.png'} alt={item.name} width={50} height={50} className="rounded-md" />
                                         <div>
                                             <p>{item.name}</p>
                                             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
@@ -322,3 +332,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+    
