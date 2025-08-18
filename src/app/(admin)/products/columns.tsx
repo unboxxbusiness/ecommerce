@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
@@ -150,7 +151,7 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
-    accessorKey: "stock",
+    id: "status",
     header: "Status",
     cell: ({ row }) => {
         const stock = row.original.stock;
