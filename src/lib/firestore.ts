@@ -177,3 +177,24 @@ export const getPageById = async (id: string): Promise<Page | null> => {
     }
     return { id: docSnap.id, ...pageData } as Page;
 }
+
+export const getPageBySlug = async (slug: string): Promise<Page | null> => {
+    const q = query(
+        collection(db, 'pages'), 
+        where('slug', '==', slug),
+        where('isPublished', '==', true)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const pageDoc = querySnapshot.docs[0];
+    const pageData = pageDoc.data();
+     if (pageData.createdAt) {
+        pageData.createdAt = pageData.createdAt.toDate().toISOString();
+    }
+    if (pageData.updatedAt) {
+        pageData.updatedAt = pageData.updatedAt.toDate().toISOString();
+    }
+    return { id: pageDoc.id, ...pageData } as Page;
+};

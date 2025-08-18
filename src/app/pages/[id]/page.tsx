@@ -21,3 +21,4 @@ export default async function DynamicPage({ params }: { params: { id: string } }
         </div>
     );
 }
+
