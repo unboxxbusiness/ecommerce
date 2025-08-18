@@ -1,11 +1,10 @@
-
 'use client';
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Product } from '@/lib/types';
-import { Gem, ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -18,8 +17,6 @@ import {
 } from '@/components/ui/select';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
 import { getProducts } from '@/lib/firestore';
 
 export default function HomePage() {
@@ -31,15 +28,7 @@ export default function HomePage() {
   const [sortBy, setSortBy] = React.useState('rating');
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
   
-  React.useEffect(() => {
-    if (!authLoading && user) {
-        router.push('/account');
-    }
-  }, [authLoading, user, router]);
-
   React.useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
@@ -93,10 +82,6 @@ export default function HomePage() {
       description: `${product.name} has been added to your cart.`,
     });
   };
-  
-  if (authLoading || user) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>
-  }
 
   return (
     <>
