@@ -58,3 +58,23 @@ export const getAdminOrders = () => fetchCollection<Order>('orders');
 
 // Customer functions for admin
 export const getAdminCustomers = () => fetchCollection<Customer>('customers');
+
+export const getAdminCustomer = async (id: string): Promise<Customer | null> => {
+    try {
+        const docRef = adminDb.collection('customers').doc(id);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+            const docData = docSnap.data();
+             for (const key in docData) {
+                if (docData[key] instanceof Timestamp) {
+                    docData[key] = (docData[key] as Timestamp).toDate().toISOString();
+                }
+            }
+            return { id: docSnap.id, ...docData } as Customer;
+        }
+        return null;
+    } catch(error) {
+        console.error(`Failed to fetch customer ${id}:`, error);
+        return null;
+    }
+};

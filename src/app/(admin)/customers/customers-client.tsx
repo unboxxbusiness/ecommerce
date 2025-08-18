@@ -40,25 +40,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { deleteCustomer, updateCustomer, createCustomer } from '@/lib/firestore';
+import { deleteCustomer, updateCustomer } from '@/lib/firestore';
+import Link from 'next/link';
 
 export function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
-  const [loading, setLoading] = React.useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
-  const [isNewCustomer, setIsNewCustomer] = React.useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -76,86 +65,14 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
     }
   };
 
-  const handleEditOpen = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setIsNewCustomer(false);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleAddNew = () => {
-    setSelectedCustomer(null);
-    setIsNewCustomer(true);
-    setIsEditDialogOpen(true);
-  };
-  
-  const handleDialogClose = () => {
-      setIsEditDialogOpen(false);
-      setSelectedCustomer(null);
-      setIsNewCustomer(false);
-  }
-
-  const CustomerForm = ({ customer, onSave }: { customer: Customer | null; onSave: (data: Partial<Customer>) => Promise<void> }) => {
-    const [name, setName] = React.useState(customer?.name || '');
-    const [email, setEmail] = React.useState(customer?.email || '');
-    const [isActive, setIsActive] = React.useState(customer?.isActive ?? true);
-
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      onSave({ name, email, isActive });
-    };
-
-    return (
-    <form onSubmit={handleSubmit}>
-        <DialogHeader>
-            <DialogTitle>{customer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
-                <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">Email</Label>
-                <Input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="isActive" className="text-right">Active</Label>
-                 <Switch id="isActive" name="isActive" checked={isActive} onCheckedChange={setIsActive} />
-            </div>
-        </div>
-        <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>Cancel</Button>
-            <Button type="submit" disabled={loading}>Save</Button>
-        </DialogFooter>
-    </form>
-    );
-  };
-
-  const handleSave = async (data: Partial<Customer>) => {
-    setLoading(true);
-    try {
-        if (isNewCustomer) {
-            await createCustomer(data as any);
-            toast({ title: 'Customer Created', description: 'New customer has been added.' });
-        } else if (selectedCustomer) {
-            await updateCustomer(selectedCustomer.id, data);
-            toast({ title: 'Customer Updated', description: 'Customer details have been saved.' });
-        }
-        router.refresh();
-        handleDialogClose();
-    } catch (error) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to save customer.' });
-    } finally {
-        setLoading(false);
-    }
-  };
-
   return (
     <>
       <Header title="Customers">
-         <Button size="sm" className="gap-1" onClick={handleAddNew}>
-          <PlusCircle className="h-4 w-4" />
-          Add Customer
+         <Button size="sm" className="gap-1" asChild>
+            <Link href="/customers/new">
+                <PlusCircle className="h-4 w-4" />
+                Add Customer
+            </Link>
         </Button>
       </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -213,7 +130,9 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onSelect={() => handleEditOpen(customer)}>Edit</DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/customers/${customer.id}/edit`}>Edit</Link>
+                                </DropdownMenuItem>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
@@ -245,14 +164,6 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
           </CardContent>
         </Card>
       </main>
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-            <CustomerForm 
-                customer={isNewCustomer ? null : selectedCustomer}
-                onSave={handleSave}
-            />
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
