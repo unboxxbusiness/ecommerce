@@ -12,7 +12,7 @@ const privateKey = process.env.FB_PRIVATE_KEY?.replace(/\\n/g, '\n');
 if (!getApps().length) {
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FB_PROJECT_ID,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       clientEmail: process.env.FB_CLIENT_EMAIL,
       // Pass the formatted private key here
       privateKey,
