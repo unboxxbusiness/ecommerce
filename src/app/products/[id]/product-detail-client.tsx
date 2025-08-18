@@ -1,4 +1,3 @@
-
 'use client';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import { StarRating } from '@/components/star-rating';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
+import { ShareButtons } from '@/components/share-buttons';
 
 export function ProductDetailClient({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -89,8 +89,12 @@ export function ProductDetailClient({ product }: { product: Product }) {
             <ShoppingCart className="mr-2 h-5 w-5" />
             Add to Cart
           </Button>
+          
+          <Separator className="my-2" />
 
-          <Separator className="my-4" />
+          <ShareButtons productName={product.name} />
+
+          <Separator className="my-2" />
 
           <div className="space-y-2">
             <h2 className="text-xl font-semibold">Product Description</h2>
