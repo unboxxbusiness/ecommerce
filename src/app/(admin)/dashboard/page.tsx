@@ -83,7 +83,7 @@ export default async function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">{productsInStock}</div>
               <p className="text-xs text-muted-foreground">
-                {lowStockProducts} products are low on stock
+                {lowStockProducts} {lowStockProducts === 1 ? 'product is' : 'products are'} low on stock
               </p>
             </CardContent>
           </Card>
