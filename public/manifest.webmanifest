@@ -1,0 +1,21 @@
+{
+  "name": "Digital Shop",
+  "short_name": "DigitalShop",
+  "description": "An e-commerce application built with Next.js and Firebase.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4fb4a5",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
