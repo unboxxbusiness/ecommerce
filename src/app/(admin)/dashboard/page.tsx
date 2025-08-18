@@ -45,7 +45,7 @@ export default async function DashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold">₹{totalRevenue.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">
                 From completed orders
               </p>

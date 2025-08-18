@@ -114,7 +114,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                                 {order.items.reduce((acc, item) => acc + item.quantity, 0)}
                             </TableCell>
                             <TableCell className="text-right">
-                            ${order.total.toFixed(2)}
+                            ₹{order.total.toFixed(2)}
                             </TableCell>
                             <TableCell>
                                 <DropdownMenu>

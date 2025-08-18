@@ -127,7 +127,7 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        ${product.price.toFixed(2)}
+                        ₹{product.price.toFixed(2)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
                       <TableCell>

@@ -201,7 +201,7 @@ export default function HomePage() {
                             <h3 className="text-lg font-semibold">{product.name}</h3>
                             <div className="flex items-center justify-between">
                                 <p className="text-muted-foreground">
-                                ${product.price.toFixed(2)}
+                                ₹{product.price.toFixed(2)}
                                 </p>
                                 <div className="flex items-center gap-1">
                                 <Star className="h-4 w-4 fill-primary text-primary" />
