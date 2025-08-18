@@ -3,46 +3,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
+    
     function isAdmin() {
-      return request.auth.token.email == request.resource.data.adminEmail; // This is a placeholder, use a real admin check
+      // Check if the user is authenticated and their role is 'admin' in the customers collection.
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/customers/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/customers/$(request.auth.uid)).data.role == 'admin';
     }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    // Products: Publicly readable, only admins can write
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
     }
     
-    // Customers: Can only be read/written by the owner or an admin
-    match /customers/{userId} {
-      allow read, update: if isOwner(userId) || isAdmin();
-      allow create: if request.auth != null; // Any authenticated user can create their own customer doc
-      allow delete: if isAdmin();
-    }
-
-    // Orders: Only accessible by the customer who made it or an admin
     match /orders/{orderId} {
-      allow read, create: if request.auth.token.email == resource.data.customerEmail || isAdmin();
-      allow update: if isAdmin(); // Only admins can update order status
-    }
-
-    // Coupons: Readable by all (to check validity), only writable by admin
-    match /coupons/{couponId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read, write: if isAdmin() || (request.auth != null && request.auth.token.email == resource.data.customerEmail);
     }
     
-    // Site Content: Publicly readable, only admins can write
+    match /customers/{userId} {
+       allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+    }
+    
+    match /coupons/{couponId} {
+        allow read: if true;
+        allow write: if isAdmin();
+    }
+
     match /siteContent/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
-    
   }
 }
