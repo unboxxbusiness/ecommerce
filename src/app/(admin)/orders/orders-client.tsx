@@ -28,10 +28,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateOrderStatus } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
+import Papa from 'papaparse';
 
 export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
     const [orders, setOrders] = React.useState<Order[]>(initialOrders);
@@ -63,9 +64,38 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
     
     const statusOptions: Order['status'][] = ['Pending', 'Shipped', 'Delivered', 'Cancelled'];
 
+    const handleExport = () => {
+        const dataToExport = orders.map(order => ({
+            'Order ID': order.id,
+            'Customer Name': order.customerName,
+            'Customer Email': order.customerEmail,
+            'Date': new Date(order.date).toLocaleDateString(),
+            'Status': order.status,
+            'Total Items': order.items.reduce((acc, item) => acc + item.quantity, 0),
+            'Total Amount': order.total.toFixed(2)
+        }));
+
+        const csv = Papa.unparse(dataToExport);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `orders-export-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({ title: 'Export Complete', description: 'Your orders have been downloaded as a CSV file.' });
+    };
+
   return (
     <>
-        <Header title="Orders" />
+        <Header title="Orders">
+            <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
+                <Download className="h-4 w-4" />
+                Export CSV
+            </Button>
+        </Header>
         <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
             <Card>
             <CardHeader>
