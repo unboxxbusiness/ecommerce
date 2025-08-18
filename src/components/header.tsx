@@ -30,7 +30,9 @@ export function Header({ title, children }: HeaderProps) {
         <h1 className="text-lg font-semibold md:text-xl">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
-        {children}
+        <div className="flex items-center gap-2">
+          {children}
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">

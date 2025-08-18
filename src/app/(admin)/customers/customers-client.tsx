@@ -20,7 +20,7 @@ import {
 import { Header } from '@/components/header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
 import type { Customer } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -46,6 +46,7 @@ import { Switch } from '@/components/ui/switch';
 import { deleteCustomer, updateCustomer } from '@/lib/firestore';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import Papa from 'papaparse';
 
 export function CustomersClient({ initialCustomers }: { initialCustomers: Customer[] }) {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
@@ -79,15 +80,46 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
     }
   }
 
+  const handleExport = () => {
+    const dataToExport = customers.map(customer => ({
+        'Customer ID': customer.id,
+        'Name': customer.name,
+        'Email': customer.email,
+        'Role': customer.role,
+        'Status': customer.isActive ? 'Active' : 'Inactive',
+        'Join Date': new Date(customer.joinDate).toLocaleDateString(),
+        'Total Orders': customer.totalOrders,
+        'Total Spent (INR)': customer.totalSpent.toFixed(2),
+    }));
+
+    const csv = Papa.unparse(dataToExport);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `customers-export-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({ title: 'Export Complete', description: 'Your customers have been downloaded as a CSV file.' });
+  };
+
   return (
     <>
       <Header title="Customers">
-         <Button size="sm" className="gap-1" asChild>
-            <Link href="/customers/new">
-                <PlusCircle className="h-4 w-4" />
-                Add Customer
-            </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
+                <Download className="h-4 w-4" />
+                Export CSV
+            </Button>
+            <Button size="sm" className="gap-1" asChild>
+                <Link href="/customers/new">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Customer
+                </Link>
+            </Button>
+        </div>
       </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <Card>
