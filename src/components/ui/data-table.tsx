@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,6 +13,7 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
+  Table as TanstackTable,
 } from "@tanstack/react-table"
 import { ChevronDown } from "lucide-react"
 
@@ -37,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   filterColumnId: string
   filterPlaceholder: string
+  bulkActions?: (table: TanstackTable<TData>) => React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -44,6 +47,7 @@ export function DataTable<TData, TValue>({
   data,
   filterColumnId,
   filterPlaceholder,
+  bulkActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -83,6 +87,11 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        {table.getFilteredSelectedRowModel().rows.length > 0 && bulkActions && (
+            <div className="ml-4">
+                {bulkActions(table)}
+            </div>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

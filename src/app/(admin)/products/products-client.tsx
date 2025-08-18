@@ -12,9 +12,66 @@ import {
 } from '@/components/ui/card';
 import type { Product } from '@/lib/types';
 import Link from 'next/link';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
+import { Table } from '@tanstack/react-table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
+import { deleteProduct } from '@/lib/firestore';
+import { useRouter } from 'next/navigation';
+
+const BulkDeleteButton = ({ table }: { table: Table<Product> }) => {
+    const { toast } = useToast();
+    const router = useRouter();
+    
+    const handleDelete = async () => {
+        const selectedRows = table.getFilteredSelectedRowModel().rows;
+        try {
+            await Promise.all(selectedRows.map(row => deleteProduct(row.original.id)));
+            toast({ title: `${selectedRows.length} Products Deleted`, description: 'The selected products have been removed.' });
+            table.resetRowSelection();
+            router.refresh();
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete products.' });
+        }
+    }
+
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" className="gap-1">
+                <Trash2 className="h-4 w-4" />
+                Delete ({table.getFilteredSelectedRowModel().rows.length})
+            </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the selected products.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                Delete
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+}
 
 export function ProductsClient({ initialProducts }: { initialProducts: Product[] }) {
   const [products, setProducts] = React.useState<Product[]>(initialProducts);
@@ -48,6 +105,7 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
               data={products}
               filterColumnId="name"
               filterPlaceholder="Filter products..."
+              bulkActions={(table) => <BulkDeleteButton table={table} />}
              />
           </CardContent>
         </Card>
