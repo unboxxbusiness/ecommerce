@@ -94,13 +94,44 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
       setIsNewCustomer(false);
   }
 
-  const handleSave = async (formData: FormData) => {
-    const data: Partial<Customer> = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        isActive: formData.get('isActive') === 'on',
+  const CustomerForm = ({ customer, onSave }: { customer: Customer | null; onSave: (data: Partial<Customer>) => Promise<void> }) => {
+    const [name, setName] = React.useState(customer?.name || '');
+    const [email, setEmail] = React.useState(customer?.email || '');
+    const [isActive, setIsActive] = React.useState(customer?.isActive ?? true);
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onSave({ name, email, isActive });
     };
 
+    return (
+    <form onSubmit={handleSubmit}>
+        <DialogHeader>
+            <DialogTitle>{customer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">Name</Label>
+                <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">Email</Label>
+                <Input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="isActive" className="text-right">Active</Label>
+                 <Switch id="isActive" name="isActive" checked={isActive} onCheckedChange={setIsActive} />
+            </div>
+        </div>
+        <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>Cancel</Button>
+            <Button type="submit" disabled={loading}>Save</Button>
+        </DialogFooter>
+    </form>
+    );
+  };
+
+  const handleSave = async (data: Partial<Customer>) => {
     setLoading(true);
     try {
         if (isNewCustomer) {
@@ -118,32 +149,6 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
         setLoading(false);
     }
   };
-
-  const CustomerForm = ({ customer }: { customer: Customer | null }) => (
-    <form action={handleSave}>
-        <DialogHeader>
-            <DialogTitle>{customer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
-                <Input id="name" name="name" defaultValue={customer?.name} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">Email</Label>
-                <Input id="email" name="email" type="email" defaultValue={customer?.email} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="isActive" className="text-right">Active</Label>
-                 <Switch id="isActive" name="isActive" defaultChecked={customer?.isActive ?? true} />
-            </div>
-        </div>
-        <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>Cancel</Button>
-            <Button type="submit" disabled={loading}>Save</Button>
-        </DialogFooter>
-    </form>
-  );
 
   return (
     <>
@@ -244,6 +249,7 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
         <DialogContent>
             <CustomerForm 
                 customer={isNewCustomer ? null : selectedCustomer}
+                onSave={handleSave}
             />
         </DialogContent>
       </Dialog>
