@@ -14,7 +14,7 @@ export default async function DynamicPage({ params }: { params: { slug: string }
 
     return (
         <div className="container mx-auto max-w-4xl px-4 py-12 md:px-6">
-            <article className="prose dark:prose-invert lg:prose-xl">
+            <article className="prose dark:prose-invert lg:prose-xl mt-24">
                 <h1>{page.title}</h1>
                 <div dangerouslySetInnerHTML={{ __html: page.content }} />
             </article>
