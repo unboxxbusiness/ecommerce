@@ -60,7 +60,7 @@ export default function CartPage() {
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-start gap-4 p-4">
                       <Image
-                        src={item.image}
+                        src={item.image || 'https://placehold.co/100x100.png'}
                         alt={item.name}
                         width={100}
                         height={100}
