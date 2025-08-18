@@ -118,7 +118,7 @@ export function PagesClient({ initialPages }: { initialPages: Page[] }) {
                                       <Link href={`/pages/${page.id}/edit`}>Edit</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                      <a href={`/pages/${page.id}`} target="_blank" rel="noopener noreferrer">View</a>
+                                      <a href={`/p/${page.id}`} target="_blank" rel="noopener noreferrer">View</a>
                                     </DropdownMenuItem>
                                     <AlertDialogTrigger asChild>
                                         <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
