@@ -24,6 +24,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { useAuth } from '@/hooks/use-auth';
+import { createOrder } from '@/lib/firestore';
+import { Loader2 } from 'lucide-react';
 
 const shippingSchema = z.object({
   fullName: z.string().min(3, 'Full name is required'),
@@ -55,7 +58,9 @@ const steps = ['Shipping', 'Payment', 'Review'];
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = React.useState(0);
-  const { cartItems, subtotal, discount, total, clearCart } = useCart();
+  const [isPlacingOrder, setIsPlacingOrder] = React.useState(false);
+  const { user } = useAuth();
+  const { cartItems, subtotal, discount, total, couponApplied, clearCart } = useCart();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -90,19 +95,36 @@ export default function CheckoutPage() {
     setCurrentStep((prev) => prev - 1);
   };
   
-  const handlePlaceOrder = () => {
-    // In a real app, this would submit the order to a backend
-    console.log("Order placed!", {
-      shipping: shippingForm.getValues(),
-      payment: paymentForm.getValues(),
-      order: { cartItems, subtotal, discount, total },
-    });
-    toast({
-        title: "Order Placed!",
-        description: "Thank you for your purchase. You will receive a confirmation email shortly."
-    });
-    clearCart();
-    router.push('/account');
+  const handlePlaceOrder = async () => {
+    if (!user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to place an order.' });
+        return;
+    }
+    setIsPlacingOrder(true);
+    try {
+        await createOrder({
+            customerName: shippingForm.getValues('fullName'),
+            customerEmail: user.email!,
+            date: new Date().toISOString(),
+            status: 'Pending',
+            total: total,
+            items: cartItems.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
+            shippingAddress: shippingForm.getValues()
+        });
+
+        toast({
+            title: "Order Placed!",
+            description: "Thank you for your purchase. You will receive a confirmation email shortly."
+        });
+        clearCart();
+        router.push('/account');
+
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'There was a problem placing your order. Please try again.' });
+    } finally {
+        setIsPlacingOrder(false);
+    }
   };
 
   return (
@@ -261,8 +283,11 @@ export default function CheckoutPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="justify-between">
-                         <Button variant="outline" onClick={handlePrevStep}>Back to Payment</Button>
-                         <Button onClick={handlePlaceOrder}>Place Order</Button>
+                         <Button variant="outline" onClick={handlePrevStep} disabled={isPlacingOrder}>Back to Payment</Button>
+                         <Button onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                            {isPlacingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Place Order
+                         </Button>
                     </CardFooter>
                 </Card>
             )}

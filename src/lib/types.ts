@@ -24,6 +24,13 @@ export type Product = {
   reviews: Review[];
 };
 
+export type OrderItem = {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+}
+
 export type Order = {
   id: string;
   customerName: string;
@@ -31,11 +38,14 @@ export type Order = {
   date: string;
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
-  items: {
-    id: string;
-    name: string;
-    quantity: number;
-  }[];
+  items: OrderItem[];
+  shippingAddress: {
+    fullName: string;
+    address: string;
+    city: string;
+    zip: string;
+    country: string;
+  };
 };
 
 export type Customer = {
@@ -45,5 +55,5 @@ export type Customer = {
   avatar: string;
   totalOrders: number;
   totalSpent: number;
-  joinDate: string;
+  joinDate: string; // Should be ISO string or server timestamp
 };

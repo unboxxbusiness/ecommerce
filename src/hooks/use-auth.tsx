@@ -15,8 +15,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import {useRouter} from 'next/navigation';
+import { auth, db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -46,8 +47,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(auth, email, pass);
   };
   
-  const signup = (email: string, pass: string) => {
-    return createUserWithEmailAndPassword(auth, email, pass);
+  const signup = async (email: string, pass: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const user = userCredential.user;
+    
+    // Create a customer document in Firestore
+    if (user) {
+      await setDoc(doc(db, 'customers', user.uid), {
+        name: user.displayName || email.split('@')[0],
+        email: user.email,
+        avatar: user.photoURL || `https://placehold.co/100x100.png`,
+        totalOrders: 0,
+        totalSpent: 0,
+        joinDate: serverTimestamp(),
+      });
+    }
+
+    return userCredential;
   };
   
   const logout = () => {

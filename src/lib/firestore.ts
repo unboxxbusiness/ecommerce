@@ -2,8 +2,8 @@
 'use client';
 
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import type { Product, Order } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, increment } from 'firebase/firestore';
+import type { Order, Product } from './types';
 
 // These functions use the CLIENT-SIDE SDK and are safe to use in client components.
 
@@ -54,4 +54,37 @@ export const getCustomerOrders = async (userEmail: string): Promise<Order[]> => 
         orders.push({ id: doc.id, ...doc.data() } as Order);
     });
     return orders;
-}
+};
+
+export const createOrder = async (orderData: Omit<Order, 'id'>) => {
+    const batch = writeBatch(db);
+
+    // 1. Create the order document
+    const orderRef = doc(collection(db, 'orders'));
+    batch.set(orderRef, { ...orderData, date: serverTimestamp() });
+
+    // 2. Update product stock
+    for (const item of orderData.items) {
+        const productRef = doc(db, 'products', item.id);
+        batch.update(productRef, {
+            stock: increment(-item.quantity)
+        });
+    }
+
+    // 3. Update customer stats
+    const customerQuery = query(collection(db, "customers"), where("email", "==", orderData.customerEmail));
+    const customerSnapshot = await getDocs(customerQuery);
+    
+    if (!customerSnapshot.empty) {
+        const customerDocRef = customerSnapshot.docs[0].ref;
+        batch.update(customerDocRef, {
+            totalOrders: increment(1),
+            totalSpent: increment(orderData.total),
+        });
+    }
+
+    // 4. Commit the batch
+    await batch.commit();
+
+    return orderRef.id;
+};
