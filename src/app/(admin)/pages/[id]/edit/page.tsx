@@ -11,6 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default async function EditPage({
   params,
@@ -25,7 +28,14 @@ export default async function EditPage({
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <Header title="Edit Page" />
+      <Header title="Edit Page">
+        <Button variant="outline" size="sm" asChild>
+            <Link href="/pages">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+            </Link>
+        </Button>
+      </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <Card>
             <CardHeader>
