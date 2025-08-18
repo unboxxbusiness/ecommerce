@@ -164,7 +164,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                             <TableCell className="hidden md:table-cell">
                                 {order.items.reduce((acc, item) => acc + item.quantity, 0)}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right font-semibold">
                             ₹{order.total.toFixed(2)}
                             </TableCell>
                             <TableCell>

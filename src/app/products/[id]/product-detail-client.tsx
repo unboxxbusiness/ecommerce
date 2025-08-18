@@ -58,7 +58,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </span>
           </div>
 
-          <p className="text-3xl font-bold">₹{product.price.toFixed(2)}</p>
+          <p className="text-4xl font-bold">₹{product.price.toFixed(2)}</p>
 
           <div>
             <Badge variant={product.stock > 0 ? 'secondary' : 'destructive'} className={product.stock > 0 ? 'bg-green-100 text-green-800' : ''}>

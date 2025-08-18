@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -156,7 +157,7 @@ export default function HomePage() {
                           <CardContent className="p-4">
                           <h3 className="text-lg font-semibold">{product.name}</h3>
                           <div className="flex items-center justify-between">
-                              <p className="text-muted-foreground">
+                              <p className="font-semibold text-lg">
                               ₹{product.price.toFixed(2)}
                               </p>
                               <div className="flex items-center gap-1">

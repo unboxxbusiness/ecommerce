@@ -126,7 +126,7 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
                           {product.stock > 10 ? 'In Stock' : (product.stock > 0 ? 'Low Stock' : 'Out of Stock')}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden md:table-cell font-semibold">
                         ₹{product.price.toFixed(2)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{product.stock}</TableCell>

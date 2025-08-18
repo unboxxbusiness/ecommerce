@@ -171,7 +171,7 @@ export function CustomersClient({ initialCustomers }: { initialCustomers: Custom
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">{new Date(customer.joinDate).toLocaleDateString()}</TableCell>
                     <TableCell className="hidden md:table-cell">{customer.totalOrders}</TableCell>
-                    <TableCell className="text-right">₹{customer.totalSpent.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-semibold">₹{customer.totalSpent.toFixed(2)}</TableCell>
                     <TableCell>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

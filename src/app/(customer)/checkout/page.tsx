@@ -54,9 +54,14 @@ export default function CheckoutPage() {
 
   React.useEffect(() => {
     if (!authLoading && !user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to proceed to checkout.',
+        variant: 'destructive'
+      });
       router.push('/login');
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, router, toast]);
   
   React.useEffect(() => {
     const script = document.createElement('script');
@@ -307,15 +312,15 @@ export default function CheckoutPage() {
                                             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                         </div>
                                     </div>
-                                    <p>₹{(item.price * item.quantity).toFixed(2)}</p>
+                                    <p className="font-semibold">₹{(item.price * item.quantity).toFixed(2)}</p>
                                 </div>
                             ))}
                         </div>
                         <Separator />
                          <div className="space-y-2">
-                            <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
-                            {discount > 0 && <div className="flex justify-between"><span>Discount</span><span>-₹{discount.toFixed(2)}</span></div>}
-                            <div className="flex justify-between font-bold text-lg"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
+                            <div className="flex justify-between"><span>Subtotal</span><span className="font-semibold">₹{subtotal.toFixed(2)}</span></div>
+                            {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span className="font-semibold">-₹{discount.toFixed(2)}</span></div>}
+                            <div className="flex justify-between font-bold text-xl"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
                         </div>
                     </CardContent>
                     <CardFooter className="justify-between">

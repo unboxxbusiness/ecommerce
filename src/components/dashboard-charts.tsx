@@ -78,7 +78,7 @@ export function DashboardCharts({ orders, products }: DashboardChartsProps) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `₹${value}`}
+                tickFormatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value)}`}
               />
               <ChartTooltip
                 cursor={false}
@@ -110,7 +110,8 @@ export function DashboardCharts({ orders, products }: DashboardChartsProps) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                width={60}
+                width={80}
+                tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value}
               />
               <XAxis dataKey="sales" type="number" hide />
               <ChartTooltip

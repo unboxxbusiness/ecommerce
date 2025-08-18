@@ -147,7 +147,7 @@ export default function AccountPage() {
                         {order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-semibold">₹{order.total.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
