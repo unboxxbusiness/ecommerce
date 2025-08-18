@@ -1,4 +1,3 @@
-
 'use server';
 
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
@@ -7,7 +6,8 @@ import { z } from 'zod';
 import { getAuth } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
+import { serverTimestamp } from 'firebase/firestore';
 
 const optimizeDescriptionSchema = z.object({
   productName: z.string(),
@@ -83,4 +83,27 @@ export async function handlePasswordReset(email: string) {
         console.error("Failed to send password reset email:", error);
         return { error: error.message || "An unexpected error occurred." };
     }
+}
+
+export async function handleCreateUserDocument(uid: string, email: string, displayName?: string | null) {
+  if (!uid || !email) {
+    return { error: 'User ID and email are required.' };
+  }
+  try {
+    const customerRef = adminDb.collection('customers').doc(uid);
+    await customerRef.set({
+        name: displayName || email.split('@')[0],
+        email: email,
+        avatar: `https://placehold.co/100x100.png`,
+        totalOrders: 0,
+        totalSpent: 0,
+        joinDate: serverTimestamp(),
+        isActive: true,
+        role: 'customer',
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to create user document:', error);
+    return { error: 'Failed to initialize user account.' };
+  }
 }

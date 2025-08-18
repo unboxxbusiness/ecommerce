@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -16,11 +15,11 @@ import {
   signOut,
   updateProfile,
   updateEmail,
-  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { handleCreateUserDocument } from '@/app/actions';
 
 interface AuthContextType {
   user: User | null;
@@ -55,18 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const user = userCredential.user;
     
-    // Create a customer document in Firestore
+    // Create a customer document in Firestore via a server action
     if (user) {
-      await setDoc(doc(db, 'customers', user.uid), {
-        name: user.displayName || email.split('@')[0],
-        email: user.email,
-        avatar: user.photoURL || `https://placehold.co/100x100.png`,
-        totalOrders: 0,
-        totalSpent: 0,
-        joinDate: serverTimestamp(),
-        isActive: true,
-        role: 'customer',
-      });
+      await handleCreateUserDocument(user.uid, user.email!, user.displayName);
     }
 
     return userCredential;
@@ -82,25 +72,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!auth.currentUser) {
         throw new Error("No user is currently signed in.");
     }
-    
-    if (data.displayName) {
-        await updateProfile(auth.currentUser, { displayName: data.displayName });
+    const currentUser = auth.currentUser;
+
+    if (data.displayName && data.displayName !== currentUser.displayName) {
+        await updateProfile(currentUser, { displayName: data.displayName });
     }
     
-    if (data.email && data.email !== auth.currentUser.email) {
-        await updateEmail(auth.currentUser, data.email);
+    if (data.email && data.email !== currentUser.email) {
+        await updateEmail(currentUser, data.email);
     }
 
     // Also update the firestore document if it exists
-    const userDocRef = doc(db, 'customers', auth.currentUser.uid);
+    const userDocRef = doc(db, 'customers', currentUser.uid);
     await updateDoc(userDocRef, {
         name: data.displayName,
         email: data.email
     });
     
     // Manually refetch user to update state
-    const updatedUser = { ...auth.currentUser, displayName: data.displayName, email: data.email };
-    setUser(updatedUser as User);
+    await currentUser.reload();
+    const refreshedUser = auth.currentUser;
+    setUser(refreshedUser);
   };
 
   const value = {

@@ -28,9 +28,9 @@ const nextConfig: NextConfig = {
     ],
   },
    env: {
-    FB_PROJECT_ID: process.env.PROJECT_ID,
-    FB_CLIENT_EMAIL: process.env.CLIENT_EMAIL,
-    FB_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
+    FB_PROJECT_ID: process.env.FB_PROJECT_ID,
+    FB_CLIENT_EMAIL: process.env.FB_CLIENT_EMAIL,
+    FB_PRIVATE_KEY: process.env.FB_PRIVATE_KEY,
     NEXT_PUBLIC_ADMIN_EMAIL: process.env.NEXT_PUBLIC_ADMIN_EMAIL,
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
