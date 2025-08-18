@@ -9,22 +9,22 @@ import { CartProvider } from '@/hooks/use-cart';
 import { ThemeProvider } from 'next-themes';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Gem, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import { useCart } from '@/hooks/use-cart';
-import { Badge } from '@/components/ui/badge';
-import { usePushNotifications } from '@/hooks/use-push-notifications';
-import { GoogleAnalytics } from '@/components/google-analytics';
 import { Suspense } from 'react';
-import type { SiteContent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Navbar } from '@/components/navbar';
+import { getProducts } from '@/lib/firestore';
+import { getSiteContent } from '@/lib/firestore-admin';
+import type { SiteContent, Product, Page } from '@/lib/types';
+import { getAdminPages } from '@/lib/firestore-admin';
+import { GoogleAnalytics } from '@/components/google-analytics';
 
 
 function CustomerLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout } = useAuth();
-  const { cartCount } = useCart();
+  const { user, loading: authLoading } = useAuth();
   const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [pages, setPages] = React.useState<Page[]>([]);
   const [contentLoading, setContentLoading] = React.useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -33,130 +33,46 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
   usePushNotifications();
 
   React.useEffect(() => {
-    fetch('/api/content')
-      .then(res => res.json())
-      .then(data => {
-          setSiteContent(data)
-          setContentLoading(false)
-      })
-      .catch(err => {
-          console.error("Failed to load site content", err)
-          setContentLoading(false)
-      })
-  }, [])
+    const fetchInitialData = async () => {
+      setContentLoading(true);
+      try {
+        const [content, productsData, pagesData] = await Promise.all([
+          fetch('/api/content').then(res => res.json()),
+          getProducts(),
+          getAdminPages()
+        ]);
+        setSiteContent(content);
+        setProducts(productsData);
+        setPages(pagesData.filter(p => p.isPublished));
+      } catch (err) {
+        console.error("Failed to load site data", err);
+      }
+      setContentLoading(false);
+    };
+    fetchInitialData();
+  }, []);
 
   React.useEffect(() => {
-    // Only redirect admin if they are not trying to view a public content page.
-    if (!loading && isAdmin && !pathname.startsWith('/p/')) {
+    if (!authLoading && isAdmin && !pathname.startsWith('/p/')) {
       router.push('/dashboard');
     }
-  }, [loading, isAdmin, router, pathname]);
+  }, [authLoading, isAdmin, router, pathname]);
 
-  if (isAdmin && !pathname.startsWith('/p/')) {
+  if (authLoading || contentLoading || (isAdmin && !pathname.startsWith('/p/'))) {
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <p>Redirecting to dashboard...</p>
-        </div>
+      <div className="flex h-screen w-full items-center justify-center">
+        <p>Loading...</p>
+      </div>
     );
   }
 
-  // The new hero section on the homepage now contains the header.
-  // So we don't render the default header on the homepage.
-  if (pathname === '/') {
-      return (
-          <div className="flex min-h-screen w-full flex-col">
-            <main className="flex-1">{children}</main>
-             <FooterContent siteContent={siteContent} contentLoading={contentLoading}/>
-          </div>
-      )
-  }
-
-  const HeaderContent = () => {
-    if (contentLoading || !siteContent) {
-      return (
-        <>
-            <div className="flex items-center gap-2">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <Skeleton className="h-6 w-24" />
-            </div>
-            <div className="flex items-center gap-4">
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-8 w-24" />
-            </div>
-        </>
-      )
-    }
-    return (
-        <>
-        <Link href="/" className="flex items-center gap-2">
-            <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary"
-            >
-                {siteContent.global.logoUrl ? (
-                    <img src={siteContent.global.logoUrl} alt={siteContent.global.siteName} className="size-5" />
-                ) : (
-                    <Gem className="size-5" />
-                )}
-            </Button>
-            <span className="font-headline text-lg font-semibold">
-                {siteContent.global.siteName}
-            </span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                  {cartCount}
-                </Badge>
-              )}
-              <span className="sr-only">Cart</span>
-            </Button>
-          </Link>
-
-          {loading ? (
-            <div className="w-24 h-8 animate-pulse rounded-md bg-muted" />
-          ) : user ? (
-            <>
-              {isAdmin && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push('/dashboard')}
-                >
-                  Admin
-                </Button>
-              )}
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/account">My Account</Link>
-              </Button>
-              <Button onClick={logout} size="sm">
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </>
-          )}
-        </div>
-        </>
-    );
-  };
-  
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
-        <HeaderContent />
-      </header>
+       <Navbar 
+        siteContent={siteContent!}
+        products={products}
+        pages={pages}
+      />
       <main className="flex-1">{children}</main>
       <FooterContent siteContent={siteContent} contentLoading={contentLoading} />
     </div>
