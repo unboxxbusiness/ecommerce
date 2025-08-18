@@ -18,16 +18,34 @@ import {
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { doc, updateDoc } from 'firebase/firestore';
+import { handleSignup } from '@/app/actions';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<any>;
+  signup: (email: string, pass: string) => Promise<any>;
   updateUserProfile: (data: { displayName?: string, email?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const createSession = async (user: User) => {
+    const idToken = await user.getIdToken();
+    await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: idToken }),
+    });
+};
+
+const clearSession = async () => {
+    await fetch('/api/auth/logout', {
+        method: 'POST',
+    });
+};
+
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -35,8 +53,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        await createSession(user);
+      }
       setLoading(false);
     });
 
@@ -47,10 +68,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(auth, email, pass);
   };
   
-  const logout = () => {
-    return signOut(auth).then(() => {
-        router.push('/login');
-    });
+  const logout = async () => {
+    await signOut(auth)
+    await clearSession();
+    router.push('/login');
+  };
+
+  const signup = async (email: string, password: string) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+    const result = await handleSignup(formData);
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    // After signup, log the user in to trigger onAuthStateChanged and session creation
+    await login(email, password);
+    return result;
   };
 
   const updateUserProfile = async (data: { displayName?: string, email?: string }) => {
@@ -85,6 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loading,
     login,
     logout,
+    signup,
     updateUserProfile,
   };
 

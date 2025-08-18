@@ -16,7 +16,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gem, Loader2 } from 'lucide-react';
-import { handleSignup } from '@/app/actions';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -24,7 +23,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const router = useRouter();
 
   const onSignupSubmit = async (e: React.FormEvent) => {
@@ -38,22 +37,11 @@ export default function SignupPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-
     try {
-      const result = await handleSignup(formData);
-
-      if (result.error) {
-        setError(result.error);
-      } else if (result.success) {
-        // Automatically log the user in after successful signup
-        await login(email, password);
-        router.push('/account');
-      }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      await signup(email, password);
+      router.push('/account');
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred. Please try again.');
       console.error(err);
     } finally {
       setIsLoading(false);
