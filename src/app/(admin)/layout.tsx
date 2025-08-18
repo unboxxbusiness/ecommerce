@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -14,7 +13,6 @@ import { Nav } from '@/nav';
 import { Button } from '@/components/ui/button';
 import { Gem } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import LoginPage from '@/app/login/page';
 import {useEffect} from 'react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -34,13 +32,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [loading, user, router]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-    // Render nothing or a loading indicator while redirecting
-    return null;
+  if (loading || !user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <p>Loading...</p>
+        </div>
+    );
   }
   
   return (
