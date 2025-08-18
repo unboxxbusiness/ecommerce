@@ -1,11 +1,12 @@
 
-import { getPageBySlug } from '@/lib/firestore';
+
+import { getPageById } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 60; // Revalidate at most every 60 seconds
 
-export default async function DynamicPage({ params }: { params: { slug: string } }) {
-    const page = await getPageBySlug(params.slug);
+export default async function DynamicPage({ params }: { params: { id: string } }) {
+    const page = await getPageById(params.id);
 
     if (!page) {
         notFound();
@@ -20,11 +21,3 @@ export default async function DynamicPage({ params }: { params: { slug: string }
         </div>
     );
 }
-
-// Optional: Generate static paths if you have a known set of pages
-// export async function generateStaticParams() {
-//   const pages = await getPublishedPages(); // You would need to create this function
-//   return pages.map((page) => ({
-//     slug: page.slug,
-//   }));
-// }
