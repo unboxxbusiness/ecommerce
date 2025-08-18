@@ -214,6 +214,8 @@ export default function RootLayout({
                       /^\/pages\/[^/]+\/edit$/.test(pathname) ||
                       pathname.startsWith('/settings');
 
+  const isPublicContentPage = /^\/p\/[^/]+$/.test(pathname);
+  const isCustomerPath = !isAdminPath || isPublicContentPage;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -237,7 +239,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <CartProvider>
-              {isAdminPath ? children : <CustomerLayout>{children}</CustomerLayout>}
+              {isCustomerPath ? <CustomerLayout>{children}</CustomerLayout> : children}
             </CartProvider>
           </AuthProvider>
           <Toaster />

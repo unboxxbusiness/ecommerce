@@ -1,33 +1,28 @@
 
-// Scripts for firebase and firebase messaging
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+// Scripts for Firebase products are imported in a separate file, firebase-app.js
+import { initializeApp } from 'firebase/app';
+import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 
-// Pass the Firebase config from the URL search parameters
+// Initialize the Firebase app in the service worker by passing in the
+// messagingSenderId.
 const urlParams = new URLSearchParams(self.location.search);
-const firebaseConfig = {
-    apiKey: urlParams.get('apiKey'),
-    authDomain: urlParams.get('authDomain'),
-    projectId: urlParams.get('projectId'),
-    storageBucket: urlParams.get('storageBucket'),
-    messagingSenderId: urlParams.get('messagingSenderId'),
-    appId: urlParams.get('appId'),
-};
+const firebaseConfig = Object.fromEntries(urlParams.entries());
 
-// Initialize the Firebase app in the service worker
-firebase.initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 
-// Retrieve an instance of Firebase Messaging so that it can handle background messages.
-const messaging = firebase.messaging();
+// Retrieve an instance of Firebase Messaging so that it can handle background
+// messages.
+const messaging = getMessaging(firebaseApp);
 
-messaging.onBackgroundMessage(function(payload) {
-  console.log('Received background message ', payload);
-
+onBackgroundMessage(messaging, (payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  // Customize notification here
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/icon-192x192.png' // Or your app's icon
+    icon: '/firebase-logo.png'
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(notificationTitle,
+    notificationOptions);
 });
