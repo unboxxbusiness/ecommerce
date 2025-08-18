@@ -26,14 +26,32 @@ async function fetchCollection<T>(collectionName: string): Promise<T[]> {
         return data;
     } catch (error) {
         console.error(`Failed to fetch collection ${collectionName}:`, error);
-        // Depending on the use case, you might want to return an empty array
-        // or re-throw the error. For now, we return an empty array to prevent crashes.
         return [];
     }
 }
 
 // Product functions for admin
 export const getAdminProducts = () => fetchCollection<Product>('products');
+
+export const getAdminProduct = async (id: string): Promise<Product | null> => {
+    try {
+        const docRef = adminDb.collection('products').doc(id);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+            const docData = docSnap.data();
+             for (const key in docData) {
+                if (docData[key] instanceof Timestamp) {
+                    docData[key] = (docData[key] as Timestamp).toDate().toISOString();
+                }
+            }
+            return { id: docSnap.id, ...docData } as Product;
+        }
+        return null;
+    } catch(error) {
+        console.error(`Failed to fetch product ${id}:`, error);
+        return null;
+    }
+};
 
 // Order functions for admin
 export const getAdminOrders = () => fetchCollection<Order>('orders');

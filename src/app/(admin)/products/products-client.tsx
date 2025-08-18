@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +30,6 @@ import {
 } from '@/components/ui/table';
 import { Header } from '@/components/header';
 import type { Product } from '@/lib/types';
-import { ProductEditSheet } from '@/components/product-edit-sheet';
 import { deleteProduct } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -42,36 +41,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   AlertDialogTrigger,
-} from "@radix-ui/react-alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function ProductsClient({ initialProducts }: { initialProducts: Product[] }) {
   const [products, setProducts] = React.useState<Product[]>(initialProducts);
-  const [loading, setLoading] = React.useState(false);
-  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-
-  const fetchProducts = React.useCallback(async () => {
-    // This is a client component, so we can't call server-only functions directly.
-    // The initial data is fetched by the parent server component.
-    // We can re-fetch or update state here based on client actions.
-    // For now, we'll just rely on the initial load and updates after actions.
-  }, []);
-
-  const handleAddProduct = () => {
-    setSelectedProduct(null);
-    setIsSheetOpen(true);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsSheetOpen(true);
-  };
 
   const handleDeleteProduct = async (productId: string) => {
     try {
@@ -80,7 +58,6 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
         title: "Product Deleted",
         description: "The product has been successfully deleted.",
       });
-      // Refresh the page to get the updated list from the server component
       router.refresh();
     } catch (error) {
       console.error("Failed to delete product:", error);
@@ -91,12 +68,6 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
       });
     }
   };
-  
-  const onProductSaved = () => {
-    setIsSheetOpen(false);
-    // Refresh the page to see the new/updated product
-    router.refresh();
-  }
 
   React.useEffect(() => {
     setProducts(initialProducts);
@@ -105,9 +76,11 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
   return (
     <>
       <Header title="Products">
-        <Button size="sm" className="gap-1" onClick={handleAddProduct}>
-          <PlusCircle className="h-4 w-4" />
-          Add Product
+        <Button size="sm" className="gap-1" asChild>
+          <Link href="/products/new">
+            <PlusCircle className="h-4 w-4" />
+            Add Product
+          </Link>
         </Button>
       </Header>
       <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -119,9 +92,6 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p>Loading products...</p>
-            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -170,8 +140,8 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleEditProduct(product)}>
-                              Edit
+                            <DropdownMenuItem asChild>
+                              <Link href={`/products/${product.id}/edit`}>Edit</Link>
                             </DropdownMenuItem>
                              <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -201,16 +171,9 @@ export function ProductsClient({ initialProducts }: { initialProducts: Product[]
                   ))}
                 </TableBody>
               </Table>
-            )}
           </CardContent>
         </Card>
       </main>
-      <ProductEditSheet
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-        product={selectedProduct}
-        onProductSaved={onProductSaved}
-      />
     </>
   );
 }
