@@ -18,64 +18,64 @@ import { PaymentSettingsForm } from './payment-settings-form';
 export function SettingsClient() {
   return (
     <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full max-w-lg grid-cols-4">
+      <TabsList className="grid w-full max-w-lg grid-cols-4">
         <TabsTrigger value="profile">Profile</TabsTrigger>
         <TabsTrigger value="theme">Appearance</TabsTrigger>
         <TabsTrigger value="payments">Payments</TabsTrigger>
         <TabsTrigger value="setup">Setup</TabsTrigger>
-        </TabsList>
-        <TabsContent value="profile">
+      </TabsList>
+      <TabsContent value="profile">
         <Card>
-            <CardHeader>
+          <CardHeader>
             <CardTitle>Profile Management</CardTitle>
             <CardDescription>
-                Update your account information.
+              Update your account information.
             </CardDescription>
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
             <ProfileManagementForm />
-            </CardContent>
+          </CardContent>
         </Card>
-        </TabsContent>
-        <TabsContent value="theme">
-            <Card>
-            <CardHeader>
-                <CardTitle>Theme Management</CardTitle>
-                <CardDescription>
-                Choose how you want the dashboard to look.
-                </Description>
-            </CardHeader>
-            <CardContent>
-                <ThemeToggle />
-            </CardContent>
-            </Card>
-        </TabsContent>
-        <TabsContent value="payments">
+      </TabsContent>
+      <TabsContent value="theme">
         <Card>
-            <CardHeader>
+          <CardHeader>
+            <CardTitle>Theme Management</CardTitle>
+            <CardDescription>
+              Choose how you want the dashboard to look.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeToggle />
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="payments">
+        <Card>
+          <CardHeader>
             <CardTitle>Payment Gateway</CardTitle>
             <CardDescription>
-                Configure your payment settings.
+              Configure your payment settings.
             </CardDescription>
-            </CardHeader>
-            <CardContent>
+          </CardHeader>
+          <CardContent>
             <PaymentSettingsForm />
-            </CardContent>
+          </CardContent>
         </Card>
-        </TabsContent>
-        <TabsContent value="setup">
-            <Card>
-            <CardHeader>
-                <CardTitle>Environment Setup</CardTitle>
-                <CardDescription>
-                Configure all necessary environment variables for your application.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <EnvironmentSetup />
-            </CardContent>
-            </Card>
-        </TabsContent>
+      </TabsContent>
+      <TabsContent value="setup">
+        <Card>
+          <CardHeader>
+            <CardTitle>Environment Setup</CardTitle>
+            <CardDescription>
+              Configure all necessary environment variables for your application.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <EnvironmentSetup />
+          </CardContent>
+        </Card>
+      </TabsContent>
     </Tabs>
   );
 }
