@@ -8,7 +8,7 @@ export const revalidate = 60; // Revalidate at most every 60 seconds
 export default async function DynamicPage({ params }: { params: { id: string } }) {
     const page = await getPageById(params.id);
 
-    if (!page) {
+    if (!page || !page.isPublished) {
         notFound();
     }
 
@@ -21,4 +21,3 @@ export default async function DynamicPage({ params }: { params: { id: string } }
         </div>
     );
 }
-
