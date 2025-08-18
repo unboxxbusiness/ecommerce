@@ -25,11 +25,11 @@ export const getProduct = async (id: string): Promise<Product | null> => {
     return null;
 }
 
-export const createProduct = async (productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews'>) => {
+export const createProduct = async (productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) => {
     const newProductData = {
         ...productData,
-        rating: 0,
-        popularity: 0,
+        rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // Random rating between 3.0 and 5.0
+        popularity: Math.floor(Math.random() * 1000),
         reviews: [],
         variants: [],
     };
