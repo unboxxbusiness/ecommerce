@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
 import { CartProvider } from '@/hooks/use-cart';
 import { ThemeProvider } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Gem, ShoppingCart } from 'lucide-react';
@@ -26,6 +26,20 @@ function CustomerLayout({ children }: { children: React.ReactNode }) {
 
   // Initialize push notifications for logged-in users
   usePushNotifications();
+
+  React.useEffect(() => {
+    if (!loading && isAdmin) {
+      router.push('/dashboard');
+    }
+  }, [loading, isAdmin, router]);
+
+  if (isAdmin) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <p>Redirecting to dashboard...</p>
+        </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -120,6 +134,12 @@ export default function RootLayout({
       setPathname(window.location.pathname);
     }
   }, []);
+  
+  const currentPath = usePathname();
+   React.useEffect(() => {
+    setPathname(currentPath);
+  }, [currentPath]);
+
 
   const isAdminPath = pathname.startsWith('/dashboard') || 
                     pathname.startsWith('/orders') || 
