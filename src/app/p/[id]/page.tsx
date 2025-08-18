@@ -1,12 +1,12 @@
 
 
-import { getPageById } from '@/lib/firestore-admin';
+import { getPageBySlug } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 
-export const revalidate = 60; // Revalidate at most every 60 seconds
+export const revalidate = 60; 
 
-export default async function DynamicPage({ params }: { params: { id: string } }) {
-    const page = await getPageById(params.id);
+export default async function DynamicPage({ params }: { params: { slug: string } }) {
+    const page = await getPageBySlug(params.slug);
 
     if (!page || !page.isPublished) {
         notFound();

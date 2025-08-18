@@ -160,7 +160,7 @@ export const deleteCoupon = (id: string) => {
 
 export const getPageBySlug = async (slug: string): Promise<Page | null> => {
     const q = query(
-        collection(db, 'pages'), 
+        collection(db, 'pages'),
         where('slug', '==', slug),
         where('isPublished', '==', true)
     );
@@ -170,11 +170,10 @@ export const getPageBySlug = async (slug: string): Promise<Page | null> => {
     }
     const pageDoc = querySnapshot.docs[0];
     const pageData = pageDoc.data();
-     if (pageData.createdAt && typeof pageData.createdAt.toDate === 'function') {
-        pageData.createdAt = pageData.createdAt.toDate().toISOString();
-    }
-    if (pageData.updatedAt && typeof pageData.updatedAt.toDate === 'function') {
-        pageData.updatedAt = pageData.updatedAt.toDate().toISOString();
-    }
-    return { id: pageDoc.id, ...pageData } as Page;
+    
+    // Ensure timestamps are converted to strings
+    const createdAt = pageData.createdAt?.toDate ? pageData.createdAt.toDate().toISOString() : pageData.createdAt;
+    const updatedAt = pageData.updatedAt?.toDate ? pageData.updatedAt.toDate().toISOString() : pageData.updatedAt;
+
+    return { id: pageDoc.id, ...pageData, createdAt, updatedAt } as Page;
 };
