@@ -159,16 +159,29 @@ export const deleteCoupon = (id: string) => {
 };
 
 
-export const getPageBySlug = async (slug: string): Promise<Page | null> => {
+export const getPageBySlug = async (slug: string, publishedOnly = true): Promise<Page | null> => {
+    const constraints = [where('slug', '==', slug)];
+    if (publishedOnly) {
+        constraints.push(where('isPublished', '==', true));
+    }
+    
     const q = query(
         collection(db, 'pages'), 
-        where('slug', '==', slug), 
-        where('isPublished', '==', true)
+        ...constraints
     );
+
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
         return null;
     }
     const pageDoc = querySnapshot.docs[0];
-    return { id: pageDoc.id, ...pageDoc.data() } as Page;
+    const pageData = pageDoc.data();
+    // Convert Firestore Timestamps to serializable strings if they exist
+    if (pageData.createdAt) {
+        pageData.createdAt = pageData.createdAt.toDate().toISOString();
+    }
+    if (pageData.updatedAt) {
+        pageData.updatedAt = pageData.updatedAt.toDate().toISOString();
+    }
+    return { id: pageDoc.id, ...pageData } as Page;
 }
