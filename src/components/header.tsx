@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { ReactNode } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import Link from 'next/link';
 
 type HeaderProps = {
   title: string;
@@ -45,7 +46,9 @@ export function Header({ title, children }: HeaderProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+                <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
@@ -55,4 +58,3 @@ export function Header({ title, children }: HeaderProps) {
     </header>
   );
 }
-
