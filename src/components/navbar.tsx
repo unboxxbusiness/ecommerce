@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -12,7 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
   NavigationMenu,
   NavigationMenuContent,
