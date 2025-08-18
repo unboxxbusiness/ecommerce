@@ -1,3 +1,4 @@
+
 // src/lib/firebase-admin.ts
 
 import admin from 'firebase-admin';
@@ -21,5 +22,6 @@ if (!getApps().length) {
 
 const adminDb = admin.firestore();
 const adminAuth = admin.auth();
+const adminMessaging = admin.messaging();
 
-export { adminDb, adminAuth };
+export { adminDb, adminAuth, adminMessaging };

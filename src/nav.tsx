@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Users,
   TicketPercent,
+  Megaphone,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/products', icon: Package, label: 'Products' },
   { href: '/customers', icon: Users, label: 'Customers' },
   { href: '/coupons', icon: TicketPercent, label: 'Coupons' },
+  { href: '/marketing', icon: Megaphone, label: 'Marketing' },
 ];
 
 export function Nav() {
