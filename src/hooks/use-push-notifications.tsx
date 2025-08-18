@@ -23,6 +23,10 @@ export const usePushNotifications = () => {
       try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted' && user) {
+          if (!process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY) {
+            console.error("Firebase VAPID key is missing from environment variables.");
+            return;
+          }
           const currentToken = await getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY });
           if (currentToken) {
             console.log('FCM Token:', currentToken);
@@ -36,7 +40,9 @@ export const usePushNotifications = () => {
       }
     };
 
-    requestPermission();
+    if (user) {
+      requestPermission();
+    }
 
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log('Message received. ', payload);

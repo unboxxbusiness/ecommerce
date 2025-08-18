@@ -113,8 +113,9 @@ export const deleteCustomer = (id: string) => {
     return deleteDoc(doc(db, 'customers', id));
 };
 
-export const saveFcmToken = (userId: string, token: string) => {
+export const saveFcmToken = async (userId: string, token: string) => {
     const customerRef = doc(db, 'customers', userId);
+    // arrayUnion ensures the token is only added if it's not already present.
     return updateDoc(customerRef, {
         fcmTokens: arrayUnion(token)
     });
