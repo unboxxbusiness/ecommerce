@@ -5,7 +5,7 @@ import { optimizeProductDescription } from '@/ai/flows/optimize-product-descript
 import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { FieldValue, serverTimestamp } from 'firebase/firestore';
+import { serverTimestamp } from 'firebase/firestore';
 import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage } from '@/lib/firestore-admin';
 import type { Page, SiteContent } from '@/lib/types';
 import { cookies } from 'next/headers';
@@ -194,10 +194,11 @@ export async function handleCreatePage(data: Omit<Page, 'id' | 'createdAt' | 'up
     
     try {
         const pageRef = adminDb.collection('pages');
+        const now = new Date().toISOString();
         const newPage = {
             ...validation.data,
-            createdAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
+            createdAt: now,
+            updatedAt: now,
         }
         await pageRef.add(newPage);
         return { success: true };
@@ -222,7 +223,7 @@ export async function handleUpdatePage(id: string, data: Partial<Page>) {
         const pageRef = adminDb.collection('pages').doc(id);
         const updatedPage = {
             ...validation.data,
-            updatedAt: FieldValue.serverTimestamp(),
+            updatedAt: new Date().toISOString(),
         }
         await pageRef.update(updatedPage);
         return { success: true };
