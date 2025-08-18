@@ -19,6 +19,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
 import {
   Sheet,
@@ -221,14 +222,14 @@ export const Navbar = ({ siteContent, products, pages }: NavbarProps) => {
 const renderMenuItem = (item: MenuItem) => {
   if (item.items && item.items.length > 0) {
     return (
-      <NavigationMenuItem key={item.title} className="text-muted-foreground">
+      <NavigationMenuItem key={item.title}>
         <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent>
           <ul className="w-80 p-3">
               {item.items.map((subItem) => (
                 <li key={subItem.title}>
                   <NavigationMenuLink asChild>
-                    <a
+                    <Link
                         className="flex select-none gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
                         href={subItem.url}
                     >
@@ -243,7 +244,7 @@ const renderMenuItem = (item: MenuItem) => {
                             </p>
                         )}
                         </div>
-                    </a>
+                    </Link>
                   </NavigationMenuLink>
                 </li>
               ))}
@@ -256,7 +257,7 @@ const renderMenuItem = (item: MenuItem) => {
   return (
      <NavigationMenuItem key={item.title}>
         <Link href={item.url} legacyBehavior passHref>
-            <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground">
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 {item.title}
             </NavigationMenuLink>
         </Link>
@@ -273,7 +274,7 @@ const renderMobileMenuItem = (item: MenuItem) => {
         </AccordionTrigger>
         <AccordionContent className="mt-2">
           {item.items.map((subItem) => (
-            <a
+             <Link
               key={subItem.title}
               className="flex select-none gap-4 rounded-md p-3 leading-none outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
               href={subItem.url}
@@ -287,7 +288,7 @@ const renderMobileMenuItem = (item: MenuItem) => {
                   </p>
                 )}
               </div>
-            </a>
+            </Link>
           ))}
         </AccordionContent>
       </AccordionItem>
@@ -295,8 +296,8 @@ const renderMobileMenuItem = (item: MenuItem) => {
   }
 
   return (
-    <a key={item.title} href={item.url} className="font-semibold py-2 block">
+     <Link key={item.title} href={item.url} className="font-semibold py-2 block hover:underline">
       {item.title}
-    </a>
+    </Link>
   );
 };
