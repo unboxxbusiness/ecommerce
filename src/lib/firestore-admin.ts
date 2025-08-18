@@ -2,7 +2,7 @@
 import 'server-only';
 
 import { adminDb } from './firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import type { Product, Order, Customer, Coupon, SiteContent } from './types';
 
 // These functions use the ADMIN SDK and are for SERVER-SIDE use only.
@@ -162,16 +162,25 @@ export const getSiteContent = async (): Promise<SiteContent> => {
     
     // Merge with defaults to ensure all properties exist
     const data = docSnap.data() as Partial<SiteContent>;
+    const homePageData = data.homePage || {};
     return {
         global: { ...defaultSiteContent.global, ...data.global },
         homePage: {
-            hero: { ...defaultSiteContent.homePage.hero, ...data.homePage?.hero },
-            testimonials: { ...defaultSiteContent.homePage.testimonials, ...data.homePage?.testimonials },
-            ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...data.homePage?.ctaBlock },
+            hero: { ...defaultSiteContent.homePage.hero, ...homePageData.hero },
+            testimonials: { ...defaultSiteContent.homePage.testimonials, ...homePageData.testimonials },
+            ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...homePageData.ctaBlock },
         }
     };
   } catch (error) {
     console.error('Failed to fetch site content:', error);
     return defaultSiteContent;
   }
+};
+
+
+export const updateSiteContent = (contentData: Partial<SiteContent>) => {
+    const contentRef = adminDb.collection('siteContent').doc('main');
+    // serverTimestamp() can't be used directly in nested objects for set with merge.
+    // We can handle timestamps specifically if needed, but for this CMS, it's not required.
+    return contentRef.set(contentData, { merge: true });
 };

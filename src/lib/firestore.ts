@@ -157,9 +157,3 @@ export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
 export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
 };
-
-// Site Content
-export const updateSiteContent = (contentData: Partial<SiteContent>) => {
-    const contentRef = doc(db, 'siteContent', 'main');
-    return setDoc(contentRef, contentData, { merge: true });
-};

@@ -19,7 +19,7 @@ import {
 import { Loader2, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { updateSiteContent } from '@/lib/firestore';
+import { handleUpdateSiteContent } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -81,7 +81,10 @@ export function HomePageContentForm({ content }: HomePageContentFormProps) {
   const onSubmit = async (values: z.infer<typeof homePageContentSchema>) => {
     setIsSaving(true);
     try {
-      await updateSiteContent({ homePage: values });
+      const result = await handleUpdateSiteContent({ homePage: values });
+       if (result.error) {
+        throw new Error(result.error);
+      }
       toast({
         title: 'Content Updated',
         description: 'Your home page content has been saved.',

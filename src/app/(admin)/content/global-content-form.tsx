@@ -18,7 +18,7 @@ import {
 import { Loader2, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { updateSiteContent } from '@/lib/firestore';
+import { handleUpdateSiteContent } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -61,7 +61,10 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
   const onSubmit = async (values: z.infer<typeof globalContentSchema>) => {
     setIsSaving(true);
     try {
-      await updateSiteContent({ global: values });
+      const result = await handleUpdateSiteContent({ global: values });
+      if (result.error) {
+        throw new Error(result.error);
+      }
       toast({
         title: 'Content Updated',
         description: 'Your global site content has been saved.',

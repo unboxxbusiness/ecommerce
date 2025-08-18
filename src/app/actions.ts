@@ -6,6 +6,10 @@ import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
+import { updateSiteContent as adminUpdateSiteContent } from '@/lib/firestore-admin';
+import type { SiteContent } from '@/lib/types';
+import { cookies } from 'next/headers';
+
 
 const optimizeDescriptionSchema = z.object({
   productName: z.string(),
@@ -133,5 +137,38 @@ export async function handleSignup(formData: FormData) {
             return { error: 'An account with this email already exists.' };
         }
         return { error: 'Failed to create account. Please try again.' };
+    }
+}
+
+// Helper function to verify admin user from session cookie
+async function verifyAdmin() {
+    const sessionCookie = cookies().get('__session')?.value || '';
+    if (!sessionCookie) {
+        return null;
+    }
+    try {
+        const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
+        if (decodedClaims.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+            return decodedClaims;
+        }
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
+
+export async function handleUpdateSiteContent(contentData: Partial<SiteContent>) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+
+    try {
+        await adminUpdateSiteContent(contentData);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to update site content:', error);
+        return { error: 'An unexpected server error occurred while updating content.' };
     }
 }
