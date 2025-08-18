@@ -10,7 +10,11 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // This is to allow cross-origin requests from the development environment (Firebase Studio)
+    // and prevent the server from restarting due to the warning.
+    allowedDevOrigins: ["**"],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

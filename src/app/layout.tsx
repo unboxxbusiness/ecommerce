@@ -14,43 +14,30 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Navbar } from '@/components/navbar';
 import { getProducts } from '@/lib/firestore';
-import { getSiteContent } from '@/lib/firestore-admin';
 import type { SiteContent, Product, Page } from '@/lib/types';
-import { getAdminPages } from '@/lib/firestore-admin';
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 
-function CustomerLayout({ children }: { children: React.ReactNode }) {
+function CustomerLayout({ 
+  children, 
+  siteContent, 
+  products, 
+  pages,
+  contentLoading
+}: { 
+  children: React.ReactNode, 
+  siteContent: SiteContent | null, 
+  products: Product[],
+  pages: Page[],
+  contentLoading: boolean
+}) {
   const { user, loading: authLoading } = useAuth();
-  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
-  const [products, setProducts] = React.useState<Product[]>([]);
-  const [pages, setPages] = React.useState<Page[]>([]);
-  const [contentLoading, setContentLoading] = React.useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   usePushNotifications();
-
-  React.useEffect(() => {
-    const fetchInitialData = async () => {
-      setContentLoading(true);
-      try {
-        const [content, productsData, pagesData] = await Promise.all([
-          fetch('/api/content').then(res => res.json()),
-          getProducts(),
-          getAdminPages()
-        ]);
-        setSiteContent(content);
-        setProducts(productsData);
-        setPages(pagesData.filter(p => p.isPublished));
-      } catch (err) {
-        console.error("Failed to load site data", err);
-      }
-      setContentLoading(false);
-    };
-    fetchInitialData();
-  }, []);
 
   React.useEffect(() => {
     if (!authLoading && isAdmin && !pathname.startsWith('/p/')) {
@@ -111,13 +98,36 @@ const FooterContent = ({ siteContent, contentLoading }: { siteContent: SiteConte
     )
 }
 
-
-export default function RootLayout({
+function LayoutWrapper({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [pages, setPages] = React.useState<Page[]>([]);
+  const [contentLoading, setContentLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchInitialData = async () => {
+      setContentLoading(true);
+      try {
+        const [content, productsData, pagesData] = await Promise.all([
+          fetch('/api/content').then(res => res.json()),
+          getProducts(),
+          fetch('/api/pages').then(res => res.json()) // Fetch pages from an API route
+        ]);
+        setSiteContent(content);
+        setProducts(productsData);
+        setPages(pagesData);
+      } catch (err) {
+        console.error("Failed to load site data", err);
+      }
+      setContentLoading(false);
+    };
+    fetchInitialData();
+  }, []);
 
   const isAdminPath = pathname.startsWith('/dashboard') ||
                       pathname.startsWith('/orders') ||
@@ -133,7 +143,39 @@ export default function RootLayout({
   const isPublicPage = !isAdminPath && !isAuthPage;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <>
+      <Suspense>
+        <GoogleAnalytics />
+      </Suspense>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <AuthProvider>
+          <CartProvider>
+            {isPublicPage ? (
+              <CustomerLayout 
+                siteContent={siteContent} 
+                products={products}
+                pages={pages}
+                contentLoading={contentLoading}
+              >
+                {children}
+              </CustomerLayout>
+            ) : children}
+          </CartProvider>
+        </AuthProvider>
+        <Toaster />
+      </ThemeProvider>
+    </>
+  );
+}
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#4fb4a5" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -148,18 +190,8 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
-        <Suspense>
-          <GoogleAnalytics />
-        </Suspense>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <CartProvider>
-              {isPublicPage ? <CustomerLayout>{children}</CustomerLayout> : children}
-            </CartProvider>
-          </AuthProvider>
-          <Toaster />
-        </ThemeProvider>
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
-  );
+  )
 }
