@@ -44,7 +44,7 @@ export default function SettingsPage() {
                 <CardDescription>
                   Choose how you want the dashboard to look.
                 </CardDescription>
-              </Header>
+              </CardHeader>
               <CardContent>
                 <ThemeToggle />
               </CardContent>
@@ -57,7 +57,7 @@ export default function SettingsPage() {
                 <CardDescription>
                   Configure your payment provider settings.
                 </CardDescription>
-              </Header>
+              </CardHeader>
               <CardContent>
                 <PaymentSettingsForm />
               </CardContent>
