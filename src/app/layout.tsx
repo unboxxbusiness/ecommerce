@@ -200,7 +200,9 @@ export default function RootLayout({
   }, [currentPath]);
 
   // Updated logic: Only treat specific URLs as admin paths.
-  const isAdminPath = pathname.startsWith('/dashboard') || 
+  const isAdminPath = pathname === '/products' ||
+                      pathname === '/pages' ||
+                      pathname.startsWith('/dashboard') || 
                       pathname.startsWith('/orders') || 
                       pathname.startsWith('/products/new') || 
                       /^\/products\/[^/]+\/edit$/.test(pathname) ||
