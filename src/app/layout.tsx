@@ -140,14 +140,17 @@ export default function RootLayout({
     setPathname(currentPath);
   }, [currentPath]);
 
+  // Updated logic: Only treat specific URLs as admin paths.
+  const isAdminPath = [
+    '/dashboard',
+    '/orders',
+    '/products',
+    '/customers',
+    '/coupons',
+    '/marketing',
+    '/settings',
+  ].includes(pathname) || /^\/(products|customers|coupons)\/.+\/edit$/.test(pathname) || /^\/(products|customers|coupons)\/new$/.test(pathname);
 
-  const isAdminPath = pathname.startsWith('/dashboard') || 
-                    pathname.startsWith('/orders') || 
-                    pathname.startsWith('/products') || 
-                    pathname.startsWith('/customers') || 
-                    pathname.startsWith('/coupons') || 
-                    pathname.startsWith('/marketing') || 
-                    pathname.startsWith('/settings');
 
   return (
     <html lang="en" suppressHydrationWarning>
