@@ -6,7 +6,7 @@ import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
-import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, createProduct, updateProduct, deleteProduct } from '@/lib/firestore-admin';
+import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage } from '@/lib/firestore-admin';
 import type { Page, SiteContent, Product } from '@/lib/types';
 import { cookies } from 'next/headers';
 
@@ -131,9 +131,9 @@ export async function handleSignup(formData: FormData) {
         };
         batch.set(customerRef, customerData);
 
-        // If this is the designated admin user, add them to the admins collection
+        // If this is the designated admin user, add their UID to the admins collection
         if (email === process.env.ADMIN_EMAIL) {
-            const adminRef = adminDb.collection('admins').doc(email);
+            const adminRef = adminDb.collection('admins').doc(userRecord.uid);
             batch.set(adminRef, { role: 'admin', createdAt: serverTimestamp() });
         }
 
@@ -157,10 +157,10 @@ async function verifyAdmin() {
     }
     try {
         const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-        if (!decodedClaims.email) {
+        if (!decodedClaims.uid) {
             return null;
         }
-        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.email).get();
+        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.uid).get();
         if (adminDoc.exists) {
             return decodedClaims;
         }
@@ -269,6 +269,29 @@ const productSchema = z.object({
   image: z.string().url('Must be a valid image URL').optional().or(z.literal('')),
   category: z.string().min(2, 'Category is required'),
 });
+
+
+async function createProduct(productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
+    const newProductData = {
+        ...productData,
+        rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
+        popularity: Math.floor(Math.random() * 1000),
+        reviews: [],
+        variants: [],
+    };
+    const docRef = await adminDb.collection('products').add(newProductData);
+    return docRef.id;
+};
+
+async function updateProduct(id: string, productData: Partial<Product>) {
+    const productRef = adminDb.collection('products').doc(id);
+    return productRef.update(productData);
+};
+
+async function deleteProduct(id: string) {
+    return adminDb.collection('products').doc(id).delete();
+};
+
 
 export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
     const adminUser = await verifyAdmin();
