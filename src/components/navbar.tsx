@@ -3,19 +3,23 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Menu,
-  MenuItem,
-  ProductItem,
-  HoveredLink,
-} from "@/components/ui/hover-menu";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import type { Product, Page, SiteContent } from "@/lib/types";
 import { getProducts } from "@/lib/firestore";
-import Link from "next/link";
 import { Button } from "./ui/button";
-import { Gem, ShoppingCart, Book, Trees, Sunset, Zap, Sun, Moon, type LucideIcon, icons } from "lucide-react";
+import { Gem, ShoppingCart, Sun, Moon, type LucideIcon, icons } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useTheme } from "next-themes";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
@@ -24,13 +28,11 @@ const DynamicIcon = ({ name }: { name?: string }) => {
   const IconComponent = (icons as Record<string, LucideIcon>)[name || 'Gem'];
 
   if (!IconComponent) {
-    // Return a default icon if the name is not found
     return <Gem className="h-5 w-5 text-primary" />;
   }
 
   return <IconComponent className="h-5 w-5 text-primary" />;
 };
-
 
 function PublicThemeToggle() {
     const { theme, setTheme } = useTheme();
@@ -54,8 +56,34 @@ function PublicThemeToggle() {
     )
 }
 
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  )
+})
+ListItem.displayName = "ListItem"
+
+
 export function Navbar({ className }: { className?: string }) {
-  const [active, setActive] = useState<string | null>(null);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const { user, loading, logout } = useAuth();
   const { cartCount } = useCart();
@@ -65,9 +93,7 @@ export function Navbar({ className }: { className?: string }) {
   const [categories, setCategories] = useState<
     Record<string, Product[]>
   >({});
-  const [hoveredCategory, setHoveredCategory] = useState<string>('');
-
-
+  
   useEffect(() => {
     const fetchNavData = async () => {
       const productData = await getProducts();
@@ -85,35 +111,16 @@ export function Navbar({ className }: { className?: string }) {
         {} as Record<string, Product[]>
       );
       setCategories(groupedCategories);
-      if (Object.keys(groupedCategories).length > 0) {
-        setHoveredCategory(Object.keys(groupedCategories)[0]);
-      }
-
-
+      
       const pagesData = await fetch("/api/pages").then((res) => res.json());
-      setPages(pagesData.slice(0, 2));
+      setPages(pagesData.slice(0, 4)); // limit to 4 pages in nav
 
       const content = await fetch("/api/content").then((res) => res.json());
       setSiteContent(content);
     };
     fetchNavData();
   }, []);
-
-  const aboutMenuItems = [
-    {
-      title: "About Us",
-      url: "/p/about-us",
-      icon: <Trees className="size-5 shrink-0" />,
-      description: "Learn more about our company and mission.",
-    },
-    {
-      title: "Contact",
-      url: "/p/contact",
-      icon: <Zap className="size-5 shrink-0" />,
-      description: "Get in touch with us.",
-    },
-  ];
-
+  
   return (
     <header
       className={cn(
@@ -122,63 +129,62 @@ export function Navbar({ className }: { className?: string }) {
       )}
     >
       <div className="container flex h-16 items-center">
-        <Menu setActive={setActive} className="flex-1">
-          {siteContent && (
+         {siteContent && (
              <Link href="/" className="flex items-center gap-2 text-foreground font-semibold hover:opacity-90 mr-4">
                <DynamicIcon name={siteContent.header.iconName} />
                <span>{siteContent.header.siteName}</span>
              </Link>
           )}
-          <div className="hidden md:flex flex-1 items-center justify-start space-x-4">
-            <MenuItem setActive={setActive} active={active} item="Shop">
-             <div className="flex">
-              <div className="w-48 border-r border-border p-4 space-y-2">
-                <h3 className="font-bold text-foreground mb-2">Categories</h3>
-                {Object.keys(categories).map((category) => (
-                  <a
-                    key={category}
-                    className={cn(
-                      "block text-sm p-2 rounded-md",
-                      hoveredCategory === category ? "bg-muted text-muted-foreground" : "text-muted-foreground/80 hover:bg-muted/50"
-                    )}
-                    onMouseEnter={() => setHoveredCategory(category)}
-                  >
-                    {category}
-                  </a>
-                ))}
-              </div>
-              <div className="text-sm grid grid-cols-2 gap-6 p-4 w-[28rem]">
-                {(categories[hoveredCategory] || []).slice(0, 4).map((p) => (
-                  <ProductItem
-                    key={p.id}
-                    title={p.name}
-                    href={`/products/${p.id}`}
-                    src={p.image || "https://placehold.co/140x70.png"}
-                    description={`₹${p.price.toFixed(2)}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </MenuItem>
-          {pages.length > 0 && (
-            <MenuItem setActive={setActive} active={active} item="About">
-              <div className="flex flex-col space-y-2 p-4">
-                {pages.map((p) => (
-                  <HoveredLink key={p.id} href={`/p/${p.slug}`}>
-                    <div className="flex items-start gap-3">
-                      <Gem className="size-5 shrink-0 mt-1 text-primary" />
-                      <div>
-                        <span className="text-foreground font-semibold">{p.title}</span>
-                        <p className="text-sm text-muted-foreground">Learn more</p>
-                      </div>
-                    </div>
-                  </HoveredLink>
-                ))}
-              </div>
-            </MenuItem>
-          )}
-          </div>
-          <div className="flex items-center gap-2">
+
+        <NavigationMenu>
+          <NavigationMenuList>
+             <NavigationMenuItem>
+              <NavigationMenuTrigger>Shop</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {Object.entries(categories).map(([category, products]) => (
+                    <ListItem
+                      key={category}
+                      href={`/?category=${encodeURIComponent(category)}#products`}
+                      title={category}
+                    >
+                      {products.length} products available.
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            
+            {pages.length > 0 && (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                    {pages.map((page) => (
+                      <ListItem
+                        key={page.id}
+                        href={`/p/${page.slug}`}
+                        title={page.title}
+                      >
+                       Learn more about us and our policies.
+                      </ListItem>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            )}
+
+             <NavigationMenuItem>
+                <Link href="/#products" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        All Products
+                    </NavigationMenuLink>
+                </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+
+          <div className="flex flex-1 items-center justify-end gap-2">
               <Button variant="ghost" size="icon" className="relative text-foreground" onClick={() => setIsCartDrawerOpen(true)}>
                   <ShoppingCart className="h-5 w-5" />
                   {cartCount > 0 && (
@@ -206,7 +212,6 @@ export function Navbar({ className }: { className?: string }) {
                   </>
                 )}
           </div>
-        </Menu>
       </div>
     </header>
   );
