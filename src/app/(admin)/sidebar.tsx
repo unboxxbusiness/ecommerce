@@ -34,7 +34,7 @@ interface SidebarProps {
   className?: string;
 }
 
-const navigationItems: NavigationItem[] = [
+const allNavigationItems: NavigationItem[] = [
   { id: 'dashboard', name: 'Dashboard', icon: Home, href: '/dashboard' },
   { id: 'orders', name: 'Orders', icon: ShoppingCart, href: '/orders' },
   { id: 'products', name: 'Products', icon: Package, href: '/products' },
@@ -49,11 +49,12 @@ const navigationItems: NavigationItem[] = [
 export function Sidebar({ className = "" }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const { user, logout } = useAuth();
   
   const getInitialActiveItem = () => {
-    const activeNav = navigationItems.find(item => pathname.startsWith(item.href));
+    const activeNav = allNavigationItems.find(item => pathname.startsWith(item.href));
     return activeNav ? activeNav.id : 'dashboard';
   };
   const [activeItem, setActiveItem] = useState(getInitialActiveItem());
@@ -62,6 +63,9 @@ export function Sidebar({ className = "" }: SidebarProps) {
     setActiveItem(getInitialActiveItem());
   }, [pathname]);
 
+  const filteredNavigationItems = allNavigationItems.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Auto-open sidebar on desktop
   useEffect(() => {
@@ -169,6 +173,8 @@ export function Sidebar({ className = "" }: SidebarProps) {
               <input
                 type="text"
                 placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200"
               />
             </div>
@@ -178,7 +184,7 @@ export function Sidebar({ className = "" }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
           <ul className="space-y-0.5">
-            {navigationItems.map((item) => {
+            {filteredNavigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.id;
 
