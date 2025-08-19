@@ -175,7 +175,7 @@ export function Navbar({ className }: { className?: string }) {
             )}
 
              <NavigationMenuItem>
-                <Link href="/#products" legacyBehavior passHref>
+                <Link href="/#products" passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         All Products
                     </NavigationMenuLink>
