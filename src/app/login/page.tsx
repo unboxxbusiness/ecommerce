@@ -16,9 +16,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gem, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { handlePasswordReset } from '@/app/actions';
-import { useToast } from '@/hooks/use-toast';
-
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,8 +24,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
-  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,41 +44,6 @@ export default function LoginPage() {
       console.error(err);
     }
   };
-  
-  const onPasswordReset = async () => {
-    if (!email) {
-        toast({
-            variant: 'destructive',
-            title: 'Email Required',
-            description: 'Please enter your email address to reset your password.',
-        });
-        return;
-    }
-    setIsSendingReset(true);
-    try {
-        const result = await handlePasswordReset(email);
-        if (result.error) {
-             toast({
-                variant: 'destructive',
-                title: 'Request Failed',
-                description: result.error,
-            });
-        } else {
-            toast({
-                title: 'Password Reset Email Sent',
-                description: 'Check your inbox (and spam folder) to reset your password.',
-            });
-        }
-    } catch(err) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'An unexpected error occurred. Please try again.',
-        });
-    } finally {
-        setIsSendingReset(false);
-    }
-  }
 
 
   return (
@@ -120,16 +80,15 @@ export default function LoginPage() {
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                   <Button
-                      type="button"
-                      variant="link"
-                      className="px-0 h-auto text-sm"
-                      onClick={onPasswordReset}
-                      disabled={isSendingReset}
-                    >
-                      {isSendingReset ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-                      Forgot password?
-                    </Button>
+                   <Link href="/forgot-password" passHref>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="px-0 h-auto text-sm"
+                      >
+                        Forgot password?
+                      </Button>
+                   </Link>
                 </div>
                 <div className="relative">
                   <Input
