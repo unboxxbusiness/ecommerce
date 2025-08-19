@@ -103,10 +103,10 @@ export const ProductItem = ({
         data-ai-hint="product photo"
       />
       <div>
-        <h4 className="text-xl font-bold mb-1 text-foreground">
+        <h4 className="text-base font-bold mb-1 text-foreground">
           {title}
         </h4>
-        <p className="text-muted-foreground text-sm max-w-[10rem]">
+        <p className="text-primary font-semibold text-sm max-w-[10rem]">
           {description}
         </p>
       </div>

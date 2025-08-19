@@ -117,7 +117,7 @@ export function Navbar({ className }: { className?: string }) {
                     title={p.name}
                     href={`/products/${p.id}`}
                     src={p.image || "https://placehold.co/140x70.png"}
-                    description={p.price.toFixed(2)}
+                    description={`₹${p.price.toFixed(2)}`}
                   />
                 ))}
               </div>
