@@ -11,46 +11,6 @@ import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
-import type { SiteContent } from '@/lib/types';
-
-
-function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  
-  usePushNotifications();
-
-   React.useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const content = await fetch('/api/content').then((res) => res.json());
-        setSiteContent(content);
-      } catch (err) {
-        console.error('Failed to load site content', err);
-      }
-      setLoading(false);
-    };
-    fetchContent();
-  }, []);
-
-  if (loading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Navbar />
-      <main className="flex-1">{children}</main>
-      {siteContent && <Footer content={siteContent} />}
-    </div>
-  );
-}
 
 
 function LayoutWrapper({
@@ -59,6 +19,7 @@ function LayoutWrapper({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  usePushNotifications();
 
   const isAdminPath =
     pathname.startsWith('/dashboard') ||
@@ -70,26 +31,17 @@ function LayoutWrapper({
     pathname.startsWith('/content') ||
     pathname.startsWith('/pages') ||
     pathname.startsWith('/settings');
-  
-  const isCustomerPath = 
-    pathname.startsWith('/cart') ||
-    pathname.startsWith('/checkout') ||
-    pathname.startsWith('/account');
-
-
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
-  const isPublicPage = !isAdminPath && !isAuthPage && !isCustomerPath;
 
   return (
     <>
       <Suspense>
         <GoogleAnalytics />
       </Suspense>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <AuthProvider>
           <CartProvider>
-            {isPublicPage ? (
-              <PublicLayout>{children}</PublicLayout>
+            {isAdminPath ? (
+              children
             ) : (
               children
             )}
