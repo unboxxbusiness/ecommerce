@@ -55,7 +55,7 @@ function CustomerLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-16">{children}</main>
       <FooterContent siteContent={siteContent} contentLoading={contentLoading} />
     </div>
   );

@@ -162,20 +162,20 @@ export default function HomePage() {
   if (loading || !siteContent) {
       return (
           <>
-            <main className="mt-24">
+            <section>
                 <Skeleton className="h-[70vh] w-full" />
-                <div className="container py-12">
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
-                    </div>
+            </section>
+            <div className="container py-12">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
                 </div>
-            </main>
+            </div>
           </>
       )
   }
 
   return (
-    <main className="mt-24">
+    <>
       <HeroSection siteContent={siteContent} />
       
       <section id="products" className="py-16 md:py-24">
@@ -283,6 +283,6 @@ export default function HomePage() {
               </div>
           </section>
       )}
-    </main>
+    </>
   );
 }
