@@ -175,11 +175,9 @@ export function Navbar({ className }: { className?: string }) {
             )}
 
              <NavigationMenuItem>
-                <Link href="/#products" passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        All Products
-                    </NavigationMenuLink>
-                </Link>
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                <Link href="/#products">All Products</Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
