@@ -115,10 +115,11 @@ export const deleteCustomer = (id: string) => {
 
 export const saveFcmToken = async (userId: string, token: string) => {
     const customerRef = doc(db, 'customers', userId);
-    // arrayUnion ensures the token is only added if it's not already present.
-    return updateDoc(customerRef, {
+    // Use set with merge:true to create the document if it doesn't exist, 
+    // or update it if it does. This prevents race conditions on signup.
+    return setDoc(customerRef, {
         fcmTokens: arrayUnion(token)
-    });
+    }, { merge: true });
 }
 
 
