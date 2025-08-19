@@ -116,8 +116,10 @@ export async function handleSignup(formData: FormData) {
             displayName: email.split('@')[0],
         });
 
+        const batch = adminDb.batch();
+
         const customerRef = adminDb.collection('customers').doc(userRecord.uid);
-        await customerRef.set({
+        const customerData = {
             name: userRecord.displayName || email.split('@')[0],
             email: email,
             avatar: `https://placehold.co/100x100.png`,
@@ -126,7 +128,16 @@ export async function handleSignup(formData: FormData) {
             joinDate: serverTimestamp(),
             isActive: true,
             role: 'customer',
-        });
+        };
+        batch.set(customerRef, customerData);
+
+        // If this is the designated admin user, add them to the admins collection
+        if (email === process.env.ADMIN_EMAIL) {
+            const adminRef = adminDb.collection('admins').doc(userRecord.uid);
+            batch.set(adminRef, { role: 'admin', createdAt: serverTimestamp() });
+        }
+
+        await batch.commit();
 
         return { success: true, uid: userRecord.uid };
 
