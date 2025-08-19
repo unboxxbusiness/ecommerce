@@ -3,71 +3,73 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if the user is authenticated
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if the user is an admin
+  
+    // Helper function to check for admin role
     function isAdmin() {
+      // Check if the user's UID exists in the 'admins' collection.
+      // This is a secure way to check for roles, as this check happens on the backend.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Products can be read by anyone, but only written by admins
+    // Products can be read by anyone, but only written by admins.
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      // Disallow all client-side writes. All writes must go through server actions.
+      allow write: if false; 
     }
 
-    // Site content can be read by anyone, but only written by admins
-    match /siteContent/main {
-       allow read: if true;
-       allow write: if isAdmin();
-    }
-    
-    // Pages can be read if published, but only written by admins
-    match /pages/{pageId} {
-      allow read: if resource.data.isPublished == true;
-      allow write: if isAdmin();
-    }
-
-    // Customers collection rules
-    match /customers/{userId} {
-      // Allow a user to create their own customer document
-      allow create: if request.auth.uid == userId
-                    && request.resource.data.role == 'customer'; // Prevent setting admin role on signup
-      
-      // Allow a user to read and update their own data
-      allow read, update: if request.auth.uid == userId;
-
-      // Admins can read, update and delete any customer
-      allow read, update, delete: if isAdmin();
-    }
-    
-    // Coupons can be queried by clients, but only written by admins.
-    match /coupons/{couponId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn(); // To check for a coupon code
-      allow write: if isAdmin();
-    }
-
-    // Orders can be created by any signed-in user for themselves
-    // They can be read by the user who owns it, or by an admin
-    // Only admins can update/delete orders
+    // Orders can be read by the user who owns them or by admins.
+    // Users can create new orders. Admins can update/delete.
     match /orders/{orderId} {
-      allow create: if isSignedIn() 
-                    && request.resource.data.customerEmail == request.auth.token.email;
-                    
-      allow read: if isSignedIn() 
-                  && (resource.data.customerEmail == request.auth.token.email || isAdmin());
-
-      allow update, delete: if isAdmin();
+      allow read: if request.auth.uid != null && (resource.data.customerEmail == request.auth.token.email || isAdmin());
+      // Allow authenticated users to create new orders.
+      allow create: if request.auth.uid != null;
+      // Disallow all other client-side writes.
+      allow update, delete: if false;
     }
 
-    // Admins collection can only be read and written by other admins
-    match /admins/{userId} {
-        allow read, write: if isAdmin();
+    // Customers can only access their own data. Admins can access any.
+    match /customers/{userId} {
+      // A user can read/write to their own document.
+      allow read, update: if request.auth.uid == userId;
+      // Allow new users to create their own customer document during signup.
+      // This is essential for the signup flow.
+      allow create: if request.auth.uid == userId
+                    // Prevent users from assigning themselves an admin role on creation.
+                    && !('role' in request.resource.data && request.resource.data.role == 'admin');
+      // Admins have full access.
+      allow get, list, write: if isAdmin();
+    }
+    
+    // Coupons are readable by clients (to check validity) but only writable by admins.
+    match /coupons/{couponId} {
+        allow read: if request.auth.uid != null;
+        // Disallow all client-side writes.
+        allow write: if false;
+    }
+    
+    // Published pages are public. All pages are manageable by admins.
+    match /pages/{pageId} {
+        allow read: if resource.data.isPublished == true || isAdmin();
+        // Disallow all client-side writes.
+        allow write: if false;
+    }
+
+    // FCM tokens are part of the customer document, handled by those rules.
+    // No separate collection needed in this ruleset.
+
+    // Admins collection can only be read/listed by other admins.
+    match /admins/{adminId} {
+        allow read, list: if isAdmin();
+        // Disallow client-side creation of admins.
+        allow create, update, delete: if false;
+    }
+    
+    // Site content can only be written by an Admin.
+    match /siteContent/{docId} {
+        allow read: if true;
+        // Disallow all client-side writes.
+        allow write: if false;
     }
   }
 }

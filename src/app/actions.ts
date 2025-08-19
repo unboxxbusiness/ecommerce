@@ -6,7 +6,7 @@ import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
-import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage } from '@/lib/firestore-admin';
+import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, deleteProduct as adminDeleteProduct } from '@/lib/firestore-admin';
 import type { Page, SiteContent, Product } from '@/lib/types';
 import { cookies } from 'next/headers';
 
@@ -288,10 +288,6 @@ async function updateProduct(id: string, productData: Partial<Product>) {
     return productRef.update(productData);
 };
 
-async function deleteProduct(id: string) {
-    return adminDb.collection('products').doc(id).delete();
-};
-
 
 export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
     const adminUser = await verifyAdmin();
@@ -333,11 +329,9 @@ export async function handleDeleteProduct(id: string) {
         return { error: 'Authentication error: You are not authorized to perform this action.' };
     }
     try {
-        await deleteProduct(id);
+        await adminDeleteProduct(id);
         return { success: true };
     } catch(err) {
         return { error: 'Failed to delete product.' };
     }
 }
-
-    
