@@ -108,10 +108,48 @@ const defaultSiteContent: SiteContent = {
   global: {
     siteName: 'Digital Shop',
     logoUrl: '/logo.png', // Default logo path
-    footerLinks: [
-      { id: '1', text: 'Terms of Service', url: '/terms' },
-      { id: '2', text: 'Privacy Policy', url: '/privacy' },
-    ],
+    footer: {
+      description: 'A collection of components for your startup business or side project.',
+      sections: [
+        {
+          title: "Product",
+          links: [
+            { name: "Overview", href: "#" },
+            { name: "Pricing", href: "#" },
+            { name: "Marketplace", href: "#" },
+            { name: "Features", href: "#" },
+          ],
+        },
+        {
+          title: "Company",
+          links: [
+            { name: "About", href: "/p/about-us" },
+            { name: "Team", href: "#" },
+            { name: "Blog", href: "#" },
+            { name: "Careers", href: "#" },
+          ],
+        },
+        {
+          title: "Resources",
+          links: [
+            { name: "Help", href: "#" },
+            { name: "Sales", href: "#" },
+            { name: "Advertise", href: "#" },
+            { name: "Privacy", href: "/p/privacy-policy" },
+          ],
+        },
+      ],
+      socialLinks: [
+        { label: "Instagram", href: "#" },
+        { label: "Facebook", href: "#" },
+        { label: "Twitter", href: "#" },
+        { label: "LinkedIn", href: "#" },
+      ],
+      legalLinks: [
+        { name: "Terms and Conditions", href: "/p/terms-of-service" },
+        { name: "Privacy Policy", href: "/p/privacy-policy" },
+      ],
+    },
   },
   homePage: {
     hero: {
@@ -163,9 +201,17 @@ export const getSiteContent = async (): Promise<SiteContent> => {
     
     // Merge with defaults to ensure all properties exist
     const data = docSnap.data() as Partial<SiteContent>;
+    const globalData = data.global || {};
     const homePageData = data.homePage || {};
     return {
-        global: { ...defaultSiteContent.global, ...data.global },
+        global: { 
+            ...defaultSiteContent.global, 
+            ...globalData,
+            footer: {
+                ...defaultSiteContent.global.footer,
+                ...(globalData.footer || {}),
+            }
+        },
         homePage: {
             hero: { ...defaultSiteContent.homePage.hero, ...homePageData.hero },
             testimonials: { ...defaultSiteContent.homePage.testimonials, ...homePageData.testimonials },

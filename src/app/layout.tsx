@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -17,6 +18,7 @@ import { getProducts } from '@/lib/firestore';
 import type { SiteContent, Product, Page } from '@/lib/types';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { Footer } from '@/components/footer';
 
 function CustomerLayout({
   children,
@@ -56,49 +58,11 @@ function CustomerLayout({
     <div className="flex min-h-screen w-full flex-col">
       <Navbar />
       <main className="flex-1">{children}</main>
-      <FooterContent siteContent={siteContent} contentLoading={contentLoading} />
+      {siteContent && <Footer content={siteContent.global} />}
     </div>
   );
 }
 
-const FooterContent = ({
-  siteContent,
-  contentLoading,
-}: {
-  siteContent: SiteContent | null;
-  contentLoading: boolean;
-}) => {
-  if (contentLoading || !siteContent) {
-    return (
-      <footer className="border-t bg-muted/40 py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:px-6">
-          <Skeleton className="h-4 w-48" />
-          <div className="flex gap-4 sm:gap-6">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-        </div>
-      </footer>
-    );
-  }
-  return (
-    <footer className="border-t bg-muted/40 py-6">
-      <div className="container flex flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:px-6">
-        <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} {siteContent.global.siteName}. All
-          rights reserved.
-        </p>
-        <nav className="flex gap-4 sm:gap-6">
-          {siteContent.global.footerLinks.map((link) => (
-            <Link key={link.id} href={link.url} className="text-sm hover:underline">
-              {link.text}
-            </Link>
-          ))}
-        </nav>
-      </div>
-    </footer>
-  );
-};
 
 function LayoutWrapper({
   children,

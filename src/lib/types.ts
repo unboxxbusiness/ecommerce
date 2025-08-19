@@ -83,11 +83,26 @@ export type Testimonial = {
   authorRole: string;
 };
 
+export type FooterSection = {
+  title: string;
+  links: { name: string; href: string }[];
+};
+
+export type SocialLink = {
+  label: string;
+  href: string;
+};
+
 export type SiteContent = {
   global: {
     siteName: string;
     logoUrl: string;
-    footerLinks: FooterLink[];
+    footer: {
+        description: string;
+        sections: FooterSection[];
+        socialLinks: SocialLink[];
+        legalLinks: { name: string; href: string }[];
+    }
   };
   homePage: {
     hero: {
