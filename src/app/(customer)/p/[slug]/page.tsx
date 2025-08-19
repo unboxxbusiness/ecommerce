@@ -1,5 +1,4 @@
 
-
 import { getPageBySlug } from '@/lib/firestore-admin';
 import { notFound } from 'next/navigation';
 
