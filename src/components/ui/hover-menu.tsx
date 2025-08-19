@@ -30,7 +30,7 @@ export const MenuItem = ({
     <div onMouseEnter={() => setActive(item)} className="relative flex items-center">
       <motion.p
         transition={{ duration: 0.3 }}
-        className="cursor-pointer text-black hover:opacity-[0.9] dark:text-white flex items-center gap-2"
+        className="cursor-pointer text-foreground hover:opacity-[0.9] flex items-center gap-2"
       >
         {item}
       </motion.p>
@@ -45,7 +45,7 @@ export const MenuItem = ({
               <motion.div
                 transition={transition}
                 layoutId="active" // layoutId ensures smooth animation
-                className="bg-white dark:bg-black backdrop-blur-sm rounded-2xl overflow-hidden border border-black/[0.2] dark:border-white/[0.2] shadow-xl"
+                className="bg-background backdrop-blur-sm rounded-2xl overflow-hidden border border-border shadow-xl"
               >
                 <motion.div
                   layout // layout ensures smooth animation
@@ -74,7 +74,7 @@ export const Menu = ({
   return (
     <nav
       onMouseLeave={() => setActive(null)} // resets the state
-      className={cn("relative rounded-full border border-transparent dark:border-white/[0.2] bg-slate-50 dark:bg-black shadow-input flex justify-center items-center space-x-4 px-8 py-2", className)}
+      className={cn("relative flex justify-center items-center space-x-4", className)}
     >
       {children}
     </nav>
@@ -103,10 +103,10 @@ export const ProductItem = ({
         data-ai-hint="product photo"
       />
       <div>
-        <h4 className="text-xl font-bold mb-1 text-black dark:text-white">
+        <h4 className="text-xl font-bold mb-1 text-foreground">
           {title}
         </h4>
-        <p className="text-neutral-700 text-sm max-w-[10rem] dark:text-neutral-300">
+        <p className="text-muted-foreground text-sm max-w-[10rem]">
           {description}
         </p>
       </div>
@@ -118,7 +118,7 @@ export const HoveredLink = ({ children, ...rest }: any) => {
   return (
     <Link
       {...rest}
-      className="text-neutral-700 dark:text-neutral-200 hover:text-black "
+      className="text-muted-foreground hover:text-foreground"
     >
       {children}
     </Link>

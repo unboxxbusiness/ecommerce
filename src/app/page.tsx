@@ -107,7 +107,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
     if (!hero.show) return null;
 
     return (
-        <div className="relative min-h-[90vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303] -mt-16">
+        <div className="relative min-h-[90vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden -mt-16">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl" />
             
             <div className="absolute inset-0 overflow-hidden">
@@ -116,7 +116,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                     width={600}
                     height={140}
                     rotate={12}
-                    gradient="from-indigo-500/[0.15]"
+                    gradient="from-primary/[0.15]"
                     className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
                 />
                  <ElegantShape
@@ -124,7 +124,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                     width={500}
                     height={120}
                     rotate={-15}
-                    gradient="from-rose-500/[0.15]"
+                    gradient="from-secondary/[0.15]"
                     className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
                 />
                  <ElegantShape
@@ -132,7 +132,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                     width={300}
                     height={80}
                     rotate={-8}
-                    gradient="from-violet-500/[0.15]"
+                    gradient="from-primary/[0.1]"
                     className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
                 />
                  <ElegantShape
@@ -140,7 +140,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                     width={200}
                     height={60}
                     rotate={20}
-                    gradient="from-amber-500/[0.15]"
+                    gradient="from-secondary/[0.1]"
                     className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
                 />
                  <ElegantShape
@@ -148,7 +148,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                     width={150}
                     height={40}
                     rotate={-25}
-                    gradient="from-cyan-500/[0.15]"
+                    gradient="from-primary/[0.05]"
                     className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
                 />
             </div>
@@ -162,7 +162,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                         animate="visible"
                         className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-4 md:mb-6"
                     >
-                        <Circle className="h-2 w-2 fill-rose-500/80" />
+                        <Circle className="h-2 w-2 text-primary fill-primary" />
                         <span className="text-sm text-white/60 tracking-wide">
                             {hero.badge}
                         </span>
@@ -175,13 +175,13 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                         animate="visible"
                     >
                         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 md:mb-6 tracking-tight">
-                            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
+                            <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
                                 {hero.title1}
                             </span>
                             <br />
                             <span
                                 className={cn(
-                                    "bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300 "
+                                    "bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground/90 to-primary/70"
                                 )}
                             >
                                 {hero.title2}
@@ -202,7 +202,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                 </div>
             </div>
             
-            <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/80 pointer-events-none" />
         </div>
     );
 }
@@ -212,7 +212,7 @@ function TestimonialsSection({ testimonials }: { testimonials: SiteContent['home
     if (!testimonials.show || testimonials.items.length === 0) return null;
 
     return (
-        <section className="bg-muted/40 py-16 md:py-24">
+        <section className="py-16 md:py-24">
             <div className="container px-4 md:px-6">
                 <h2 className="text-3xl font-bold tracking-tighter text-center mb-12">{testimonials.title}</h2>
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -423,7 +423,7 @@ export default function HomePage() {
       <TestimonialsSection testimonials={siteContent.homePage.testimonials} />
 
       {siteContent.homePage.ctaBlock.show && (
-          <section className="bg-background py-16 md:py-24">
+          <section className="py-16 md:py-24">
               <div className="container text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{siteContent.homePage.ctaBlock.title}</h2>
                   <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed mt-4">{siteContent.homePage.ctaBlock.subtitle}</p>

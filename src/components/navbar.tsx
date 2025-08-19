@@ -80,14 +80,14 @@ export function Navbar({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
         className
       )}
     >
       <div className="container flex h-16 items-center">
         <Menu setActive={setActive} className="flex-1">
           {siteContent && (
-             <Link href="/" className="flex items-center gap-2 text-black dark:text-white font-semibold hover:opacity-90 mr-4">
+             <Link href="/" className="flex items-center gap-2 text-foreground font-semibold hover:opacity-90 mr-4">
                <Gem className="h-5 w-5 text-primary" />
                <span>{siteContent.header.siteName}</span>
              </Link>
@@ -95,14 +95,14 @@ export function Navbar({ className }: { className?: string }) {
           <div className="hidden md:flex flex-1 items-center justify-start space-x-4">
             <MenuItem setActive={setActive} active={active} item="Shop">
              <div className="flex">
-              <div className="w-48 border-r border-neutral-200 dark:border-white/[0.2] p-4 space-y-2">
-                <h3 className="font-bold text-black dark:text-white mb-2">Categories</h3>
+              <div className="w-48 border-r border-border p-4 space-y-2">
+                <h3 className="font-bold text-foreground mb-2">Categories</h3>
                 {Object.keys(categories).map((category) => (
                   <a
                     key={category}
                     className={cn(
                       "block text-sm p-2 rounded-md",
-                      hoveredCategory === category ? "bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white" : "text-neutral-500 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
+                      hoveredCategory === category ? "bg-muted text-muted-foreground" : "text-muted-foreground/80 hover:bg-muted/50"
                     )}
                     onMouseEnter={() => setHoveredCategory(category)}
                   >
@@ -129,10 +129,10 @@ export function Navbar({ className }: { className?: string }) {
                 {pages.map((p) => (
                   <HoveredLink key={p.id} href={`/p/${p.slug}`}>
                     <div className="flex items-start gap-3">
-                      <Gem className="size-5 shrink-0 mt-1" />
+                      <Gem className="size-5 shrink-0 mt-1 text-primary" />
                       <div>
-                        <span className="text-black dark:text-white font-semibold">{p.title}</span>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">Learn more</p>
+                        <span className="text-foreground font-semibold">{p.title}</span>
+                        <p className="text-sm text-muted-foreground">Learn more</p>
                       </div>
                     </div>
                   </HoveredLink>
@@ -143,7 +143,7 @@ export function Navbar({ className }: { className?: string }) {
           </div>
           <div className="flex items-center gap-4">
               <Link href="/cart">
-                  <Button variant="ghost" size="icon" className="relative text-black dark:text-white">
+                  <Button variant="ghost" size="icon" className="relative text-foreground">
                       <ShoppingCart className="h-5 w-5" />
                       {cartCount > 0 && (
                           <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">

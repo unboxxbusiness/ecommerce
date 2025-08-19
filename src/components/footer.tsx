@@ -24,7 +24,7 @@ export function Footer({ content }: FooterProps) {
   const copyright = `© ${currentYear} ${header.siteName}. All rights reserved.`;
 
   return (
-    <footer className="bg-muted/40">
+    <footer className="bg-background border-t">
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
