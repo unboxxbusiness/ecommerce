@@ -70,12 +70,6 @@ export type Coupon = {
   createdAt: string; // Should be ISO string or server timestamp
 };
 
-export type FooterLink = {
-  id: string;
-  text: string;
-  url: string;
-};
-
 export type Testimonial = {
   id: string;
   quote: string;
@@ -94,15 +88,15 @@ export type SocialLink = {
 };
 
 export type SiteContent = {
-  global: {
+  header: {
     siteName: string;
     logoUrl: string;
-    footer: {
-        description: string;
-        sections: FooterSection[];
-        socialLinks: SocialLink[];
-        legalLinks: { name: string; href: string }[];
-    }
+  };
+  footer: {
+      description: string;
+      sections: FooterSection[];
+      socialLinks: SocialLink[];
+      legalLinks: { name: string; href: string }[];
   };
   homePage: {
     hero: {

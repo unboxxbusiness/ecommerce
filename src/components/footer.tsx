@@ -15,13 +15,13 @@ const socialIconMap: { [key: string]: React.ReactElement } = {
 };
 
 type FooterProps = {
-  content: SiteContent['global'];
+  content: SiteContent;
 };
 
 export function Footer({ content }: FooterProps) {
-  const { siteName, footer } = content;
+  const { header, footer } = content;
   const currentYear = new Date().getFullYear();
-  const copyright = `© ${currentYear} ${siteName}. All rights reserved.`;
+  const copyright = `© ${currentYear} ${header.siteName}. All rights reserved.`;
 
   return (
     <footer className="bg-muted/40">
@@ -30,7 +30,7 @@ export function Footer({ content }: FooterProps) {
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
             <Link href="/" className="flex items-center gap-2">
               <Gem className="h-8 w-8 text-primary" />
-              <h2 className="text-xl font-semibold">{siteName}</h2>
+              <h2 className="text-xl font-semibold">{header.siteName}</h2>
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground">
               {footer.description}

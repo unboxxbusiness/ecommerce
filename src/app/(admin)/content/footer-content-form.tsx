@@ -47,60 +47,56 @@ const footerSectionSchema = z.object({
 })
 
 
-const globalContentSchema = z.object({
-    siteName: z.string().min(2, 'Site name must be at least 2 characters'),
-    logoUrl: z.string().url('Must be a valid URL'),
-    footer: z.object({
-        description: z.string().min(10, 'Description is required'),
-        sections: z.array(footerSectionSchema),
-        socialLinks: z.array(socialLinkSchema),
-        legalLinks: z.array(footerLinkSchema)
-    }),
+const footerContentSchema = z.object({
+    description: z.string().min(10, 'Description is required'),
+    sections: z.array(footerSectionSchema),
+    socialLinks: z.array(socialLinkSchema),
+    legalLinks: z.array(footerLinkSchema)
 });
 
-type GlobalContentFormProps = {
-  content: SiteContent['global'];
+type FooterContentFormProps = {
+  content: SiteContent['footer'];
 };
 
-export function GlobalContentForm({ content }: GlobalContentFormProps) {
+export function FooterContentForm({ content }: FooterContentFormProps) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
   
-  const form = useForm<z.infer<typeof globalContentSchema>>({
-    resolver: zodResolver(globalContentSchema),
+  const form = useForm<z.infer<typeof footerContentSchema>>({
+    resolver: zodResolver(footerContentSchema),
     defaultValues: content,
   });
   
   const { fields: footerSections, append: appendFooterSection, remove: removeFooterSection } = useFieldArray({
     control: form.control,
-    name: 'footer.sections',
+    name: 'sections',
   });
   
   const { fields: socialLinks, append: appendSocialLink, remove: removeSocialLink } = useFieldArray({
     control: form.control,
-    name: 'footer.socialLinks',
+    name: 'socialLinks',
   });
 
   const { fields: legalLinks, append: appendLegalLink, remove: removeLegalLink } = useFieldArray({
     control: form.control,
-    name: 'footer.legalLinks',
+    name: 'legalLinks',
   });
 
   useEffect(() => {
     form.reset(content);
   }, [content, form]);
 
-  const onSubmit = async (values: z.infer<typeof globalContentSchema>) => {
+  const onSubmit = async (values: z.infer<typeof footerContentSchema>) => {
     setIsSaving(true);
     try {
-      const result = await handleUpdateSiteContent({ global: values });
+      const result = await handleUpdateSiteContent({ footer: values });
       if (result.error) {
         throw new Error(result.error);
       }
       toast({
         title: 'Content Updated',
-        description: 'Your global site content has been saved.',
+        description: 'Your footer content has been saved.',
       });
       router.refresh();
     } catch (error) {
@@ -120,40 +116,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="siteName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Site Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Digital Shop" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="logoUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Logo Image URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/logo.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <Separator />
-        
-        <CardHeader className="p-0">
-            <CardTitle className="text-xl">Footer Configuration</CardTitle>
-        </CardHeader>
-        
-        <FormField
-          control={form.control}
-          name="footer.description"
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Footer Description</FormLabel>
@@ -165,7 +128,8 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
           )}
         />
         
-        {/* Footer Sections */}
+        <Separator />
+        
         <div className="space-y-4">
             <h3 className="text-lg font-medium">Footer Link Sections</h3>
             {footerSections.map((section, sectionIndex) => (
@@ -178,7 +142,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                     </div>
                     <FormField
                         control={form.control}
-                        name={`footer.sections.${sectionIndex}.title`}
+                        name={`sections.${sectionIndex}.title`}
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Section Title</FormLabel>
@@ -187,7 +151,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                             </FormItem>
                         )}
                     />
-                    <InnerFieldArray name={`footer.sections.${sectionIndex}.links`} control={form.control} />
+                    <InnerFieldArray name={`sections.${sectionIndex}.links`} control={form.control} />
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendFooterSection({ title: '', links: [{ name: '', href: ''}] })}>
@@ -197,7 +161,6 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
         
         <Separator />
         
-        {/* Social Links */}
         <div>
             <h3 className="text-lg font-medium">Social Media Links</h3>
             <div className="space-y-4 mt-4">
@@ -206,7 +169,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                     <div className="grid grid-cols-2 gap-4 flex-1">
                          <FormField
                             control={form.control}
-                            name={`footer.socialLinks.${index}.label`}
+                            name={`socialLinks.${index}.label`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Label</FormLabel>
@@ -219,7 +182,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                         />
                          <FormField
                             control={form.control}
-                            name={`footer.socialLinks.${index}.href`}
+                            name={`socialLinks.${index}.href`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>URL</FormLabel>
@@ -244,7 +207,6 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
         
          <Separator />
         
-        {/* Legal Links */}
         <div>
             <h3 className="text-lg font-medium">Legal Links</h3>
             <div className="space-y-4 mt-4">
@@ -253,7 +215,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                     <div className="grid grid-cols-2 gap-4 flex-1">
                          <FormField
                             control={form.control}
-                            name={`footer.legalLinks.${index}.name`}
+                            name={`legalLinks.${index}.name`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Link Text</FormLabel>
@@ -266,7 +228,7 @@ export function GlobalContentForm({ content }: GlobalContentFormProps) {
                         />
                          <FormField
                             control={form.control}
-                            name={`footer.legalLinks.${index}.href`}
+                            name={`legalLinks.${index}.href`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Link URL</FormLabel>

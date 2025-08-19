@@ -58,7 +58,7 @@ function CustomerLayout({
     <div className="flex min-h-screen w-full flex-col">
       <Navbar />
       <main className="flex-1">{children}</main>
-      {siteContent && <Footer content={siteContent.global} />}
+      {siteContent && <Footer content={siteContent} />}
     </div>
   );
 }
@@ -82,7 +82,7 @@ function LayoutWrapper({
         const [content, productsData, pagesData] = await Promise.all([
           fetch('/api/content').then((res) => res.json()),
           getProducts(),
-          fetch('/api/pages').then((res) => res.json()), // Fetch pages from an API route
+          fetch('/api/pages').then((res) => res.json()),
         ]);
         setSiteContent(content);
         setProducts(productsData);

@@ -89,7 +89,7 @@ export function Navbar({ className }: { className?: string }) {
           {siteContent && (
              <Link href="/" className="flex items-center gap-2 text-black dark:text-white font-semibold hover:opacity-90 mr-4">
                <Gem className="h-5 w-5 text-primary" />
-               <span>{siteContent.global.siteName}</span>
+               <span>{siteContent.header.siteName}</span>
              </Link>
           )}
           <div className="hidden md:flex flex-1 items-center justify-start space-x-4">
@@ -175,5 +175,3 @@ export function Navbar({ className }: { className?: string }) {
     </header>
   );
 }
-
-    

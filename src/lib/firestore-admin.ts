@@ -105,51 +105,51 @@ export const getAdminCoupon = async (id: string): Promise<Coupon | null> => {
 
 // Site Content functions
 const defaultSiteContent: SiteContent = {
-  global: {
+  header: {
     siteName: 'Digital Shop',
-    logoUrl: '/logo.png', // Default logo path
-    footer: {
-      description: 'A collection of components for your startup business or side project.',
-      sections: [
-        {
-          title: "Product",
-          links: [
-            { name: "Overview", href: "#" },
-            { name: "Pricing", href: "#" },
-            { name: "Marketplace", href: "#" },
-            { name: "Features", href: "#" },
-          ],
-        },
-        {
-          title: "Company",
-          links: [
-            { name: "About", href: "/p/about-us" },
-            { name: "Team", href: "#" },
-            { name: "Blog", href: "#" },
-            { name: "Careers", href: "#" },
-          ],
-        },
-        {
-          title: "Resources",
-          links: [
-            { name: "Help", href: "#" },
-            { name: "Sales", href: "#" },
-            { name: "Advertise", href: "#" },
-            { name: "Privacy", href: "/p/privacy-policy" },
-          ],
-        },
-      ],
-      socialLinks: [
-        { label: "Instagram", href: "#" },
-        { label: "Facebook", href: "#" },
-        { label: "Twitter", href: "#" },
-        { label: "LinkedIn", href: "#" },
-      ],
-      legalLinks: [
-        { name: "Terms and Conditions", href: "/p/terms-of-service" },
-        { name: "Privacy Policy", href: "/p/privacy-policy" },
-      ],
-    },
+    logoUrl: 'https://placehold.co/40x40.png', 
+  },
+  footer: {
+    description: 'A collection of components for your startup business or side project.',
+    sections: [
+      {
+        title: "Product",
+        links: [
+          { name: "Overview", href: "#" },
+          { name: "Pricing", href: "#" },
+          { name: "Marketplace", href: "#" },
+          { name: "Features", href: "#" },
+        ],
+      },
+      {
+        title: "Company",
+        links: [
+          { name: "About", href: "/p/about-us" },
+          { name: "Team", href: "#" },
+          { name: "Blog", href: "#" },
+          { name: "Careers", href: "#" },
+        ],
+      },
+      {
+        title: "Resources",
+        links: [
+          { name: "Help", href: "#" },
+          { name: "Sales", href: "#" },
+          { name: "Advertise", href: "#" },
+          { name: "Privacy", href: "/p/privacy-policy" },
+        ],
+      },
+    ],
+    socialLinks: [
+      { label: "Instagram", href: "#" },
+      { label: "Facebook", href: "#" },
+      { label: "Twitter", href: "#" },
+      { label: "LinkedIn", href: "#" },
+    ],
+    legalLinks: [
+      { name: "Terms and Conditions", href: "/p/terms-of-service" },
+      { name: "Privacy Policy", href: "/p/privacy-policy" },
+    ],
   },
   homePage: {
     hero: {
@@ -194,28 +194,19 @@ export const getSiteContent = async (): Promise<SiteContent> => {
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
-      // If the document doesn't exist, create it with default data
       await docRef.set(defaultSiteContent);
       return defaultSiteContent;
     }
     
-    // Merge with defaults to ensure all properties exist
     const data = docSnap.data() as Partial<SiteContent>;
-    const globalData = data.global || {};
-    const homePageData = data.homePage || {};
+    
     return {
-        global: { 
-            ...defaultSiteContent.global, 
-            ...globalData,
-            footer: {
-                ...defaultSiteContent.global.footer,
-                ...(globalData.footer || {}),
-            }
-        },
+        header: { ...defaultSiteContent.header, ...data.header },
+        footer: { ...defaultSiteContent.footer, ...data.footer },
         homePage: {
-            hero: { ...defaultSiteContent.homePage.hero, ...homePageData.hero },
-            testimonials: { ...defaultSiteContent.homePage.testimonials, ...homePageData.testimonials },
-            ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...homePageData.ctaBlock },
+            hero: { ...defaultSiteContent.homePage.hero, ...data.homePage?.hero },
+            testimonials: { ...defaultSiteContent.homePage.testimonials, ...data.homePage?.testimonials },
+            ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...data.homePage?.ctaBlock },
         }
     };
   } catch (error) {
@@ -227,8 +218,6 @@ export const getSiteContent = async (): Promise<SiteContent> => {
 
 export const updateSiteContent = (contentData: Partial<SiteContent>) => {
     const contentRef = adminDb.collection('siteContent').doc('main');
-    // serverTimestamp() can't be used directly in nested objects for set with merge.
-    // We can handle timestamps specifically if needed, but for this CMS, it's not required.
     return contentRef.set(contentData, { merge: true });
 };
 
@@ -269,7 +258,6 @@ export const getPageBySlug = async (slug: string): Promise<Page | null> => {
         const pageData = pageDoc.data();
         if (!pageData) return null;
 
-        // Convert timestamps correctly
         const createdAt = pageData.createdAt instanceof Timestamp 
             ? pageData.createdAt.toDate().toISOString() 
             : new Date().toISOString();

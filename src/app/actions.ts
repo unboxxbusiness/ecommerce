@@ -79,7 +79,6 @@ export async function handlePasswordReset(email: string) {
         return { error: 'Email is required.' };
     }
     try {
-        // This will throw an error if the user doesn't exist, which we catch.
         await adminAuth.getUserByEmail(email); 
         await adminAuth.generatePasswordResetLink(email);
         return { success: true };
@@ -140,7 +139,6 @@ export async function handleSignup(formData: FormData) {
     }
 }
 
-// Helper function to verify admin user from session cookie
 async function verifyAdmin() {
     const sessionCookie = cookies().get('__session')?.value || '';
     if (!sessionCookie) {
