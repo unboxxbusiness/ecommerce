@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
 import { useCartDrawer } from '@/hooks/use-cart-drawer';
+import { Dock, DockIcon } from '@/components/ui/dock';
 
 const navItems = [
     { href: '/', label: 'Home', icon: Home },
@@ -20,53 +21,44 @@ export function MobileDock() {
     const { cartCount } = useCart();
     const { setIsCartDrawerOpen } = useCartDrawer();
 
-    const handleCartClick = (e: React.MouseEvent) => {
-        e.preventDefault();
+    const handleCartClick = () => {
         setIsCartDrawerOpen(true);
     }
 
     return(
-        <div className="fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-t border-border z-50 md:hidden">
-            <nav className="h-full">
-                <ul className="h-full grid grid-cols-3">
-                    {navItems.map((item) => {
-                        const isActive = pathname === item.href && item.href !== '/cart';
-                        const isCart = item.href === '/cart';
-                        const Icon = item.icon;
-                        
-                        const linkContent = (
-                             <div className={cn(
-                                "flex flex-col items-center justify-center h-full w-full gap-1 text-sm transition-colors",
-                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                            )}>
-                                <div className="relative">
-                                    <Icon className="size-6" />
-                                    {isCart && cartCount > 0 && (
-                                        <Badge className="absolute -right-3 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                                            {cartCount}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <span className="text-xs">{item.label}</span>
-                            </div>
-                        );
+        <div className="fixed inset-x-0 bottom-4 z-50 md:hidden">
+            <Dock>
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    const isCart = item.href === '/cart';
+                    const Icon = item.icon;
+                    
+                    const iconContent = (
+                        <div className="relative flex flex-col items-center justify-center text-center">
+                            <Icon className={cn("size-6 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                             {isCart && cartCount > 0 && (
+                                <Badge className="absolute -right-2 -top-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-xs">
+                                    {cartCount}
+                                </Badge>
+                            )}
+                        </div>
+                    );
 
-                        return (
-                            <li key={item.href} className="h-full">
-                                {isCart ? (
-                                    <button onClick={handleCartClick} className="h-full w-full">
-                                        {linkContent}
-                                    </button>
-                                ) : (
-                                    <Link href={item.href}>
-                                        {linkContent}
-                                    </Link>
-                                )}
-                            </li>
-                        )
-                    })}
-                </ul>
-            </nav>
+                    return (
+                        <DockIcon key={item.href} onClick={isCart ? handleCartClick : undefined}>
+                            {isCart ? (
+                                <div className="w-full h-full flex items-center justify-center group">
+                                  {iconContent}
+                                </div>
+                            ) : (
+                                <Link href={item.href} className="w-full h-full flex items-center justify-center group">
+                                   {iconContent}
+                                </Link>
+                            )}
+                        </DockIcon>
+                    )
+                })}
+            </Dock>
         </div>
     )
 }
