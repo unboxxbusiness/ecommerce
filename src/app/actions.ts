@@ -133,7 +133,7 @@ export async function handleSignup(formData: FormData) {
 
         // If this is the designated admin user, add them to the admins collection
         if (email === process.env.ADMIN_EMAIL) {
-            const adminRef = adminDb.collection('admins').doc(userRecord.uid);
+            const adminRef = adminDb.collection('admins').doc(email);
             batch.set(adminRef, { role: 'admin', createdAt: serverTimestamp() });
         }
 
@@ -157,7 +157,10 @@ async function verifyAdmin() {
     }
     try {
         const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.uid).get();
+        if (!decodedClaims.email) {
+            return null;
+        }
+        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.email).get();
         if (adminDoc.exists) {
             return decodedClaims;
         }
@@ -313,3 +316,5 @@ export async function handleDeleteProduct(id: string) {
         return { error: 'Failed to delete product.' };
     }
 }
+
+    
