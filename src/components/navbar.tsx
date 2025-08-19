@@ -18,6 +18,8 @@ import { Button } from "./ui/button";
 import { Gem, ShoppingCart, Book, Trees, Sunset, Zap, Sun, Moon } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useTheme } from "next-themes";
+import { useCartDrawer } from "@/hooks/use-cart-drawer";
+
 
 function PublicThemeToggle() {
     const { theme, setTheme } = useTheme();
@@ -46,6 +48,7 @@ export function Navbar({ className }: { className?: string }) {
   const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const { user, loading, logout } = useAuth();
   const { cartCount } = useCart();
+  const { setIsCartDrawerOpen } = useCartDrawer();
   const [products, setProducts] = useState<Product[]>([]);
   const [pages, setPages] = useState<Page[]>([]);
   const [categories, setCategories] = useState<
@@ -165,17 +168,15 @@ export function Navbar({ className }: { className?: string }) {
           )}
           </div>
           <div className="flex items-center gap-2">
-              <Link href="/cart">
-                  <Button variant="ghost" size="icon" className="relative text-foreground">
-                      <ShoppingCart className="h-5 w-5" />
-                      {cartCount > 0 && (
-                          <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                          {cartCount}
-                          </Badge>
-                      )}
-                      <span className="sr-only">Cart</span>
-                  </Button>
-              </Link>
+              <Button variant="ghost" size="icon" className="relative text-foreground" onClick={() => setIsCartDrawerOpen(true)}>
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                      <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0">
+                      {cartCount}
+                      </Badge>
+                  )}
+                  <span className="sr-only">Cart</span>
+              </Button>
               <PublicThemeToggle />
                {loading ? (
                   <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
