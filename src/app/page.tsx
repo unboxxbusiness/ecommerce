@@ -107,7 +107,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
     if (!hero.show) return null;
 
     return (
-        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303]">
+        <div className="relative min-h-[90vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303] -mt-16">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl" />
             
             <div className="absolute inset-0 overflow-hidden">
@@ -160,7 +160,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                         variants={fadeUpVariants}
                         initial="hidden"
                         animate="visible"
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12"
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-4 md:mb-6"
                     >
                         <Circle className="h-2 w-2 fill-rose-500/80" />
                         <span className="text-sm text-white/60 tracking-wide">
@@ -174,7 +174,7 @@ function HeroGeometric({ hero }: { hero: SiteContent['homePage']['hero']}) {
                         initial="hidden"
                         animate="visible"
                     >
-                        <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 md:mb-6 tracking-tight">
                             <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
                                 {hero.title1}
                             </span>
@@ -428,7 +428,7 @@ export default function HomePage() {
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{siteContent.homePage.ctaBlock.title}</h2>
                   <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed mt-4">{siteContent.homePage.ctaBlock.subtitle}</p>
                   <Button size="lg" className="mt-8" asChild>
-                      <Link href={siteContent.homePage.ctaBlock.ctaLink}>{siteContent.homePage.ctaBlock.ctaText}</Link>
+                      <Link href={siteContent.homePAge.ctaBlock.ctaLink}>{siteContent.homePage.ctaBlock.ctaText}</Link>
                   </Button>
               </div>
           </section>
