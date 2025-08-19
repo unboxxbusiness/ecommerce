@@ -101,11 +101,10 @@ export type SiteContent = {
   homePage: {
     hero: {
       show: boolean;
-      title: string;
+      badge: string;
+      title1: string;
+      title2: string;
       subtitle: string;
-      ctaText: string;
-      ctaLink: string;
-      imageUrl: string;
     };
     testimonials: {
       show: boolean;

@@ -154,11 +154,10 @@ const defaultSiteContent: SiteContent = {
   homePage: {
     hero: {
       show: true,
-      title: 'Discover Our Unique Collection',
-      subtitle: 'Handcrafted goods, sustainable products, and timeless designs for your modern lifestyle.',
-      ctaText: 'Shop Now',
-      ctaLink: '/',
-      imageUrl: 'https://placehold.co/1200x600.png',
+      badge: 'Design Collective',
+      title1: 'Elevate Your Digital Vision',
+      title2: 'Crafting Exceptional Websites',
+      subtitle: "Crafting exceptional digital experiences through innovative design and cutting-edge technology.",
     },
     testimonials: {
       show: true,
@@ -200,15 +199,19 @@ export const getSiteContent = async (): Promise<SiteContent> => {
     
     const data = docSnap.data() as Partial<SiteContent>;
     
+    // Deep merge for nested objects
+    const homePage = {
+        hero: { ...defaultSiteContent.homePage.hero, ...data.homePage?.hero },
+        testimonials: { ...defaultSiteContent.homePage.testimonials, ...data.homePage?.testimonials },
+        ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...data.homePage?.ctaBlock },
+    };
+
     return {
         header: { ...defaultSiteContent.header, ...data.header },
         footer: { ...defaultSiteContent.footer, ...data.footer },
-        homePage: {
-            hero: { ...defaultSiteContent.homePage.hero, ...data.homePage?.hero },
-            testimonials: { ...defaultSiteContent.homePage.testimonials, ...data.homePage?.testimonials },
-            ctaBlock: { ...defaultSiteContent.homePage.ctaBlock, ...data.homePage?.ctaBlock },
-        }
+        homePage: homePage
     };
+
   } catch (error) {
     console.error('Failed to fetch site content:', error);
     return defaultSiteContent;

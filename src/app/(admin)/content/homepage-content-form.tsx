@@ -35,11 +35,10 @@ const testimonialSchema = z.object({
 const homePageContentSchema = z.object({
   hero: z.object({
     show: z.boolean(),
-    title: z.string().min(5, 'Title is required'),
+    badge: z.string().min(2, 'Badge text is required'),
+    title1: z.string().min(5, 'First title line is required'),
+    title2: z.string().min(5, 'Second title line is required'),
     subtitle: z.string().min(10, 'Subtitle is required'),
-    ctaText: z.string().min(2, 'CTA text is required'),
-    ctaLink: z.string().url('Must be a valid URL'),
-    imageUrl: z.string().url('Must be a valid URL'),
   }),
   testimonials: z.object({
     show: z.boolean(),
@@ -127,13 +126,10 @@ export function HomePageContentForm({ content }: HomePageContentFormProps) {
                             />
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <FormField control={form.control} name="hero.title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="hero.badge" render={({ field }) => (<FormItem><FormLabel>Badge Text</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="hero.title1" render={({ field }) => (<FormItem><FormLabel>Title (Line 1)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={form.control} name="hero.title2" render={({ field }) => (<FormItem><FormLabel>Title (Line 2)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                             <FormField control={form.control} name="hero.subtitle" render={({ field }) => (<FormItem><FormLabel>Subtitle</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="hero.imageUrl" render={({ field }) => (<FormItem><FormLabel>Background Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField control={form.control} name="hero.ctaText" render={({ field }) => (<FormItem><FormLabel>CTA Button Text</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="hero.ctaLink" render={({ field }) => (<FormItem><FormLabel>CTA Button Link</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            </div>
                         </CardContent>
                     </Card>
                 </AccordionContent>
