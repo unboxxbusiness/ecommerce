@@ -24,9 +24,16 @@ import { CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
+const relativeOrAbsoluteUrl = z.string().refine(value => {
+    return z.string().url().safeParse(value).success || value.startsWith('/');
+}, {
+    message: 'Must be a valid URL or a relative path starting with /',
+});
+
+
 const footerLinkSchema = z.object({
   name: z.string().min(1, 'Link text is required'),
-  href: z.string().url('Must be a valid URL'),
+  href: relativeOrAbsoluteUrl,
 });
 
 const socialLinkSchema = z.object({
@@ -343,4 +350,3 @@ function InnerFieldArray({ control, name }: { control: any, name: string }) {
         </div>
     );
 }
-
