@@ -7,51 +7,29 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
 import { CartProvider } from '@/hooks/use-cart';
 import { ThemeProvider } from 'next-themes';
-import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 
-
-function LayoutWrapper({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
+function LayoutInner({ children }: { children: React.ReactNode }) {
+  // This hook now safely runs within the AuthProvider context
   usePushNotifications();
+  return <>{children}</>;
+}
 
-  const isAdminPath =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/orders') ||
-    pathname.startsWith('/products') ||
-    pathname.startsWith('/customers') ||
-    pathname.startsWith('/coupons') ||
-    pathname.startsWith('/marketing') ||
-    pathname.startsWith('/content') ||
-    pathname.startsWith('/pages') ||
-    pathname.startsWith('/settings');
-
+function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <Suspense>
-        <GoogleAnalytics />
-      </Suspense>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <AuthProvider>
-          <CartProvider>
-            {isAdminPath ? (
-              children
-            ) : (
-              children
-            )}
-          </CartProvider>
-        </AuthProvider>
-        <Toaster />
-      </ThemeProvider>
-    </>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <AuthProvider>
+        <CartProvider>
+          <LayoutInner>{children}</LayoutInner>
+        </CartProvider>
+      </AuthProvider>
+      <Toaster />
+    </ThemeProvider>
   );
 }
+
 
 export default function RootLayout({
   children,
@@ -74,7 +52,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <Suspense>
+          <GoogleAnalytics />
+        </Suspense>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
