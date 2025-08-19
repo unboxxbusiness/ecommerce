@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Product, SiteContent } from '@/lib/types';
-import { ShoppingCart, Star, Circle } from 'lucide-react';
+import { ShoppingCart, Star, Circle, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -248,8 +248,11 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [sortBy, setSortBy] = React.useState('rating');
+  const [currentPage, setCurrentPage] = React.useState(1);
   const { addToCart } = useCart();
   const { toast } = useToast();
+
+  const PRODUCTS_PER_PAGE = 6;
   
   React.useEffect(() => {
     const fetchInitialData = async () => {
@@ -299,6 +302,7 @@ export default function HomePage() {
     }
 
     setFilteredProducts(newFilteredProducts);
+    setCurrentPage(1); // Reset to first page on filter change
   }, [searchQuery, selectedCategory, sortBy, allProducts]);
 
   const handleAddToCart = (product: Product) => {
@@ -308,6 +312,12 @@ export default function HomePage() {
       description: `${product.name} has been added to your cart.`,
     });
   };
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
 
   if (loading || !siteContent) {
       return (
@@ -371,8 +381,8 @@ export default function HomePage() {
               <div className="text-center"><p>Loading products...</p></div>
           ) : (
               <>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredProducts.map((product) => (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {paginatedProducts.map((product) => (
                       <Card key={product.id} className="group flex flex-col justify-between overflow-hidden">
                       <Link href={`/products/${product.id}`} className="block">
                           <div className="overflow-hidden">
@@ -409,11 +419,36 @@ export default function HomePage() {
                       </Card>
                   ))}
                   </div>
-                  {filteredProducts.length === 0 && (
-                  <div className="col-span-full py-12 text-center">
-                      <h3 className="text-2xl font-bold">No Products Found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filters.</p>
-                  </div>
+
+                  {filteredProducts.length === 0 && !loading && (
+                    <div className="col-span-full py-12 text-center">
+                        <h3 className="text-2xl font-bold">No Products Found</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filters.</p>
+                    </div>
+                  )}
+
+                  {totalPages > 1 && (
+                     <div className="mt-12 flex justify-center items-center gap-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Previous
+                        </Button>
+                        <span className="text-sm text-muted-foreground">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                            variant="outline"
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </div>
                   )}
               </>
           )}

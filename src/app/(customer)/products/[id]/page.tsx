@@ -1,5 +1,5 @@
 
-import { getAdminProduct } from '@/lib/firestore-admin';
+import { getProduct } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 import { ProductDetailClient } from './product-detail-client';
 
@@ -10,7 +10,7 @@ export default async function ProductDetailPage({
 }: {
   params: { id: string };
 }) {
-  const product = await getAdminProduct(params.id);
+  const product = await getProduct(params.id);
 
   if (!product) {
     notFound();
