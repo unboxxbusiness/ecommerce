@@ -50,12 +50,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 text-foreground hover:opacity-90">
                  <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary">
                     <Gem className="size-5" />
                  </Button>
                 <span className="font-headline text-lg font-semibold">Digital Shop</span>
-            </div>
+            </Link>
         </div>
         <Card>
           <CardHeader>
