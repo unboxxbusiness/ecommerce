@@ -1,9 +1,8 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ShoppingCart, User } from 'lucide-react';
+import { Home, ShoppingCart, User, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +11,7 @@ import { Dock, DockIcon } from '@/components/ui/dock';
 
 const navItems = [
     { href: '/', label: 'Home', icon: Home },
+    { href: '/#products', label: 'Search', icon: Search },
     { href: '/cart', label: 'Cart', icon: ShoppingCart },
     { href: '/account', label: 'Account', icon: User },
 ]
@@ -21,7 +21,8 @@ export function MobileDock() {
     const { cartCount } = useCart();
     const { setIsCartDrawerOpen } = useCartDrawer();
 
-    const handleCartClick = () => {
+    const handleCartClick = (e: React.MouseEvent) => {
+        e.preventDefault();
         setIsCartDrawerOpen(true);
     }
 
@@ -45,16 +46,15 @@ export function MobileDock() {
                     );
 
                     return (
-                        <DockIcon key={item.href} onClick={isCart ? handleCartClick : undefined}>
-                            {isCart ? (
-                                <div className="w-full h-full flex items-center justify-center group">
-                                  {iconContent}
-                                </div>
-                            ) : (
-                                <Link href={item.href} className="w-full h-full flex items-center justify-center group">
-                                   {iconContent}
-                                </Link>
-                            )}
+                        <DockIcon key={item.href} >
+                           <Link
+                              href={item.href}
+                              onClick={isCart ? handleCartClick : undefined}
+                              className="w-full h-full flex items-center justify-center group"
+                              aria-label={item.label}
+                           >
+                              {iconContent}
+                           </Link>
                         </DockIcon>
                     )
                 })}
