@@ -91,6 +91,7 @@ export type SiteContent = {
   header: {
     siteName: string;
     logoUrl: string;
+    iconName?: string;
   };
   footer: {
       description: string;

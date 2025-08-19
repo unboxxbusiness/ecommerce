@@ -3,7 +3,7 @@
 
 import React from 'react';
 import type { SiteContent } from '@/lib/types';
-import { Gem } from 'lucide-react';
+import { Gem, type LucideIcon, icons } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -13,6 +13,17 @@ const socialIconMap: { [key: string]: React.ReactElement } = {
   Twitter: <FaTwitter className="size-5" />,
   LinkedIn: <FaLinkedin className="size-5" />,
 };
+
+const DynamicIcon = ({ name }: { name?: string }) => {
+  const IconComponent = (icons as Record<string, LucideIcon>)[name || 'Gem'];
+
+  if (!IconComponent) {
+    return <Gem className="h-8 w-8 text-primary" />;
+  }
+
+  return <IconComponent className="h-8 w-8 text-primary" />;
+};
+
 
 export function Footer() {
     const [content, setContent] = React.useState<SiteContent | null>(null);
@@ -37,7 +48,7 @@ export function Footer() {
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
             <Link href="/" className="flex items-center gap-2">
-              <Gem className="h-8 w-8 text-primary" />
+              <DynamicIcon name={header.iconName} />
               <h2 className="text-xl font-semibold">{header.siteName}</h2>
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground">

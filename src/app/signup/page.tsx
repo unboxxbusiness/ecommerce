@@ -13,9 +13,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Gem, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Gem, Loader2, Eye, EyeOff, type LucideIcon, icons } from 'lucide-react';
+import type { SiteContent } from '@/lib/types';
+
+
+const DynamicIcon = ({ name }: { name?: string }) => {
+  const IconComponent = (icons as Record<string, LucideIcon>)[name || 'Gem'];
+
+  if (!IconComponent) {
+    return <Gem className="size-5" />;
+  }
+
+  return <IconComponent className="size-5" />;
+};
+
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -27,6 +40,11 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
   const router = useRouter();
+  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
+  
+  useEffect(() => {
+    fetch('/api/content').then(res => res.json()).then(setSiteContent);
+  }, []);
 
   const onSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +72,14 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-            <Link href="/" className="flex items-center gap-2 text-foreground hover:opacity-90">
-                 <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary">
-                    <Gem className="size-5" />
-                 </Button>
-                <span className="font-headline text-lg font-semibold">Digital Shop</span>
-            </Link>
+            {siteContent && (
+                <Link href="/" className="flex items-center gap-2 text-foreground hover:opacity-90">
+                    <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10 hover:text-primary">
+                        <DynamicIcon name={siteContent.header.iconName} />
+                    </Button>
+                    <span className="font-headline text-lg font-semibold">{siteContent.header.siteName}</span>
+                </Link>
+             )}
         </div>
         <Card>
           <CardHeader>

@@ -15,10 +15,21 @@ import type { Product, Page, SiteContent } from "@/lib/types";
 import { getProducts } from "@/lib/firestore";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Gem, ShoppingCart, Book, Trees, Sunset, Zap, Sun, Moon } from "lucide-react";
+import { Gem, ShoppingCart, Book, Trees, Sunset, Zap, Sun, Moon, type LucideIcon, icons } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useTheme } from "next-themes";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
+
+const DynamicIcon = ({ name }: { name?: string }) => {
+  const IconComponent = (icons as Record<string, LucideIcon>)[name || 'Gem'];
+
+  if (!IconComponent) {
+    // Return a default icon if the name is not found
+    return <Gem className="h-5 w-5 text-primary" />;
+  }
+
+  return <IconComponent className="h-5 w-5 text-primary" />;
+};
 
 
 function PublicThemeToggle() {
@@ -114,7 +125,7 @@ export function Navbar({ className }: { className?: string }) {
         <Menu setActive={setActive} className="flex-1">
           {siteContent && (
              <Link href="/" className="flex items-center gap-2 text-foreground font-semibold hover:opacity-90 mr-4">
-               <Gem className="h-5 w-5 text-primary" />
+               <DynamicIcon name={siteContent.header.iconName} />
                <span>{siteContent.header.siteName}</span>
              </Link>
           )}

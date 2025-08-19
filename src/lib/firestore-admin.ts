@@ -108,6 +108,7 @@ const defaultSiteContent: SiteContent = {
   header: {
     siteName: 'Digital Shop',
     logoUrl: 'https://placehold.co/40x40.png', 
+    iconName: 'Gem',
   },
   footer: {
     description: 'A collection of components for your startup business or side project.',

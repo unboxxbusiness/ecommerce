@@ -18,9 +18,14 @@ import {
   Megaphone,
   Palette,
   FileText,
-  Search
+  Search,
+  Gem,
+  type LucideIcon,
+  icons,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import type { SiteContent } from '@/lib/types';
+
 
 interface NavigationItem {
   id: string;
@@ -46,10 +51,26 @@ const allNavigationItems: NavigationItem[] = [
   { id: 'settings', name: 'Settings', icon: Settings, href: '/settings' },
 ];
 
+const DynamicIcon = ({ name }: { name?: string }) => {
+  const IconComponent = (icons as Record<string, LucideIcon>)[name || 'Gem'];
+
+  if (!IconComponent) {
+    return <Gem className="h-8 w-8 text-primary" />;
+  }
+
+  return (
+    <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+      <IconComponent className="h-5 w-5 text-primary-foreground" />
+    </div>
+  );
+};
+
+
 export function Sidebar({ className = "" }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const pathname = usePathname();
   const { user, logout } = useAuth();
   
@@ -62,6 +83,12 @@ export function Sidebar({ className = "" }: SidebarProps) {
   useEffect(() => {
     setActiveItem(getInitialActiveItem());
   }, [pathname]);
+  
+  useEffect(() => {
+      fetch('/api/content')
+          .then(res => res.json())
+          .then(data => setSiteContent(data));
+  }, []);
 
   const filteredNavigationItems = allNavigationItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -99,6 +126,10 @@ export function Sidebar({ className = "" }: SidebarProps) {
 
   const userInitial = user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'A';
 
+  if (!siteContent) {
+      return null;
+  }
+
   return (
     <>
       {/* Mobile hamburger button */}
@@ -135,20 +166,18 @@ export function Sidebar({ className = "" }: SidebarProps) {
         <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50/60 h-16">
           {!isCollapsed && (
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-base">DS</span>
-              </div>
+              <DynamicIcon name={siteContent.header.iconName} />
               <div className="flex flex-col">
-                <span className="font-semibold text-slate-800 text-base">Digital Shop</span>
+                <span className="font-semibold text-slate-800 text-base">{siteContent.header.siteName}</span>
                 <span className="text-xs text-slate-500">Admin Dashboard</span>
               </div>
             </div>
           )}
 
           {isCollapsed && (
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center mx-auto shadow-sm">
-              <span className="text-white font-bold text-base">DS</span>
-            </div>
+             <div className="mx-auto">
+                 <DynamicIcon name={siteContent.header.iconName} />
+             </div>
           )}
 
           {/* Desktop collapse button */}

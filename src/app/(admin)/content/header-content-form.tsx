@@ -25,6 +25,7 @@ import { CardFooter } from '@/components/ui/card';
 const headerContentSchema = z.object({
     siteName: z.string().min(2, 'Site name must be at least 2 characters'),
     logoUrl: z.string().url('Must be a valid URL'),
+    iconName: z.string().optional(),
 });
 
 type HeaderContentFormProps = {
@@ -90,9 +91,22 @@ export function HeaderContentForm({ content }: HeaderContentFormProps) {
           name="logoUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Logo Image URL</FormLabel>
+              <FormLabel>Logo Image URL (for favicon)</FormLabel>
               <FormControl>
                 <Input placeholder="https://example.com/logo.png" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="iconName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Lucide Icon Name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Gem, Rocket, Store" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
