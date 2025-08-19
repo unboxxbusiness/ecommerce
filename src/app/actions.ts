@@ -6,8 +6,8 @@ import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
-import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage } from '@/lib/firestore-admin';
-import type { Page, SiteContent } from '@/lib/types';
+import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, createProduct, updateProduct, deleteProduct } from '@/lib/firestore-admin';
+import type { Page, SiteContent, Product } from '@/lib/types';
 import { cookies } from 'next/headers';
 
 
@@ -157,7 +157,8 @@ async function verifyAdmin() {
     }
     try {
         const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-        if (decodedClaims.email === process.env.ADMIN_EMAIL) {
+        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.uid).get();
+        if (adminDoc.exists) {
             return decodedClaims;
         }
         return null;
@@ -254,5 +255,61 @@ export async function handleDeletePage(id: string) {
     } catch (error) {
         console.error('Failed to delete page:', error);
         return { error: 'An unexpected server error occurred while deleting the page.' };
+    }
+}
+
+const productSchema = z.object({
+  name: z.string().min(3, 'Product name must be at least 3 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  price: z.coerce.number().positive('Price must be a positive number'),
+  stock: z.coerce.number().int().min(0, 'Stock cannot be negative'),
+  image: z.string().url('Must be a valid image URL').optional().or(z.literal('')),
+  category: z.string().min(2, 'Category is required'),
+});
+
+export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+    const validation = productSchema.safeParse(values);
+    if (!validation.success) {
+        return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    try {
+        const productId = await createProduct(validation.data);
+        return { success: true, productId };
+    } catch(err) {
+        return { error: 'Failed to create product.' };
+    }
+}
+
+export async function handleUpdateProduct(id: string, values: Partial<Product>) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+    const validation = productSchema.partial().safeParse(values);
+     if (!validation.success) {
+        return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    try {
+        await updateProduct(id, validation.data);
+        return { success: true };
+    } catch(err) {
+        return { error: 'Failed to update product.' };
+    }
+}
+
+export async function handleDeleteProduct(id: string) {
+    const adminUser = await verifyAdmin();
+    if (!adminUser) {
+        return { error: 'Authentication error: You are not authorized to perform this action.' };
+    }
+    try {
+        await deleteProduct(id);
+        return { success: true };
+    } catch(err) {
+        return { error: 'Failed to delete product.' };
     }
 }

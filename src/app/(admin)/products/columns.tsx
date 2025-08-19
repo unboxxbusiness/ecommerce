@@ -27,7 +27,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { deleteProduct } from "@/lib/firestore"
+import { handleDeleteProduct } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
@@ -35,20 +35,21 @@ const ProductActions = ({ product }: { product: Product }) => {
     const { toast } = useToast();
     const router = useRouter();
 
-    const handleDeleteProduct = async (productId: string) => {
+    const onDelete = async (productId: string) => {
         try {
-            await deleteProduct(productId);
+            const result = await handleDeleteProduct(productId);
+             if (result.error) throw new Error(result.error);
             toast({
                 title: "Product Deleted",
                 description: "The product has been successfully deleted.",
             });
             router.refresh();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to delete product:", error);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to delete product. Please try again.",
+                description: error.message || "Failed to delete product. Please try again.",
             });
         }
     };
@@ -83,7 +84,7 @@ const ProductActions = ({ product }: { product: Product }) => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogAction onClick={() => onDelete(product.id)} className="bg-destructive hover:bg-destructive/90">
                     Delete
                 </AlertDialogAction>
                 </AlertDialogFooter>

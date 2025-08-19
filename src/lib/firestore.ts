@@ -25,27 +25,6 @@ export const getProduct = async (id: string): Promise<Product | null> => {
     return null;
 }
 
-export const createProduct = async (productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) => {
-    const newProductData = {
-        ...productData,
-        rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // Random rating between 3.0 and 5.0
-        popularity: Math.floor(Math.random() * 1000),
-        reviews: [],
-        variants: [],
-    };
-    const docRef = await addDoc(collection(db, 'products'), newProductData);
-    return docRef.id;
-};
-
-export const updateProduct = (id: string, productData: Partial<Product>) => {
-    const productRef = doc(db, 'products', id);
-    return updateDoc(productRef, productData);
-};
-
-export const deleteProduct = (id: string) => {
-    return deleteDoc(doc(db, 'products', id));
-};
-
 export const getCustomerOrders = async (userEmail: string): Promise<Order[]> => {
     const q = query(collection(db, 'orders'), where('customerEmail', '==', userEmail));
     const querySnapshot = await getDocs(q);

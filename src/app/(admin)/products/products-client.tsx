@@ -28,7 +28,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { deleteProduct } from '@/lib/firestore';
+import { handleDeleteProduct } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 
 const BulkDeleteButton = ({ table }: { table: Table<Product> }) => {
@@ -38,7 +38,7 @@ const BulkDeleteButton = ({ table }: { table: Table<Product> }) => {
     const handleDelete = async () => {
         const selectedRows = table.getFilteredSelectedRowModel().rows;
         try {
-            await Promise.all(selectedRows.map(row => deleteProduct(row.original.id)));
+            await Promise.all(selectedRows.map(row => handleDeleteProduct(row.original.id)));
             toast({ title: `${selectedRows.length} Products Deleted`, description: 'The selected products have been removed.' });
             table.resetRowSelection();
             router.refresh();

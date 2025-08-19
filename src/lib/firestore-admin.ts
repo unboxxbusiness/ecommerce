@@ -54,6 +54,28 @@ export const getAdminProduct = async (id: string): Promise<Product | null> => {
     }
 };
 
+export const createProduct = async (productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) => {
+    const newProductData = {
+        ...productData,
+        rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // Random rating between 3.0 and 5.0
+        popularity: Math.floor(Math.random() * 1000),
+        reviews: [],
+        variants: [],
+    };
+    const docRef = await adminDb.collection('products').add(newProductData);
+    return docRef.id;
+};
+
+export const updateProduct = (id: string, productData: Partial<Product>) => {
+    const productRef = adminDb.collection('products').doc(id);
+    return productRef.update(productData);
+};
+
+export const deleteProduct = (id: string) => {
+    return adminDb.collection('products').doc(id).delete();
+};
+
+
 // Order functions for admin
 export const getAdminOrders = () => fetchCollection<Order>('orders');
 

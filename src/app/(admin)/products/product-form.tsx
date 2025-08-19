@@ -17,10 +17,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Loader2, Sparkles, Upload } from 'lucide-react';
-import { handleOptimizeDescription } from '@/app/actions';
+import { handleOptimizeDescription, handleCreateProduct, handleUpdateProduct } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useRef } from 'react';
-import { createProduct, updateProduct } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
 import { CardFooter } from '@/components/ui/card';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -119,27 +118,29 @@ export function ProductForm({ product }: ProductFormProps) {
   const onSubmit = async (values: z.infer<typeof productSchema>) => {
     setIsSaving(true);
     try {
+      let result;
       if (product) {
-        await updateProduct(product.id, values);
-        toast({
-          title: 'Product Updated',
-          description: `The product "${values.name}" has been saved.`,
-        });
+        result = await handleUpdateProduct(product.id, values);
       } else {
-        await createProduct(values);
-        toast({
-          title: 'Product Created',
-          description: `The product "${values.name}" has been added.`,
-        });
+        result = await handleCreateProduct(values);
       }
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: product ? 'Product Updated' : 'Product Created',
+        description: `The product "${values.name}" has been saved.`,
+      });
       router.push('/products');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save product:', error);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'There was an error saving the product. Please try again.',
+        description: error.message || 'There was an error saving the product. Please try again.',
       });
     } finally {
       setIsSaving(false);
