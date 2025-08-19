@@ -14,17 +14,25 @@ const socialIconMap: { [key: string]: React.ReactElement } = {
   LinkedIn: <FaLinkedin className="size-5" />,
 };
 
-type FooterProps = {
-  content: SiteContent;
-};
+export function Footer() {
+    const [content, setContent] = React.useState<SiteContent | null>(null);
 
-export function Footer({ content }: FooterProps) {
+    React.useEffect(() => {
+        fetch('/api/content')
+            .then(res => res.json())
+            .then(data => setContent(data));
+    }, []);
+
+  if (!content) {
+    return null;
+  }
+  
   const { header, footer } = content;
   const currentYear = new Date().getFullYear();
   const copyright = `© ${currentYear} ${header.siteName}. All rights reserved.`;
 
   return (
-    <footer className="bg-background border-t">
+    <footer className="bg-background border-t hidden md:block">
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
