@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { ProductForm } from '../../product-form';
-import { getProduct } from '@/lib/firestore';
+import { getAdminProduct } from '@/lib/firestore-admin';
 import { notFound } from 'next/navigation';
 import {
   Card,
@@ -19,7 +19,7 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const product = await getProduct(params.id);
+  const product = await getAdminProduct(params.id);
 
   if (!product) {
     notFound();
