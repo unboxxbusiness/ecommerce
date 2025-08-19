@@ -1,3 +1,4 @@
+
 'use client';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -13,33 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { StarRating } from '@/components/star-rating';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
 import { ShareButtons } from '@/components/share-buttons';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
 import * as React from 'react';
-import type { SiteContent } from '@/lib/types';
-
 
 export function ProductDetailClient({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
-
-   React.useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const content = await fetch('/api/content').then((res) => res.json());
-        setSiteContent(content);
-      } catch (err) {
-        console.error('Failed to load site content', err);
-      }
-    };
-    fetchContent();
-  }, []);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -50,32 +33,23 @@ export function ProductDetailClient({ product }: { product: Product }) {
   };
 
   return (
-    <>
     <main className="flex-1 pt-16">
       <div className="container mx-auto max-w-6xl px-4 py-12 md:px-6">
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            {product.image && (
-              <Image
-                src={product.image}
+            <Image
+                src={product.image || 'https://placehold.co/600x600.png'}
                 alt={product.name}
                 width={600}
                 height={600}
                 className="aspect-square w-full rounded-lg border object-cover shadow-lg"
                 data-ai-hint="product photo"
               />
-            )}
           </div>
           <div className="flex flex-col gap-4">
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
               {product.name}
             </h1>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                ({(product.reviews || []).length} reviews)
-              </span>
-            </div>
 
             <p className="text-4xl font-bold">₹{product.price.toFixed(2)}</p>
 
@@ -123,6 +97,5 @@ export function ProductDetailClient({ product }: { product: Product }) {
         </div>
       </div>
     </main>
-    </>
   );
 }

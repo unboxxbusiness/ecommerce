@@ -1,3 +1,4 @@
+
 'use client';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { StarRating } from '@/components/star-rating';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
@@ -70,15 +70,6 @@ export function ProductDetailClient({ product }: { product: Product }) {
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <StarRating rating={product.rating || 0} />
-              </div>
-              <span className="text-sm text-muted-foreground">
-                ({product.reviews?.length || 0} reviews)
-              </span>
-            </div>
-
             <p className="text-4xl font-bold">₹{product.price.toFixed(2)}</p>
 
             <div>
@@ -123,41 +114,9 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
           </div>
         </div>
-
-        <div className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Reviews</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {product.reviews && product.reviews.length > 0 ? (
-                product.reviews.map((review) => (
-                  <div key={review.id} className="flex gap-4">
-                    <Avatar>
-                      <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="user avatar" />
-                      <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold">{review.author}</p>
-                        <span className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-1">
-                        <StarRating rating={review.rating} />
-                      </div>
-                      <p className="mt-2 text-sm text-muted-foreground">{review.comment}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground">No reviews yet.</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </main>
-    {siteContent && <Footer content={siteContent} />}
+    {siteContent && <Footer />}
     </>
   );
 }

@@ -16,13 +16,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Upload } from 'lucide-react';
 import { handleOptimizeDescription } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createProduct, updateProduct } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
 import { CardFooter } from '@/components/ui/card';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { app } from '@/lib/firebase';
+import Image from 'next/image';
 
 const productSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
@@ -41,8 +44,11 @@ export function ProductForm({ product }: ProductFormProps) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.image || null);
   const router = useRouter();
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: product || {
@@ -58,8 +64,32 @@ export function ProductForm({ product }: ProductFormProps) {
   useEffect(() => {
     if (product) {
       form.reset(product);
+      setImagePreview(product.image);
     }
   }, [product, form]);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+        const storage = getStorage(app);
+        const storageRef = ref(storage, `product-images/${Date.now()}-${file.name}`);
+        
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        form.setValue('image', downloadURL, { shouldValidate: true });
+        setImagePreview(downloadURL);
+        toast({ title: 'Image Uploaded', description: 'The image has been successfully uploaded and the URL has been set.' });
+    } catch (error) {
+        console.error("Firebase Storage upload failed:", error);
+        toast({ variant: 'destructive', title: 'Upload Failed', description: 'There was an error uploading your image.' });
+    } finally {
+        setIsUploading(false);
+    }
+  };
 
   const handleOptimize = async () => {
     setIsOptimizing(true);
@@ -145,19 +175,39 @@ export function ProductForm({ product }: ProductFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://placehold.co/600x600.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        <FormItem>
+            <FormLabel>Product Image</FormLabel>
+            <FormControl>
+                <div className="flex items-center gap-4">
+                    <div className="w-32 h-32 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
+                        {imagePreview ? (
+                            <Image src={imagePreview} alt="Product preview" width={128} height={128} className="object-cover" data-ai-hint="product image" />
+                        ) : (
+                             <span className="text-sm text-muted-foreground">Preview</span>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                            Upload Image
+                        </Button>
+                        <Input 
+                            type="file" 
+                            className="hidden" 
+                            ref={fileInputRef} 
+                            onChange={handleImageUpload}
+                            accept="image/png, image/jpeg, image/gif, image/webp"
+                        />
+                         <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 2MB.</p>
+                    </div>
+                </div>
+            </FormControl>
+            <FormMessage />
+        </FormItem>
+        {/* Hidden field to store URL, handled by upload logic */}
+        <FormField control={form.control} name="image" render={({ field }) => <Input type="hidden" {...field} />} />
+
         <FormField
           control={form.control}
           name="description"
@@ -221,7 +271,7 @@ export function ProductForm({ product }: ProductFormProps) {
                 <Button type="button" variant="outline" onClick={() => router.push('/products')} disabled={isSaving}>
                 Cancel
                 </Button>
-                <Button type="submit" disabled={isSaving}>
+                <Button type="submit" disabled={isSaving || isUploading}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Product
                 </Button>
