@@ -428,7 +428,7 @@ export default function HomePage() {
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{siteContent.homePage.ctaBlock.title}</h2>
                   <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed mt-4">{siteContent.homePage.ctaBlock.subtitle}</p>
                   <Button size="lg" className="mt-8" asChild>
-                      <Link href={siteContent.homePAge.ctaBlock.ctaLink}>{siteContent.homePage.ctaBlock.ctaText}</Link>
+                      <Link href={siteContent.homePage.ctaBlock.ctaLink}>{siteContent.homePage.ctaBlock.ctaText}</Link>
                   </Button>
               </div>
           </section>
