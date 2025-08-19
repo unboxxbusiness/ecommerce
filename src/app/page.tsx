@@ -28,38 +28,32 @@ function HeroSection({ siteContent }: { siteContent: SiteContent }) {
     if (!hero.show) return null;
 
     return (
-        <div className="relative">
-             <main>
-                <section className="overflow-hidden">
-                    <div className="relative mx-auto max-w-6xl px-6 pt-28 md:pt-20 pb-16">
-                        <div className="lg:flex lg:items-center lg:gap-12">
-                            <div className="relative z-10 mx-auto max-w-xl text-center lg:ml-0 lg:w-1/2 lg:text-left">
-                                <h1 className="mt-10 text-balance text-4xl font-bold md:text-5xl xl:text-5xl">{hero.title}</h1>
-                                <p className="mt-8 text-muted-foreground">{hero.subtitle}</p>
-                                 <div className="mt-12 flex justify-center lg:justify-start">
-                                     <Button size="lg" asChild>
-                                        <Link href={hero.ctaLink}>{hero.ctaText}</Link>
-                                    </Button>
-                                 </div>
-                            </div>
-                        </div>
-                        <div className="absolute inset-0 -z-10 -mx-4 rounded-3xl p-3 lg:w-1/2 lg:right-0 lg:left-auto">
-                            <div aria-hidden className="absolute z-[1] inset-0 bg-gradient-to-r from-background from-0% md:from-35%" />
-                            <div className="relative h-full">
-                                <Image
-                                    className="h-full w-full object-cover rounded-2xl"
-                                    src={hero.imageUrl}
-                                    alt={hero.title}
-                                    width={1200}
-                                    height={800}
-                                    data-ai-hint="hero background"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
+        <section className="relative w-full h-[70vh] flex items-center justify-center text-center text-white overflow-hidden">
+            <div className="absolute inset-0">
+                <Image
+                    src={hero.imageUrl}
+                    alt={hero.title}
+                    fill
+                    className="object-cover"
+                    priority
+                    data-ai-hint="hero background"
+                />
+                <div className="absolute inset-0 bg-black/50" />
+            </div>
+            <div className="relative z-10 max-w-4xl mx-auto p-4">
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-balance">
+                    {hero.title}
+                </h1>
+                <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-balance">
+                    {hero.subtitle}
+                </p>
+                <div className="mt-8 flex justify-center gap-4">
+                    <Button size="lg" asChild>
+                        <Link href={hero.ctaLink}>{hero.ctaText}</Link>
+                    </Button>
+                </div>
+            </div>
+        </section>
     );
 }
 
@@ -68,25 +62,23 @@ function TestimonialsSection({ testimonials }: { testimonials: SiteContent['home
     if (!testimonials.show || testimonials.items.length === 0) return null;
 
     return (
-        <section className="bg-background py-12 md:py-24">
+        <section className="bg-muted/40 py-16 md:py-24">
             <div className="container px-4 md:px-6">
                 <h2 className="text-3xl font-bold tracking-tighter text-center mb-12">{testimonials.title}</h2>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {testimonials.items.map(item => (
-                        <Card key={item.id} className="p-6">
-                            <CardContent className="p-0">
-                                <blockquote className="text-lg font-semibold leading-snug">
+                        <Card key={item.id} className="p-6 border-transparent shadow-none bg-transparent">
+                            <CardContent className="p-0 flex flex-col items-center text-center">
+                                 <Avatar className="w-16 h-16 mb-4 border-2 border-primary">
+                                    <AvatarImage src={`https://placehold.co/64x64.png`} data-ai-hint="person avatar" />
+                                    <AvatarFallback>{item.author.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <blockquote className="text-base font-semibold leading-snug max-w-prose">
                                     &ldquo;{item.quote}&rdquo;
                                 </blockquote>
-                                <div className="mt-4 flex items-center gap-3">
-                                     <Avatar>
-                                        <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="person avatar" />
-                                        <AvatarFallback>{item.author.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <p className="font-semibold">{item.author}</p>
-                                        <p className="text-sm text-muted-foreground">{item.authorRole}</p>
-                                    </div>
+                                <div className="mt-4">
+                                    <p className="font-semibold">{item.author}</p>
+                                    <p className="text-sm text-muted-foreground">{item.authorRole}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -170,9 +162,7 @@ export default function HomePage() {
   if (loading || !siteContent) {
       return (
           <>
-            <div className="container py-12">
-                <Skeleton className="h-96 w-full mb-12" />
-            </div>
+            <Skeleton className="h-[70vh] w-full" />
              <div className="container py-12">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
@@ -186,7 +176,7 @@ export default function HomePage() {
     <>
       <HeroSection siteContent={siteContent} />
       
-      <section className="py-12 md:py-24">
+      <section id="products" className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1">
@@ -281,7 +271,7 @@ export default function HomePage() {
       <TestimonialsSection testimonials={siteContent.homePage.testimonials} />
 
       {siteContent.homePage.ctaBlock.show && (
-          <section className="bg-muted/40 py-12 md:py-24">
+          <section className="bg-background py-16 md:py-24">
               <div className="container text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{siteContent.homePage.ctaBlock.title}</h2>
                   <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed mt-4">{siteContent.homePage.ctaBlock.subtitle}</p>
