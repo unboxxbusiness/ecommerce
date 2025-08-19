@@ -146,7 +146,7 @@ async function verifyAdmin() {
     }
     try {
         const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-        if (decodedClaims.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        if (decodedClaims.email === process.env.ADMIN_EMAIL) {
             return decodedClaims;
         }
         return null;

@@ -17,13 +17,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       router.push('/login');
       return;
     }
+    
+    // This check is now implicit through the server actions `verifyAdmin` function.
+    // Client-side can't reliably check against a server-only env var.
+    // If a non-admin gets here, the server actions will deny them.
+    // A robust solution might involve a custom claim for roles.
 
-    if (user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-      router.push('/account');
-    }
   }, [loading, user, router]);
 
-  if (loading || !user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+  if (loading || !user) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
             <p>Loading...</p>

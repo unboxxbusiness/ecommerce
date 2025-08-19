@@ -22,8 +22,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=...
 # Go to Firebase Console > Project Settings > Cloud Messaging > Web configuration > Web Push certificates
 NEXT_PUBLIC_FIREBASE_VAPID_KEY=...
 
-# Admin User Email
-NEXT_PUBLIC_ADMIN_EMAIL=your-admin-email@example.com
+# Admin User Email (Server-Side)
+ADMIN_EMAIL=your-admin-email@example.com
 
 # Razorpay API Keys
 # Go to your Razorpay Dashboard > Settings > API Keys
@@ -34,6 +34,10 @@ RAZORPAY_WEBHOOK_SECRET=...
 # Google Analytics Measurement ID (Optional)
 # Go to Google Analytics > Admin > Data Streams > Select your stream
 NEXT_PUBLIC_GA_ID=...
+
+# Google AI API Key (for Genkit)
+# Go to Google AI Studio to generate a new API key
+GEMINI_API_KEY=...
   `.trim();
 
   return (
