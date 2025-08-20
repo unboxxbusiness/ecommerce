@@ -73,16 +73,6 @@ export const updateOrderStatus = (orderId: string, status: Order['status']) => {
     return updateDoc(orderRef, { status });
 };
 
-// Customer CRUD
-export const createCustomer = (customerData: Omit<Customer, 'id' | 'joinDate' | 'totalOrders' | 'totalSpent'>) => {
-    return addDoc(collection(db, 'customers'), {
-        ...customerData,
-        joinDate: serverTimestamp(),
-        totalOrders: 0,
-        totalSpent: 0,
-    });
-};
-
 export const updateCustomer = (id: string, customerData: Partial<Customer>) => {
     const customerRef = doc(db, 'customers', id);
     return updateDoc(customerRef, customerData);
@@ -129,3 +119,4 @@ export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
 export const deleteCoupon = (id: string) => {
     return deleteDoc(doc(db, 'coupons', id));
 };
+

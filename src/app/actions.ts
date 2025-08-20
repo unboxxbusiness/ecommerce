@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
 import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, deleteProduct as adminDeleteProduct, updateCoupon as adminUpdateCoupon, deleteCoupon as adminDeleteCoupon } from '@/lib/firestore-admin';
-import type { Page, SiteContent, Product, Coupon } from '@/lib/types';
+import type { Page, SiteContent, Product, Coupon, Customer } from '@/lib/types';
 import { cookies } from 'next/headers';
 
 
@@ -119,22 +119,20 @@ export async function handleSignup(formData: FormData) {
         const batch = adminDb.batch();
 
         const customerRef = adminDb.collection('customers').doc(userRecord.uid);
-        const customerData = {
+        const customerData: Omit<Customer, 'id'> = {
             name: userRecord.displayName || email.split('@')[0],
             email: email,
             avatar: `https://placehold.co/100x100.png`,
             totalOrders: 0,
             totalSpent: 0,
-            joinDate: serverTimestamp(),
+            joinDate: new Date().toISOString(),
             isActive: true,
             role: 'customer',
         };
-        batch.set(customerRef, customerData);
-
-        if (email === process.env.ADMIN_EMAIL) {
-            const adminRef = adminDb.collection('admins').doc(userRecord.uid);
-            batch.set(adminRef, { role: 'admin', createdAt: serverTimestamp() });
-        }
+        batch.set(customerRef, {
+            ...customerData,
+            joinDate: serverTimestamp() // Use server timestamp only here
+        });
 
         await batch.commit();
 
@@ -321,3 +319,33 @@ export async function handleDeleteCoupon(id: string) {
         return { error: 'Failed to delete coupon.' };
     }
 }
+
+const customerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  avatar: z.string().url('Must be a valid image URL').optional().or(z.literal('')),
+  isActive: z.boolean().default(true),
+  role: z.enum(['admin', 'manager', 'delivery partner', 'customer']).default('customer'),
+});
+
+
+export async function handleCreateCustomer(values: Omit<Customer, 'id' | 'joinDate' | 'totalOrders' | 'totalSpent'>) {
+    const validation = customerSchema.safeParse(values);
+    if (!validation.success) {
+        return { error: 'Invalid customer data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    try {
+        const newCustomerData = {
+            ...validation.data,
+            joinDate: new Date().toISOString(),
+            totalOrders: 0,
+            totalSpent: 0,
+        };
+        const docRef = await adminDb.collection('customers').add(newCustomerData);
+        return { success: true, customerId: docRef.id };
+    } catch(err) {
+        console.error("Customer creation failed:", err);
+        return { error: 'Failed to create customer.' };
+    }
+}
+

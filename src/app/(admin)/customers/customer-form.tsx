@@ -18,7 +18,8 @@ import {
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { createCustomer, updateCustomer } from '@/lib/firestore';
+import { handleCreateCustomer, handleUpdateCoupon } from '@/app/actions';
+import { updateCustomer } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
 import { CardFooter } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -67,6 +68,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
   const onSubmit = async (values: z.infer<typeof customerSchema>) => {
     setIsSaving(true);
     try {
+      let result;
       if (customer) {
         await updateCustomer(customer.id, values);
         toast({
@@ -74,7 +76,10 @@ export function CustomerForm({ customer }: CustomerFormProps) {
           description: `Details for "${values.name}" have been saved.`,
         });
       } else {
-        await createCustomer(values);
+        result = await handleCreateCustomer(values);
+         if (result.error) {
+          throw new Error(result.error);
+        }
         toast({
           title: 'Customer Created',
           description: `The customer "${values.name}" has been added.`,
@@ -82,12 +87,12 @@ export function CustomerForm({ customer }: CustomerFormProps) {
       }
       router.push('/customers');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save customer:', error);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'There was an error saving the customer. Please try again.',
+        description: error.message || 'There was an error saving the customer. Please try again.',
       });
     } finally {
       setIsSaving(false);
@@ -199,3 +204,4 @@ export function CustomerForm({ customer }: CustomerFormProps) {
     </Form>
   );
 }
+
