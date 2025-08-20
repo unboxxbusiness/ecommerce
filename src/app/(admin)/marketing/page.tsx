@@ -26,14 +26,6 @@ export default function MarketingPage() {
                     <NotificationForm />
                 </CardContent>
             </Card>
-
-            <Alert>
-              <Terminal className="h-4 w-4" />
-              <AlertTitle>FCM Setup Required</AlertTitle>
-              <AlertDescription>
-                To enable push notifications, you must add your Firebase VAPID key to your environment variables. Please see the <strong>Settings &gt; Setup</strong> tab for complete instructions.
-              </AlertDescription>
-            </Alert>
         </div>
 
       </main>
