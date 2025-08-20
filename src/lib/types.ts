@@ -18,7 +18,7 @@ export type Product = {
   category: string;
   rating: number;
   popularity: number;
-  variants: {
+  variants?: {
     type: string;
     options: string[];
   }[];
