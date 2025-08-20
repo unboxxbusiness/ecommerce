@@ -10,6 +10,10 @@ import { ThemeProvider } from 'next-themes';
 import { Suspense } from 'react';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+
 
 // Dedicated provider for push notifications
 function NotificationProvider({ children }: { children: React.ReactNode }) {
@@ -19,7 +23,7 @@ function NotificationProvider({ children }: { children: React.ReactNode }) {
 
 function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
         <NotificationProvider>
             <CartProvider>
@@ -41,19 +45,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#fca311" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-          rel="stylesheet"
-        />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fca311" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14213d" />
       </head>
-      <body className="font-body antialiased" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <Suspense>
           <GoogleAnalytics />
         </Suspense>

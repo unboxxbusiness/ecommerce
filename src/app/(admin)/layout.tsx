@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import {useEffect} from 'react';
 import { Sidebar } from './sidebar';
+import { Loader2 } from 'lucide-react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -27,14 +28,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading || !user) {
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <p>Loading...</p>
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
   }
   
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-secondary/40">
       <Sidebar />
       <main className="flex-1">
         {children}
