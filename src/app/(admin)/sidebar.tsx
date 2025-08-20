@@ -50,6 +50,7 @@ const allNavigationItems: NavigationItem[] = [
   { id: 'marketing', name: 'Marketing', icon: Megaphone, href: '/marketing' },
   { id: 'content', name: 'Content', icon: Palette, href: '/content' },
   { id: 'pages', name: 'Pages', icon: FileText, href: '/pages' },
+  { id: 'settings', name: 'Settings', icon: Settings, href: '/settings' },
 ];
 
 const DynamicIcon = ({ name, className }: { name?: string, className?:string }) => {
