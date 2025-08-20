@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {
@@ -32,12 +33,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const createSession = async (user: User) => {
-    const idToken = await user.getIdToken();
-    await fetch('/api/auth/login', {
+    const idToken = await user.getIdToken(true); // Force refresh the token
+    const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: idToken }),
     });
+    if (!res.ok) {
+        throw new Error('Failed to create session');
+    }
+    return res.json();
 };
 
 const clearSession = async () => {
@@ -54,9 +59,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
+      setLoading(true);
       if (user) {
+        setUser(user);
         await createSession(user);
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
