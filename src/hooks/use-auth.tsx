@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
-        setUser(user);
         await createSession(user);
+        setUser(user);
       } else {
         setUser(null);
       }
