@@ -18,7 +18,7 @@ import {
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { createCoupon, updateCoupon } from '@/lib/firestore';
+import { handleCreateCoupon, handleUpdateCoupon } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { CardFooter } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -66,28 +66,30 @@ export function CouponForm({ coupon }: CouponFormProps) {
           ...values,
           discount: values.discount / 100, // Convert to decimal for storage
       };
-
+      
+      let result;
       if (coupon) {
-        await updateCoupon(coupon.id, dataToSave);
-        toast({
-          title: 'Coupon Updated',
-          description: `Details for "${values.code}" have been saved.`,
-        });
+        result = await handleUpdateCoupon(coupon.id, dataToSave);
       } else {
-        await createCoupon(dataToSave);
-        toast({
-          title: 'Coupon Created',
-          description: `The coupon "${values.code}" has been added.`,
-        });
+        result = await handleCreateCoupon(dataToSave);
       }
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: coupon ? 'Coupon Updated' : 'Coupon Created',
+        description: `The coupon "${values.code}" has been saved.`,
+      });
       router.push('/coupons');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save coupon:', error);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'There was an error saving the coupon. Please try again.',
+        description: error.message || 'There was an error saving the coupon. Please try again.',
       });
     } finally {
       setIsSaving(false);

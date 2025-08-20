@@ -102,7 +102,7 @@ export const saveFcmToken = async (userId: string, token: string) => {
 }
 
 
-// Coupon CRUD
+// Coupon client-side functions
 export const getActiveCouponByCode = async (code: string): Promise<Coupon | null> => {
     const q = query(
         collection(db, 'coupons'), 
@@ -117,14 +117,6 @@ export const getActiveCouponByCode = async (code: string): Promise<Coupon | null
     return { id: couponDoc.id, ...couponDoc.data() } as Coupon;
 };
 
-
-export const createCoupon = (couponData: Omit<Coupon, 'id' | 'createdAt'>) => {
-    return addDoc(collection(db, 'coupons'), {
-        ...couponData,
-        code: couponData.code.toUpperCase(),
-        createdAt: new Date().toISOString(),
-    });
-};
 
 export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
     if (couponData.code) {

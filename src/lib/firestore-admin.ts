@@ -1,5 +1,4 @@
 
-
 'use server-only';
 
 import { adminDb } from './firebase-admin';
@@ -123,6 +122,18 @@ export const getAdminCoupon = async (id: string): Promise<Coupon | null> => {
         console.error(`Failed to fetch coupon ${id}:`, error);
         return null;
     }
+};
+
+export const updateCoupon = (id: string, couponData: Partial<Coupon>) => {
+    if (couponData.code) {
+        couponData.code = couponData.code.toUpperCase();
+    }
+    const couponRef = adminDb.collection('coupons').doc(id);
+    return couponRef.update(couponData);
+};
+
+export const deleteCoupon = (id: string) => {
+    return adminDb.collection('coupons').doc(id).delete();
 };
 
 // Site Content functions

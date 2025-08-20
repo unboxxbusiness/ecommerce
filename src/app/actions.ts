@@ -6,8 +6,8 @@ import { sendNotificationToAll } from '@/lib/notifications-admin';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { serverTimestamp } from 'firebase/firestore';
-import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, deleteProduct as adminDeleteProduct } from '@/lib/firestore-admin';
-import type { Page, SiteContent, Product } from '@/lib/types';
+import { updateSiteContent as adminUpdateSiteContent, deletePage as adminDeletePage, deleteProduct as adminDeleteProduct, updateCoupon as adminUpdateCoupon, deleteCoupon as adminDeleteCoupon } from '@/lib/firestore-admin';
+import type { Page, SiteContent, Product, Coupon } from '@/lib/types';
 import { cookies } from 'next/headers';
 
 
@@ -271,5 +271,53 @@ export async function handleDeleteProduct(id: string) {
     } catch(err) {
         console.error("Product deletion failed:", err);
         return { error: 'Failed to delete product.' };
+    }
+}
+
+const couponSchema = z.object({
+  code: z.string().min(4).regex(/^[A-Z0-9]+$/),
+  discount: z.coerce.number().min(0.01).max(1),
+  isActive: z.boolean(),
+});
+
+export async function handleCreateCoupon(values: Omit<Coupon, 'id' | 'createdAt'>) {
+    const validation = couponSchema.safeParse(values);
+    if (!validation.success) {
+        return { error: 'Invalid coupon data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    try {
+        const newCouponData = {
+            ...validation.data,
+            createdAt: new Date().toISOString(),
+        };
+        const docRef = await adminDb.collection('coupons').add(newCouponData);
+        return { success: true, couponId: docRef.id };
+    } catch(err) {
+        console.error("Coupon creation failed:", err);
+        return { error: 'Failed to create coupon.' };
+    }
+}
+
+export async function handleUpdateCoupon(id: string, values: Partial<Omit<Coupon, 'id' | 'createdAt'>>) {
+    const validation = couponSchema.partial().safeParse(values);
+    if (!validation.success) {
+        return { error: 'Invalid coupon data.', fieldErrors: validation.error.flatten().fieldErrors };
+    }
+    try {
+        await adminUpdateCoupon(id, validation.data);
+        return { success: true };
+    } catch(err) {
+        console.error("Coupon update failed:", err);
+        return { error: 'Failed to update coupon.' };
+    }
+}
+
+export async function handleDeleteCoupon(id: string) {
+     try {
+        await adminDeleteCoupon(id);
+        return { success: true };
+    } catch(err) {
+        console.error("Coupon deletion failed:", err);
+        return { error: 'Failed to delete coupon.' };
     }
 }
