@@ -3,52 +3,56 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check if a user is an admin
+    // Helper function to check for admin role
     function isAdmin() {
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // PUBLIC collections can be read by anyone, but only written by admins
+
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Publicly readable collections
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
     }
-
     match /siteContent/{docId} {
         allow read: if true;
-        allow write: if isAdmin();
     }
-
     match /pages/{pageId} {
         allow read: if resource.data.isPublished == true;
-        allow write: if isAdmin();
     }
 
-    match /coupons/{couponId} {
-        // Only allow reading of active coupons
-        allow read: if resource.data.isActive == true;
-        allow write: if isAdmin();
+    // Customer-specific rules
+    match /customers/{userId} {
+      // Customers can read and update their own data.
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+      
+      // Admins can manage all customer data
+      allow read, write: if isAdmin();
     }
     
-    // CUSTOMER data can only be read/written by the customer themselves or an admin
-    match /customers/{userId} {
-      allow read, update: if request.auth.uid == userId || isAdmin();
-      // Allow creation for any authenticated user (signup)
-      allow create: if request.auth != null;
-      allow delete: if isAdmin();
-    }
-
-    // ORDERS can be read by the customer or an admin, but only created by the customer
+    // Authenticated users can create orders and read their own orders
     match /orders/{orderId} {
-        allow read, update: if request.auth.uid == resource.data.customerEmail || isAdmin(); // Note: This assumes email is used for lookup, safer to use UID.
-        allow create: if request.auth != null;
-        allow delete: if isAdmin();
+      allow create: if request.auth != null;
+      allow read: if request.auth.uid != null && resource.data.customerEmail == request.auth.token.email;
+      // Admins can manage all orders
+      allow read, write: if isAdmin();
     }
 
-    // ADMINS collection can only be read/written by other admins
+    // Coupon rules
+    match /coupons/{couponId} {
+        // Customers can read active coupons by code (used in cart)
+        allow read: if resource.data.isActive == true;
+        // Admins can manage all coupons
+        allow create, read, write: if isAdmin();
+    }
+    
+    // Admin collections (only admins can read/write to this)
     match /admins/{adminId} {
-      allow read, write: if isAdmin();
+        allow read, write: if isAdmin();
     }
   }
 }
