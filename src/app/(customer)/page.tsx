@@ -242,8 +242,8 @@ function TestimonialsSection({ testimonials }: { testimonials: SiteContent['home
 
 export default function HomePage() {
   const [allProducts, setAllProducts] = React.useState<Product[]>([]);
-  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
   const [filteredProducts, setFilteredProducts] = React.useState<Product[]>([]);
+  const [siteContent, setSiteContent] = React.useState<SiteContent | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
@@ -420,7 +420,7 @@ export default function HomePage() {
                   ))}
                   </div>
 
-                  {filteredProducts.length === 0 && !loading && (
+                  {paginatedProducts.length === 0 && !loading && (
                     <div className="col-span-full py-12 text-center">
                         <h3 className="text-2xl font-bold">No Products Found</h3>
                         <p className="text-muted-foreground">Try adjusting your search or filters.</p>
