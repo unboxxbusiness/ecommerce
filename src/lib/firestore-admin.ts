@@ -298,14 +298,14 @@ export const getPageBySlug = async (slug: string): Promise<Page | null> => {
         const pageData = pageDoc.data();
         if (!pageData) return null;
 
-        const createdAt = pageData.createdAt instanceof Timestamp 
-            ? pageData.createdAt.toDate().toISOString() 
-            : new Date().toISOString();
-        const updatedAt = pageData.updatedAt instanceof Timestamp 
-            ? pageData.updatedAt.toDate().toISOString() 
-            : new Date().toISOString();
+        // Convert Firestore Timestamps to serializable strings
+        for (const key in pageData) {
+            if (pageData[key] instanceof Timestamp) {
+                pageData[key] = (pageData[key] as Timestamp).toDate().toISOString();
+            }
+        }
 
-        return { id: pageDoc.id, ...pageData, createdAt, updatedAt } as Page;
+        return { id: pageDoc.id, ...pageData } as Page;
     } catch (error) {
         console.error(`Failed to fetch page by slug ${slug}:`, error);
         return null;

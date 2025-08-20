@@ -29,21 +29,22 @@ export default async function DashboardPage() {
     .filter(order => order.status === 'Delivered')
     .length;
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const now = new Date();
+  const thirtyDaysAgo = new Date(new Date().setDate(now.getDate() - 30));
+  const sixtyDaysAgo = new Date(new Date().setDate(now.getDate() - 60));
   
-  const lastMonthRevenue = orders
-    .filter(o => o.status === 'Delivered' && new Date(o.date) > thirtyDaysAgo)
+  const last30DaysRevenue = orders
+    .filter(o => o.status === 'Delivered' && new Date(o.date) >= thirtyDaysAgo)
     .reduce((sum, o) => sum + o.total, 0);
 
-  const prevMonthRevenue = orders
+  const prev30DaysRevenue = orders
     .filter(o => {
         const orderDate = new Date(o.date);
-        return o.status === 'Delivered' && orderDate < thirtyDaysAgo && orderDate > new Date(thirtyDaysAgo.getTime() - (30 * 24 * 60 * 60 * 1000));
+        return o.status === 'Delivered' && orderDate >= sixtyDaysAgo && orderDate < thirtyDaysAgo;
     })
     .reduce((sum, o) => sum + o.total, 0);
 
-  const revenueChange = prevMonthRevenue > 0 ? ((lastMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 : 100;
+  const revenueChange = prev30DaysRevenue > 0 ? ((last30DaysRevenue - prev30DaysRevenue) / prev30DaysRevenue) * 100 : 100;
   
   const salesChange = 12; // Dummy data for sales change
   const newCustomersCount = customers.filter(c => new Date(c.joinDate) > thirtyDaysAgo).length;
