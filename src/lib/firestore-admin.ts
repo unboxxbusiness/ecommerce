@@ -1,4 +1,5 @@
 
+
 'use server-only';
 
 import { adminDb } from './firebase-admin';
@@ -110,11 +111,13 @@ export const getAdminCoupon = async (id: string): Promise<Coupon | null> => {
         const docSnap = await docRef.get();
         if (docSnap.exists) {
             const docData = docSnap.data();
-             for (const key in docData) {
-                if (docData[key] instanceof Timestamp) {
-                    docData[key] = (docData[key] as Timestamp).toDate().toISOString();
+             if (docData) {
+                for (const key in docData) {
+                    if (docData[key] instanceof Timestamp) {
+                        docData[key] = (docData[key] as Timestamp).toDate().toISOString();
+                    }
                 }
-            }
+             }
             return { id: docSnap.id, ...docData } as Coupon;
         }
         return null;
