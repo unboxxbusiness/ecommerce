@@ -50,7 +50,7 @@ const BulkDeleteButton = ({ table }: { table: Table<Product> }) => {
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" className="gap-1">
+            <Button variant="destructive" size="sm" className="gap-1" disabled={table.getFilteredSelectedRowModel().rows.length === 0}>
                 <Trash2 className="h-4 w-4" />
                 Delete ({table.getFilteredSelectedRowModel().rows.length})
             </Button>
