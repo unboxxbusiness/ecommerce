@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
@@ -126,15 +127,16 @@ export const columns: ColumnDef<Customer>[] = [
     ),
     cell: ({ row }) => {
       const customer = row.original;
+      const fallbackInitial = (customer.name || customer.email || 'A').charAt(0);
       return (
         <div className="flex items-center gap-3">
           <Avatar className="hidden h-9 w-9 sm:flex">
             <AvatarImage src={customer.avatar} alt="Avatar" data-ai-hint="person avatar" />
-            <AvatarFallback>{customer.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{fallbackInitial}</AvatarFallback>
           </Avatar>
           <div className="grid gap-0.5">
-            <p className="font-medium">{customer.name}</p>
-            <p className="text-sm text-muted-foreground">{customer.email}</p>
+            <p className="font-medium">{customer.name || customer.email}</p>
+            {customer.name && <p className="text-sm text-muted-foreground">{customer.email}</p>}
           </div>
         </div>
       );
