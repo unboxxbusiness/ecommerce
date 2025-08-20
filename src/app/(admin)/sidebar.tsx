@@ -135,12 +135,12 @@ export function Sidebar({ className = "" }: SidebarProps) {
       {/* Mobile hamburger button */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md border border-slate-100 md:hidden hover:bg-slate-50 transition-all duration-200"
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card shadow-md border md:hidden hover:bg-accent transition-all duration-200"
         aria-label="Toggle sidebar"
       >
         {isOpen ? 
-          <X className="h-5 w-5 text-slate-600" /> : 
-          <Menu className="h-5 w-5 text-slate-600" />
+          <X className="h-5 w-5 text-muted-foreground" /> : 
+          <Menu className="h-5 w-5 text-muted-foreground" />
         }
       </button>
 
@@ -155,7 +155,7 @@ export function Sidebar({ className = "" }: SidebarProps) {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 h-full bg-white border-r border-slate-200 z-40 transition-all duration-300 ease-in-out flex flex-col
+          fixed top-0 left-0 h-full bg-card border-r z-40 transition-all duration-300 ease-in-out flex flex-col
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           ${isCollapsed ? "w-20" : "w-72"}
           md:translate-x-0 md:relative md:z-auto
@@ -163,13 +163,13 @@ export function Sidebar({ className = "" }: SidebarProps) {
         `}
       >
         {/* Header with logo and collapse button */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50/60 h-16">
+        <div className="flex items-center justify-between p-4 border-b h-16">
           {!isCollapsed && (
             <div className="flex items-center space-x-2.5">
               <DynamicIcon name={siteContent.header.iconName} />
               <div className="flex flex-col">
-                <span className="font-semibold text-slate-800 text-base">{siteContent.header.siteName}</span>
-                <span className="text-xs text-slate-500">Admin Dashboard</span>
+                <span className="font-semibold text-foreground text-base">{siteContent.header.siteName}</span>
+                <span className="text-xs text-muted-foreground">Admin Dashboard</span>
               </div>
             </div>
           )}
@@ -183,13 +183,13 @@ export function Sidebar({ className = "" }: SidebarProps) {
           {/* Desktop collapse button */}
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 transition-all duration-200"
+            className="hidden md:flex p-1.5 rounded-md hover:bg-accent transition-all duration-200"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 text-slate-500" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronLeft className="h-4 w-4 text-slate-500" />
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
         </div>
@@ -198,13 +198,13 @@ export function Sidebar({ className = "" }: SidebarProps) {
         {!isCollapsed && (
           <div className="px-4 py-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200"
+                className="w-full pl-9 pr-4 py-2 bg-background border rounded-md text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200"
               />
             </div>
           </div>
@@ -226,7 +226,7 @@ export function Sidebar({ className = "" }: SidebarProps) {
                         w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group relative
                         ${isActive
                             ? "bg-primary/10 text-primary"
-                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
                         }
                         ${isCollapsed ? "justify-center px-2" : ""}
                         `}
@@ -238,7 +238,7 @@ export function Sidebar({ className = "" }: SidebarProps) {
                             h-5 w-5 flex-shrink-0
                             ${isActive 
                                 ? "text-primary" 
-                                : "text-slate-500 group-hover:text-slate-700"
+                                : "text-muted-foreground group-hover:text-foreground"
                             }
                             `}
                         />
@@ -246,14 +246,14 @@ export function Sidebar({ className = "" }: SidebarProps) {
                         
                         {!isCollapsed && (
                         <div className="flex items-center justify-between w-full">
-                            <span className={`text-sm ${isActive ? "font-semibold" : "font-normal"}`}>{item.name}</span>
+                            <span className={`text-sm ${isActive ? "font-semibold" : "font-medium"}`}>{item.name}</span>
                         </div>
                         )}
 
                         {isCollapsed && (
-                        <div className="absolute left-full ml-3 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                        <div className="absolute left-full ml-3 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                             {item.name}
-                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-popover rotate-45" />
                         </div>
                         )}
                     </button>
@@ -265,22 +265,22 @@ export function Sidebar({ className = "" }: SidebarProps) {
         </nav>
 
         {/* Bottom section with profile and logout */}
-        <div className="mt-auto border-t border-slate-200">
-          <div className={`border-b border-slate-200 bg-slate-50/30 ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
+        <div className="mt-auto border-t">
+          <div className={`border-b ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
             {!isCollapsed ? (
-              <div className="flex items-center px-3 py-2 rounded-md bg-white hover:bg-slate-50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                  <span className="text-slate-700 font-medium text-sm">{userInitial}</span>
+              <div className="flex items-center px-3 py-2 rounded-md bg-accent/50">
+                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                  <span className="text-foreground font-medium text-sm">{userInitial}</span>
                 </div>
                 <div className="flex-1 min-w-0 ml-2.5">
-                  <p className="text-sm font-medium text-slate-800 truncate">{user?.displayName || user?.email}</p>
-                  <p className="text-xs text-slate-500 truncate">Administrator</p>
+                  <p className="text-sm font-medium text-foreground truncate">{user?.displayName || user?.email}</p>
+                  <p className="text-xs text-muted-foreground truncate">Administrator</p>
                 </div>
               </div>
             ) : (
               <div className="flex justify-center">
-                  <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center">
-                    <span className="text-slate-700 font-medium text-sm">{userInitial}</span>
+                  <div className="w-9 h-9 bg-muted rounded-full flex items-center justify-center">
+                    <span className="text-foreground font-medium text-sm">{userInitial}</span>
                   </div>
               </div>
             )}
@@ -292,23 +292,23 @@ export function Sidebar({ className = "" }: SidebarProps) {
               onClick={() => handleItemClick("logout")}
               className={`
                 w-full flex items-center rounded-md text-left transition-all duration-200 group relative
-                text-red-600 hover:bg-red-50 hover:text-red-700
+                text-destructive hover:bg-destructive/10
                 ${isCollapsed ? "justify-center p-2.5" : "space-x-2.5 px-3 py-2.5"}
               `}
               title={isCollapsed ? "Logout" : undefined}
             >
               <div className="flex items-center justify-center min-w-[24px]">
-                <LogOut className="h-5 w-5 flex-shrink-0 text-red-500 group-hover:text-red-600" />
+                <LogOut className="h-5 w-5 flex-shrink-0 text-destructive" />
               </div>
               
               {!isCollapsed && (
-                <span className="text-sm">Logout</span>
+                <span className="text-sm font-medium">Logout</span>
               )}
               
               {isCollapsed && (
-                <div className="absolute left-full ml-3 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                <div className="absolute left-full ml-3 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                   Logout
-                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-popover rotate-45" />
                 </div>
               )}
             </button>
