@@ -1,5 +1,6 @@
 
 'use server';
+export const dynamic = 'force-dynamic';
 
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
 import { sendNotificationToAll } from '@/lib/notifications-admin';
@@ -131,7 +132,6 @@ export async function handleSignup(formData: FormData) {
         };
         batch.set(customerRef, customerData);
 
-        // If this is the designated admin user, add their UID to the admins collection
         if (email === process.env.ADMIN_EMAIL) {
             const adminRef = adminDb.collection('admins').doc(userRecord.uid);
             batch.set(adminRef, { role: 'admin', createdAt: serverTimestamp() });
@@ -270,25 +270,6 @@ const productSchema = z.object({
   category: z.string().min(2, 'Category is required'),
 });
 
-
-async function createProduct(productData: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
-    const newProductData = {
-        ...productData,
-        rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
-        popularity: Math.floor(Math.random() * 1000),
-        reviews: [],
-        variants: [],
-    };
-    const docRef = await adminDb.collection('products').add(newProductData);
-    return docRef.id;
-};
-
-async function updateProduct(id: string, productData: Partial<Product>) {
-    const productRef = adminDb.collection('products').doc(id);
-    return productRef.update(productData);
-};
-
-
 export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
     const adminUser = await verifyAdmin();
     if (!adminUser) {
@@ -299,9 +280,17 @@ export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' 
         return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
     }
     try {
-        const productId = await createProduct(validation.data);
-        return { success: true, productId };
+        const newProductData = {
+            ...validation.data,
+            rating: Math.round((Math.random() * 2 + 3) * 10) / 10,
+            popularity: Math.floor(Math.random() * 1000),
+            reviews: [],
+            variants: [],
+        };
+        const docRef = await adminDb.collection('products').add(newProductData);
+        return { success: true, productId: docRef.id };
     } catch(err) {
+        console.error("Product creation failed:", err);
         return { error: 'Failed to create product.' };
     }
 }
@@ -316,9 +305,11 @@ export async function handleUpdateProduct(id: string, values: Partial<Product>) 
         return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
     }
     try {
-        await updateProduct(id, validation.data);
+        const productRef = adminDb.collection('products').doc(id);
+        await productRef.update(validation.data);
         return { success: true };
     } catch(err) {
+        console.error("Product update failed:", err);
         return { error: 'Failed to update product.' };
     }
 }
@@ -332,6 +323,7 @@ export async function handleDeleteProduct(id: string) {
         await adminDeleteProduct(id);
         return { success: true };
     } catch(err) {
+        console.error("Product deletion failed:", err);
         return { error: 'Failed to delete product.' };
     }
 }
