@@ -11,8 +11,8 @@ import { Suspense } from 'react';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 
-function LayoutInner({ children }: { children: React.ReactNode }) {
-  // This hook now safely runs within the AuthProvider context
+// Dedicated provider for push notifications
+function NotificationProvider({ children }: { children: React.ReactNode }) {
   usePushNotifications();
   return <>{children}</>;
 }
@@ -21,9 +21,11 @@ function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <AuthProvider>
-        <CartProvider>
-          <LayoutInner>{children}</LayoutInner>
-        </CartProvider>
+        <NotificationProvider>
+            <CartProvider>
+                {children}
+            </CartProvider>
+        </NotificationProvider>
       </AuthProvider>
       <Toaster />
     </ThemeProvider>
