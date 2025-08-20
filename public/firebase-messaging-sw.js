@@ -1,35 +1,44 @@
+// DO NOT USE import/export BEYOND THIS POINT
+// This file is a service worker and must be written in ES5
+// and use importScripts to load other scripts.
 
-// This file needs to be in the public folder.
+try {
+  importScripts(
+    'https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js'
+  );
+  importScripts(
+    'https://www.gstatic.com/firebasejs/9.17.1/firebase-messaging-compat.js'
+  );
 
-// Give the service worker access to Firebase Messaging.
-// Note that you can only use Firebase Messaging here. Other Firebase libraries
-// are not available in the service worker.
-importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging-compat.js');
-
-// Initialize the Firebase app in the service worker by passing in
-// the messagingSenderId.
-// Get the config from the query string.
-const urlParams = new URLSearchParams(location.search);
-const firebaseConfig = Object.fromEntries(urlParams.entries());
-
-firebase.initializeApp(firebaseConfig);
-
-
-// Retrieve an instance of Firebase Messaging so that it can handle background
-// messages.
-const messaging = firebase.messaging();
-
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  
-  // Customize notification here
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: '/icon-192x192.png'
+  const urlParams = new URLSearchParams(self.location.search);
+  const firebaseConfig = {
+    apiKey: urlParams.get('apiKey'),
+    authDomain: urlParams.get('authDomain'),
+    projectId: urlParams.get('projectId'),
+    storageBucket: urlParams.get('storageBucket'),
+    messagingSenderId: urlParams.get('messagingSenderId'),
+    appId: urlParams.get('appId'),
   };
 
-  self.registration.showNotification(notificationTitle,
-    notificationOptions);
-});
+  if (firebase.apps.length === 0) {
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    messaging.onBackgroundMessage((payload) => {
+      console.log(
+        '[firebase-messaging-sw.js] Received background message ',
+        payload
+      );
+      
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/icon-192x192.png', // A default icon
+      };
+
+      self.registration.showNotification(notificationTitle, notificationOptions);
+    });
+  }
+} catch (e) {
+  console.error('Service Worker Error', e);
+}
