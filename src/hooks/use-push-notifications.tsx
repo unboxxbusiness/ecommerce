@@ -19,20 +19,11 @@ export const usePushNotifications = () => {
 
     const messaging = getMessaging(app);
     
-    // We need to encode the config values to pass them to the service worker
-    const firebaseConfigParams = new URLSearchParams({
-        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || ''
-    }).toString();
-
     const registerServiceWorker = async () => {
       try {
-        await navigator.serviceWorker.register(`/firebase-messaging-sw.js?${firebaseConfigParams}`);
-        console.log('Service Worker registered successfully.');
+        // Register the service worker with a clean path
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        console.log('Service Worker registered successfully:', registration);
       } catch (error) {
         console.error('Service Worker registration failed:', error);
       }
@@ -42,12 +33,13 @@ export const usePushNotifications = () => {
 
     const requestPermission = async () => {
       try {
+        if (!process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY) {
+            console.error("Firebase VAPID key is missing. Please set NEXT_PUBLIC_FIREBASE_VAPID_KEY in your .env.local file.");
+            return;
+        }
+
         const permission = await Notification.requestPermission();
         if (permission === 'granted' && user) {
-          if (!process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY) {
-            console.error("Firebase VAPID key is missing from environment variables.");
-            return;
-          }
           const currentToken = await getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY });
           if (currentToken) {
             console.log('FCM Token:', currentToken);
