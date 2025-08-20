@@ -149,33 +149,7 @@ export async function handleSignup(formData: FormData) {
     }
 }
 
-async function verifyAdmin() {
-    const sessionCookie = cookies().get('__session')?.value || '';
-    if (!sessionCookie) {
-        return null;
-    }
-    try {
-        const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-        if (!decodedClaims.uid) {
-            return null;
-        }
-        const adminDoc = await adminDb.collection('admins').doc(decodedClaims.uid).get();
-        if (adminDoc.exists) {
-            return decodedClaims;
-        }
-        return null;
-    } catch (error) {
-        return null;
-    }
-}
-
-
 export async function handleUpdateSiteContent(contentData: Partial<SiteContent>) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
-
     try {
         await adminUpdateSiteContent(contentData);
         return { success: true };
@@ -194,11 +168,6 @@ const pageSchema = z.object({
 
 
 export async function handleCreatePage(data: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
-
     const validation = pageSchema.safeParse(data);
     if (!validation.success) {
         return { error: 'Invalid page data.', fieldErrors: validation.error.flatten().fieldErrors };
@@ -221,11 +190,6 @@ export async function handleCreatePage(data: Omit<Page, 'id' | 'createdAt' | 'up
 }
 
 export async function handleUpdatePage(id: string, data: Partial<Page>) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
-    
     const validation = pageSchema.partial().safeParse(data);
     if (!validation.success) {
         return { error: 'Invalid page data.', fieldErrors: validation.error.flatten().fieldErrors };
@@ -246,11 +210,6 @@ export async function handleUpdatePage(id: string, data: Partial<Page>) {
 }
 
 export async function handleDeletePage(id: string) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
-
     try {
         await adminDeletePage(id);
         return { success: true };
@@ -270,10 +229,6 @@ const productSchema = z.object({
 });
 
 export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' | 'popularity' | 'reviews' | 'variants'>) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
     const validation = productSchema.safeParse(values);
     if (!validation.success) {
         return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
@@ -295,10 +250,6 @@ export async function handleCreateProduct(values: Omit<Product, 'id' | 'rating' 
 }
 
 export async function handleUpdateProduct(id: string, values: Partial<Product>) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
     const validation = productSchema.partial().safeParse(values);
      if (!validation.success) {
         return { error: 'Invalid product data.', fieldErrors: validation.error.flatten().fieldErrors };
@@ -314,10 +265,6 @@ export async function handleUpdateProduct(id: string, values: Partial<Product>) 
 }
 
 export async function handleDeleteProduct(id: string) {
-    const adminUser = await verifyAdmin();
-    if (!adminUser) {
-        return { error: 'Authentication error: You are not authorized to perform this action.' };
-    }
     try {
         await adminDeleteProduct(id);
         return { success: true };
