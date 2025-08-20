@@ -1,9 +1,9 @@
 
-import 'server-only';
+'use server-only';
 
 import { adminDb, adminMessaging } from './firebase-admin';
 import type { Customer } from './types';
-import { MessagePayload } from 'firebase-admin/messaging';
+import { MulticastMessage } from 'firebase-admin/messaging';
 
 // This function uses the ADMIN SDK and is for SERVER-SIDE use only.
 
@@ -26,7 +26,8 @@ export const sendNotificationToAll = async (payload: { title: string, body: stri
 
         const uniqueTokens = [...new Set(tokens)];
 
-        const message: MessagePayload = {
+        const message: MulticastMessage = {
+            tokens: uniqueTokens,
             notification: {
                 title: payload.title,
                 body: payload.body,
@@ -34,13 +35,13 @@ export const sendNotificationToAll = async (payload: { title: string, body: stri
             data: payload,
         };
         
-        const response = await adminMessaging.sendToDevice(uniqueTokens, message);
+        const response = await adminMessaging.sendMulticast(message);
 
         console.log(`Successfully sent message to ${response.successCount} devices.`);
         if (response.failureCount > 0) {
             console.error(`Failed to send message to ${response.failureCount} devices.`);
-            response.results.forEach((result, index) => {
-                if (result.error) {
+            response.responses.forEach((result, index) => {
+                if (!result.success) {
                     console.error(`Failure for token ${uniqueTokens[index]}:`, result.error);
                 }
             });
