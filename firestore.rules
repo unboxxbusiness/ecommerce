@@ -1,57 +1,44 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
+    
     function isAdmin() {
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // Default deny all
-    match /{document=**} {
-      allow read, write: if false;
-    }
-    
-    // Allow public read on products and published pages
+
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
     }
     
-    match /pages/{pageId} {
-      allow read: if resource.data.isPublished == true;
-      allow write: if isAdmin();
-    }
-
-    // Allow logged-in users to read their own orders and customers to create orders
     match /orders/{orderId} {
-        allow read: if request.auth.uid != null && (resource.data.customerEmail == request.auth.token.email || isAdmin());
-        allow create: if request.auth.uid != null;
-        allow update: if isAdmin();
+      allow read, write: if isAdmin();
+      allow create: if request.auth != null;
     }
 
-    // Allow read-only access to site content
-    match /siteContent/main {
+    match /customers/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId || isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin(); // Covers create, update, delete for admins
+    }
+
+    match /siteContent/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
     
-    // Coupons can only be read/written by admins
-    match /coupons/{couponId} {
-      allow read: if isAdmin();
-      allow update, delete: if isAdmin();
-      allow create: if isAdmin() && request.resource.data.createdAt == request.time;
-    }
-
-    // Customers can only be written by admins, except for their own fcmTokens
-    match /customers/{userId} {
-        allow read, write: if isAdmin();
-        allow update: if request.auth.uid == userId && request.resource.data.keys().hasOnly(['fcmTokens']);
+    match /pages/{pageId} {
+      allow read: if request.resource.data.isPublished == true || isAdmin();
+      allow write: if isAdmin();
     }
     
-    // Admins can be read by other admins
     match /admins/{adminId} {
-      allow read, write: if isAdmin();
+      allow read, write: if false; 
     }
   }
 }

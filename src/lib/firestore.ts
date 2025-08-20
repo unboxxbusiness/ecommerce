@@ -122,7 +122,7 @@ export const createCoupon = (couponData: Omit<Coupon, 'id' | 'createdAt'>) => {
     return addDoc(collection(db, 'coupons'), {
         ...couponData,
         code: couponData.code.toUpperCase(),
-        createdAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
     });
 };
 
