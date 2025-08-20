@@ -1,6 +1,5 @@
 
 'use server';
-export const dynamic = 'force-dynamic';
 
 import { optimizeProductDescription } from '@/ai/flows/optimize-product-description';
 import { sendNotificationToAll } from '@/lib/notifications-admin';
